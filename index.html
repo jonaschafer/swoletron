@@ -591,8 +591,8 @@
             return match ? match[1] : null;
         }
 
-        // Helper function to create video element
-        function createVideoElement(mediaUrl) {
+        // Helper function to create video/image element
+        function createMediaElement(mediaUrl) {
             if (!mediaUrl) {
                 return '<div class="video-placeholder">GIF or video</div>';
             }
@@ -612,7 +612,30 @@
                 `;
             }
             
-            return '<div class="video-placeholder">GIF or video</div>';
+            // Check if it's an image (common image extensions)
+            const imageExtensions = /\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i;
+            if (imageExtensions.test(mediaUrl)) {
+                return `
+                    <img 
+                        src="${mediaUrl}" 
+                        alt="Exercise demonstration" 
+                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px;"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                    />
+                    <div class="video-placeholder" style="display: none;">Image failed to load</div>
+                `;
+            }
+            
+            // If it's not YouTube or a recognized image, try as image first, fallback to placeholder
+            return `
+                <img 
+                    src="${mediaUrl}" 
+                    alt="Exercise demonstration" 
+                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px;"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                />
+                <div class="video-placeholder" style="display: none;">Media failed to load</div>
+            `;
         }
 
         function startEdit(field, currentValue) {
