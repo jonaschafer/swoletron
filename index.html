@@ -563,7 +563,27 @@
             }
         }
 
-        // Helper function to extract YouTube video ID
+        // Helper function to format duration display
+        function formatDurationDisplay(reps, isExercisePage = false) {
+            if (!reps) return reps;
+            
+            if (isExercisePage) {
+                // On exercise page, remove leading zeros: "030" -> "30", "1:00" -> "1:00"
+                return reps.replace(/^0+(?=\d)/, '');
+            } else {
+                // On exercise list page, ensure proper time format: "30" -> "0:30", "100" -> "1:40"
+                if (reps.includes(':')) {
+                    return reps; // Already formatted
+                }
+                
+                const seconds = parseInt(reps);
+                if (isNaN(seconds)) return reps;
+                
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }
+        }
         function getYouTubeVideoId(url) {
             if (!url) return null;
             const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
@@ -583,7 +603,7 @@
                     <iframe 
                         width="100%" 
                         height="100%" 
-                        src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&rel=0&modestbranding=1&controls=0" 
+                        src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&rel=0&modestbranding=1" 
                         frameborder="0" 
                         allow="autoplay; encrypted-media"
                         allowfullscreen
@@ -796,7 +816,7 @@
                             ${exercises.map(exercise => `
                                 <div class="exercise-item">
                                     <div class="exercise-name">${exercise.name}</div>
-                                    <div class="exercise-value">${exercise.rep_kind === 'duration' ? exercise.reps : exercise.reps}</div>
+                                    <div class="exercise-value">${exercise.rep_kind === 'duration' ? formatDurationDisplay(exercise.reps, false) : exercise.reps}</div>
                                 </div>
                             `).join('')}
                         </div>
@@ -837,7 +857,7 @@
                         </div>
                         <div class="control-card reps-card">
                             <div class="control-label">${repsLabel}</div>
-                            <div id="reps-value" class="control-value" onclick="startEdit('reps', '${currentExercise.reps}')">${currentExercise.rep_kind === 'duration' ? currentExercise.reps.replace(':', '') : currentExercise.reps}</div>
+                            <div id="reps-value" class="control-value" onclick="startEdit('reps', '${currentExercise.reps}')">${currentExercise.rep_kind === 'duration' ? formatDurationDisplay(currentExercise.reps, true) : currentExercise.reps}</div>
                         </div>
                     </div>
                     
