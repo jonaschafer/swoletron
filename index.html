@@ -591,7 +591,7 @@
             return match ? match[1] : null;
         }
 
-        // Helper function to create video/image element
+        // Helper function to create media element
         function createMediaElement(mediaUrl) {
             if (!mediaUrl) {
                 return '<div class="video-placeholder">GIF or video</div>';
@@ -726,10 +726,18 @@
         }
 
         function handleStartSession() {
+            console.log('Start button clicked, exercises length:', exercises.length);
             if (exercises.length > 0) {
                 currentExerciseIndex = 0;
                 currentScreen = 'exercise';
+                console.log('Navigating to exercise screen');
                 render();
+            } else {
+                console.log('No exercises loaded yet');
+                // If exercises aren't loaded yet, try to fetch them again
+                if (selectedSession) {
+                    fetchExercises(selectedSession.id);
+                }
             }
         }
 
@@ -866,7 +874,7 @@
                     </div>
                     
                     <div class="video-area">
-                        ${createVideoElement(currentExercise.media_url)}
+                        ${createMediaElement(currentExercise.media_url)}
                     </div>
                     
                     <div class="exercise-controls">
