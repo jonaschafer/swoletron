@@ -233,6 +233,7 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 10px;
+            align-self: stretch;
         }
 
         .control-card {
@@ -561,7 +562,36 @@
             }
         }
 
-        // Touch-to-edit functions
+        // Helper function to extract YouTube video ID
+        function getYouTubeVideoId(url) {
+            if (!url) return null;
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        // Helper function to create video element
+        function createVideoElement(mediaUrl) {
+            if (!mediaUrl) {
+                return '<div class="video-placeholder">GIF or video</div>';
+            }
+            
+            const videoId = getYouTubeVideoId(mediaUrl);
+            if (videoId) {
+                return `
+                    <iframe 
+                        width="100%" 
+                        height="100%" 
+                        src="https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1" 
+                        frameborder="0" 
+                        allowfullscreen
+                        style="border-radius: 20px;">
+                    </iframe>
+                `;
+            }
+            
+            return '<div class="video-placeholder">GIF or video</div>';
+        }
         function startEdit(field, currentValue) {
             editingField = field;
             
@@ -788,7 +818,7 @@
                     </div>
                     
                     <div class="video-area">
-                        <div class="video-placeholder">GIF or video</div>
+                        ${createVideoElement(currentExercise.media_url)}
                     </div>
                     
                     <div class="exercise-controls">
@@ -802,10 +832,10 @@
                         </div>
                     </div>
                     
-                    <div class="exercise-controls">
+                    <div class="exercise-controls" style="align-self: stretch;">
                         <div class="control-card weight-card">
                             <div class="control-label">#</div>
-                            <div id="weight-value" class="control-value weight-value" onclick="startEdit('weight', '${currentExercise.weight !== '-' ? currentExercise.weight : ''}')">${currentExercise.weight && currentExercise.weight !== '-' ? currentExercise.weight : ''}</div>
+                            <div id="weight-value" class="control-value" onclick="startEdit('weight', '${currentExercise.weight !== '-' ? currentExercise.weight : ''}')">${currentExercise.weight && currentExercise.weight !== '-' ? currentExercise.weight : ''}</div>
                         </div>
                         <div class="done-button" onclick="handleExerciseDone()">
                             <div class="done-text">Done</div>
