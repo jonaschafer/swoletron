@@ -749,8 +749,18 @@
                 `;
             }
 
-            const tappelSessions = sessions.filter((_, index) => index < 10);
-            const ptSessions = sessions.filter((_, index) => index >= 10);
+            // Group sessions by category
+            const sessionsByCategory = sessions.reduce((groups, session) => {
+                const category = session.category || 'Other';
+                if (!groups[category]) {
+                    groups[category] = [];
+                }
+                groups[category].push(session);
+                return groups;
+            }, {});
+
+            // Get categories in a consistent order
+            const categories = Object.keys(sessionsByCategory).sort();
 
             return `
                 <div class="sessions-content">
@@ -758,11 +768,11 @@
                         <div class="header-title">Sessions</div>
                     </div>
                     
-                    ${tappelSessions.length > 0 ? `
+                    ${categories.map(category => `
                         <div class="section">
-                            <div class="section-title">Tappel</div>
+                            <div class="section-title">${category}</div>
                             <div class="session-list">
-                                ${tappelSessions.map(session => `
+                                ${sessionsByCategory[category].map(session => `
                                     <div class="session-item" onclick="handleSessionClick(${JSON.stringify(session).replace(/"/g, '&quot;')})">
                                         <div class="session-name">${session.name}</div>
                                         <div class="session-count">${session.count}</div>
@@ -770,21 +780,7 @@
                                 `).join('')}
                             </div>
                         </div>
-                    ` : ''}
-                    
-                    ${ptSessions.length > 0 ? `
-                        <div class="section">
-                            <div class="section-title">PT</div>
-                            <div class="session-list">
-                                ${ptSessions.map(session => `
-                                    <div class="session-item" onclick="handleSessionClick(${JSON.stringify(session).replace(/"/g, '&quot;')})">
-                                        <div class="session-name">${session.name}</div>
-                                        <div class="session-count">${session.count}</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
+                    `).join('')}
                 </div>
             `;
         }
@@ -798,7 +794,7 @@
                                 <path d="m15 18-6-6 6-6"/>
                             </svg>
                         </div>
-                        <div class="header-title">Tappel / ${selectedSession.name}</div>
+                        <div class="header-title">${selectedSession.category || 'Sessions'} / ${selectedSession.name}</div>
                     </div>
                     
                     <div class="start-button" onclick="handleStartSession()">
