@@ -467,27 +467,93 @@
         let loading = false;
         let error = null;
         let editingField = null;
+        let warnedNoPersistence = false;
 
-        // API Configuration
-        const API_BASE = 'https://api.sheetbest.com/sheets/563a5e24-58e7-43ae-835d-45daf0a43492';
+        // Google Sheets Configuration (replace with your Sheet ID and tab names)
+        const GOOGLE_SHEET_ID = '16L6BZRvKRsbWjPJ3X2W_US8cKmqKKyyk84u8GUYQWk0';
+        const SHEETS = {
+            sessions: 'sessions',
+            exercises: 'exercises'
+        };
+
+        function buildCsvUrl(sheetName) {
+            const encoded = encodeURIComponent(sheetName);
+            return `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encoded}`;
+        }
+
+        // Minimal CSV parser (handles quotes, commas, newlines)
+        function parseCSV(csvText) {
+            const rows = [];
+            let row = [];
+            let field = '';
+            let inQuotes = false;
+            for (let i = 0; i < csvText.length; i++) {
+                const char = csvText[i];
+                const next = csvText[i + 1];
+                if (inQuotes) {
+                    if (char === '"') {
+                        if (next === '"') {
+                            field += '"';
+                            i++;
+                        } else {
+                            inQuotes = false;
+                        }
+                    } else {
+                        field += char;
+                    }
+                } else {
+                    if (char === '"') {
+                        inQuotes = true;
+                    } else if (char === ',') {
+                        row.push(field);
+                        field = '';
+                    } else if (char === '\n') {
+                        row.push(field);
+                        rows.push(row);
+                        row = [];
+                        field = '';
+                    } else if (char === '\r') {
+                        // ignore CR; handle CRLF
+                    } else {
+                        field += char;
+                    }
+                }
+            }
+            // push last field/row
+            row.push(field);
+            rows.push(row);
+            // map to objects by headers
+            const headersRaw = rows.shift() || [];
+            const normalize = (s) => (s || '').trim().toLowerCase().replace(/\s+/g, '_');
+            const headers = headersRaw.map(normalize);
+            return rows
+                .filter(r => r.some(v => (v || '').trim() !== ''))
+                .map(r => {
+                    const obj = {};
+                    headers.forEach((h, idx) => {
+                        obj[h] = (r[idx] !== undefined ? r[idx] : '').trim();
+                    });
+                    return obj;
+                });
+        }
+
+        async function fetchCsvAsObjects(sheetName) {
+            const url = buildCsvUrl(sheetName);
+            const res = await fetch(url, { cache: 'no-store' });
+            if (!res.ok) throw new Error(`Failed to fetch CSV for ${sheetName}`);
+            const text = await res.text();
+            return parseCSV(text);
+        }
         
         // API Functions
         async function fetchSessions() {
             try {
                 loading = true;
                 render();
-                
-                const [sessionsResponse, exercisesResponse] = await Promise.all([
-                    fetch(`${API_BASE}/tabs/sessions`),
-                    fetch(`${API_BASE}/tabs/exercises`)
+                const [sessionsData, allExercises] = await Promise.all([
+                    fetchCsvAsObjects(SHEETS.sessions),
+                    fetchCsvAsObjects(SHEETS.exercises)
                 ]);
-                
-                if (!sessionsResponse.ok || !exercisesResponse.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-                
-                const sessionsData = await sessionsResponse.json();
-                const allExercises = await exercisesResponse.json();
                 
                 sessions = sessionsData
                     .filter(s => s.is_active === 'TRUE' && s.name && s.name.trim() !== '')
@@ -504,7 +570,7 @@
                 error = null;
             } catch (err) {
                 console.error('Error fetching sessions:', err);
-                error = 'Failed to load sessions. Check your connection.';
+                error = 'Failed to load sessions from Google Sheets.';
             } finally {
                 loading = false;
                 render();
@@ -515,11 +581,7 @@
             try {
                 loading = true;
                 render();
-                
-                const response = await fetch(`${API_BASE}/tabs/exercises`);
-                if (!response.ok) throw new Error('Failed to fetch exercises');
-                
-                const data = await response.json();
+                const data = await fetchCsvAsObjects(SHEETS.exercises);
                 exercises = data
                     .filter(ex => 
                         ex.session_id === sessionId && 
@@ -531,7 +593,7 @@
                 error = null;
             } catch (err) {
                 console.error('Error fetching exercises:', err);
-                error = 'Failed to load exercises';
+                error = 'Failed to load exercises from Google Sheets';
             } finally {
                 loading = false;
                 render();
@@ -540,26 +602,17 @@
 
         async function updateExercise(exerciseId, updates) {
             try {
-                const response = await fetch(`${API_BASE}/tabs/exercises/id/${exerciseId}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(updates)
-                });
-                
-                if (!response.ok) throw new Error('Failed to update exercise');
-                
-                // Update local data
                 const exerciseIndex = exercises.findIndex(ex => ex.id === exerciseId);
                 if (exerciseIndex !== -1) {
                     exercises[exerciseIndex] = { ...exercises[exerciseIndex], ...updates };
                 }
-                
-                console.log('Exercise updated successfully');
+                if (!warnedNoPersistence) {
+                    warnedNoPersistence = true;
+                    alert('Edits are applied locally only. To persist changes, connect a backend (e.g., Apps Script web app, Supabase, or a small server).');
+                }
             } catch (err) {
                 console.error('Error updating exercise:', err);
-                alert('Failed to save changes');
+                alert('Failed to apply changes');
             }
         }
 
