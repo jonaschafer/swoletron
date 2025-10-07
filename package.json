@@ -1,0 +1,5 @@
+{
+  "scripts": {
+    "import": "tsx scripts/import-csv.ts"
+  }
+}
