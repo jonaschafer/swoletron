@@ -52,8 +52,8 @@ export function ExerciseLogging({ workoutExercise }: ExerciseLoggingProps) {
 
     setIsLoading(true)
     try {
-      const reps = typeof repsCompleted === 'number' ? repsCompleted : null
-      const weight = typeof weightUsed === 'number' ? weightUsed : null
+      const reps = typeof repsCompleted === 'number' ? repsCompleted : undefined
+      const weight = typeof weightUsed === 'number' ? weightUsed : undefined
 
       if (latestLog) {
         // Update existing log
@@ -102,17 +102,18 @@ export function ExerciseLogging({ workoutExercise }: ExerciseLoggingProps) {
   }
 
   const handleInputChange = (field: 'sets' | 'reps' | 'weight', value: string) => {
-    const numValue = value === '' ? '' : parseInt(value) || 0
-    
     switch (field) {
       case 'sets':
-        setSetsCompleted(numValue)
+        const setsValue = value === '' ? 0 : parseInt(value) || 0
+        setSetsCompleted(setsValue)
         break
       case 'reps':
-        setRepsCompleted(numValue)
+        const repsValue = value === '' ? '' : parseInt(value) || ''
+        setRepsCompleted(repsValue)
         break
       case 'weight':
-        setWeightUsed(numValue)
+        const weightValue = value === '' ? '' : parseInt(value) || ''
+        setWeightUsed(weightValue)
         break
     }
   }

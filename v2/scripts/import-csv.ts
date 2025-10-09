@@ -214,20 +214,22 @@ async function importCSV() {
             }
 
             // Link exercise to workout
-            const { error: linkError } = await supabase
-              .from('workout_exercises')
-              .insert({
-                workout_id: workout.id,
-                exercise_id: exerciseRecord.id,
-                order_index: i + 1,
-                sets: ex.sets,
-                reps: ex.reps,
-                weight: ex.weight,
-                weight_unit: ex.unit
-              })
+            if (exerciseRecord) {
+              const { error: linkError } = await supabase
+                .from('workout_exercises')
+                .insert({
+                  workout_id: workout.id,
+                  exercise_id: exerciseRecord.id,
+                  order_index: i + 1,
+                  sets: ex.sets,
+                  reps: ex.reps,
+                  weight: ex.weight,
+                  weight_unit: ex.unit
+                })
 
-            if (linkError) {
-              console.warn(`⚠️  Could not link exercise "${ex.name}" to workout:`, linkError.message)
+              if (linkError) {
+                console.warn(`⚠️  Could not link exercise "${ex.name}" to workout:`, linkError.message)
+              }
             }
           }
           
