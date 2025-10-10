@@ -285,7 +285,7 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
                                         {exercise.exercises?.name || 'Exercise'}
                                       </span>
                                       <span className="text-sm text-green-700 font-medium">
-                                        {exercise.sets}×{exercise.reps}
+                                        {String(exercise.sets)}×{String(exercise.reps)}
                                         {exercise.weight && exercise.weight > 0 && ` @${exercise.weight}${exercise.weight_unit}`}
                                       </span>
                                     </div>
