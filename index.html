@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Swoleton</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Swoleton">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #2E2E2E;
+            color: white;
+            height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 402px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background: #2E2E2E;
+            position: relative;
+        }
+
+        .header {
+            width: 362px;
+            height: 60px;
+            position: relative;
+            padding: 0 20px;
+        }
+
+        .header-title {
+            position: absolute;
+            left: 50%;
+            top: 20px;
+            transform: translateX(-50%);
+            text-align: center;
+            color: white;
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        .back-arrow {
+            position: absolute;
+            left: 0px;
+            top: 15px;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sessions-content {
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .section {
+            align-self: stretch;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            opacity: 0.5;
+            color: white;
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        .session-list {
+            align-self: stretch;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .session-item {
+            align-self: stretch;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .session-item:hover {
+            opacity: 0.8;
+        }
+
+        .session-name {
+            color: white;
+            font-size: 34px;
+            font-family: 'Inter Tight', sans-serif;
+            font-weight: 500;
+            line-height: 41.1px;
+        }
+
+        .session-count {
+            opacity: 0.5;
+            color: white;
+            font-size: 24px;
+            font-weight: 400;
+        }
+
+        .start-button {
+            align-self: stretch;
+            height: 104px;
+            background: #006821;
+            border-radius: 140px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            margin-bottom: 40px;
+        }
+
+        .start-button:hover {
+            opacity: 0.9;
+        }
+
+        .start-text {
+            color: white;
+            font-size: 15px;
+            font-weight: 400;
+            line-height: 61.1px;
+        }
+
+        .content-section {
+            align-self: stretch;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .content-title {
+            opacity: 0.5;
+            color: white;
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        .content-text {
+            color: white;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        .exercise-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0px;
+            margin-top: 21px;
+        }
+
+        .exercise-item {
+            align-self: stretch;
+            padding-bottom: 18px;
+            margin-bottom: 39px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .exercise-item:last-child {
+            margin-bottom: 0px;
+        }
+
+        .exercise-name {
+            color: white;
+            font-size: 28px;
+            font-family: 'Inter Tight', sans-serif;
+            font-weight: 500;
+            line-height: 21.1px;
+            margin-bottom: 9px;
+        }
+
+        .exercise-value {
+            opacity: 0.5;
+            color: white;
+            font-size: 24px;
+            font-weight: 400;
+        }
+
+        .video-area {
+            align-self: stretch;
+            height: 451px;
+            background: #1E1E1E;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .video-placeholder {
+            opacity: 0.5;
+            color: white;
+            font-size: 15px;
+            font-weight: 400;
+            line-height: 61.1px;
+        }
+
+        .exercise-controls {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-self: stretch;
+        }
+
+        .control-card {
+            height: 135px;
+            background: #1E1E1E;
+            border-radius: 20px;
+            position: relative;
+        }
+
+        .sets-card {
+            width: 146px;
+        }
+
+        .reps-card {
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .weight-card {
+            flex: 1;
+            height: 135px;
+        }
+
+        .control-label {
+            position: absolute;
+            left: 16px;
+            top: 18px;
+            opacity: 0.5;
+            color: white;
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        .control-value {
+            position: absolute;
+            right: 16px;
+            top: 52px;
+            color: white;
+            font-size: 90px;
+            font-family: 'Inter Tight', sans-serif;
+            font-weight: 500;
+            line-height: 61.1px;
+            text-align: right;
+        }
+
+        .weight-value {
+            top: 52px;
+        }
+
+        .done-button {
+            width: 104px;
+            height: 104px;
+            background: white;
+            border-radius: 140px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .done-button:hover {
+            opacity: 0.9;
+        }
+
+        .done-text {
+            color: #1E1E1E;
+            font-size: 15px;
+            font-weight: 400;
+            line-height: 61.1px;
+        }
+
+        .notes-section {
+            align-self: stretch;
+            background: #1E1E1E;
+            border-radius: 20px;
+            padding: 18px 16px 40px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .notes-title {
+            opacity: 0.5;
+            color: white;
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        .notes-text {
+            color: white;
+            font-size: 15px;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        .all-done-container {
+            min-height: 100vh;
+            background: #006821;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 385px 20px;
+        }
+
+        .back-to-sessions {
+            align-self: stretch;
+            height: 104px;
+            background: #ffffff;
+            border-radius: 140px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .back-to-sessions:hover {
+            opacity: 0.8;
+        }
+
+        .back-text {
+            color: #006821;
+            font-size: 15px;
+            font-weight: 400;
+            line-height: 61.1px;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-size: 18px;
+        }
+
+        .error {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .error-text {
+            color: #ff6b6b;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .retry-button {
+            background: #006821;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Edit mode styles */
+        .edit-input {
+            background: #1E1E1E;
+            color: white;
+            border: 1px solid #555;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 90px;
+            font-family: 'Inter Tight', sans-serif;
+            font-weight: 500;
+            width: 120px;
+            text-align: right;
+        }
+
+        .edit-notes {
+            background: #1E1E1E;
+            color: white;
+            border: 1px solid #555;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 15px;
+            width: 100%;
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        .edit-button {
+            background: #006821;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .save-button {
+            background: #006821;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div id="app"></div>
+    </div>
+
+    <script>
+        // State
+        let currentScreen = 'sessions';
+        let selectedSession = null;
+        let currentExerciseIndex = 0;
+        let sessions = [];
+        let exercises = [];
+        let loading = false;
+        let error = null;
+        let editingField = null;
+        let warnedNoPersistence = false;
+
+        // Google Sheets Configuration (replace with your Sheet ID and tab names)
+        const GOOGLE_SHEET_ID = '16L6BZRvKRsbWjPJ3X2W_US8cKmqKKyyk84u8GUYQWk0';
+        const SHEETS = {
+            sessions: 'sessions',
+            exercises: 'exercises'
+        };
+
+        function buildCsvUrl(sheetName) {
+            const encoded = encodeURIComponent(sheetName);
+            return `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encoded}`;
+        }
+
+        // Minimal CSV parser (handles quotes, commas, newlines)
+        function parseCSV(csvText) {
+            const rows = [];
+            let row = [];
+            let field = '';
+            let inQuotes = false;
+            for (let i = 0; i < csvText.length; i++) {
+                const char = csvText[i];
+                const next = csvText[i + 1];
+                if (inQuotes) {
+                    if (char === '"') {
+                        if (next === '"') {
+                            field += '"';
+                            i++;
+                        } else {
+                            inQuotes = false;
+                        }
+                    } else {
+                        field += char;
+                    }
+                } else {
+                    if (char === '"') {
+                        inQuotes = true;
+                    } else if (char === ',') {
+                        row.push(field);
+                        field = '';
+                    } else if (char === '\n') {
+                        row.push(field);
+                        rows.push(row);
+                        row = [];
+                        field = '';
+                    } else if (char === '\r') {
+                        // ignore CR; handle CRLF
+                    } else {
+                        field += char;
+                    }
+                }
+            }
+            // push last field/row
+            row.push(field);
+            rows.push(row);
+            // map to objects by headers
+            const headersRaw = rows.shift() || [];
+            const normalize = (s) => (s || '').trim().toLowerCase().replace(/\s+/g, '_');
+            const headers = headersRaw.map(normalize);
+            return rows
+                .filter(r => r.some(v => (v || '').trim() !== ''))
+                .map(r => {
+                    const obj = {};
+                    headers.forEach((h, idx) => {
+                        obj[h] = (r[idx] !== undefined ? r[idx] : '').trim();
+                    });
+                    return obj;
+                });
+        }
+
+        async function fetchCsvAsObjects(sheetName) {
+            const url = buildCsvUrl(sheetName);
+            const res = await fetch(url, { cache: 'no-store' });
+            if (!res.ok) throw new Error(`Failed to fetch CSV for ${sheetName}`);
+            const text = await res.text();
+            return parseCSV(text);
+        }
+        
+        // API Functions
+        async function fetchSessions() {
+            try {
+                loading = true;
+                render();
+                const [sessionsData, allExercises] = await Promise.all([
+                    fetchCsvAsObjects(SHEETS.sessions),
+                    fetchCsvAsObjects(SHEETS.exercises)
+                ]);
+                
+                sessions = sessionsData
+                    .filter(s => s.is_active === 'TRUE' && s.name && s.name.trim() !== '')
+                    .sort((a, b) => parseInt(a.order || '0') - parseInt(b.order || '0'))
+                    .map(session => {
+                        const count = allExercises.filter(ex => 
+                            ex.session_id === session.id && 
+                            ex.is_active === 'TRUE' &&
+                            ex.name && ex.name.trim() !== ''
+                        ).length;
+                        return { ...session, count };
+                    });
+                
+                error = null;
+            } catch (err) {
+                console.error('Error fetching sessions:', err);
+                error = 'Failed to load sessions from Google Sheets.';
+            } finally {
+                loading = false;
+                render();
+            }
+        }
+
+        async function fetchExercises(sessionId) {
+            try {
+                loading = true;
+                render();
+                const data = await fetchCsvAsObjects(SHEETS.exercises);
+                exercises = data
+                    .filter(ex => 
+                        ex.session_id === sessionId && 
+                        ex.is_active === 'TRUE' &&
+                        ex.name && ex.name.trim() !== ''
+                    )
+                    .sort((a, b) => parseInt(a.order || '0') - parseInt(b.order || '0'));
+                
+                error = null;
+            } catch (err) {
+                console.error('Error fetching exercises:', err);
+                error = 'Failed to load exercises from Google Sheets';
+            } finally {
+                loading = false;
+                render();
+            }
+        }
+
+        async function updateExercise(exerciseId, updates) {
+            try {
+                const exerciseIndex = exercises.findIndex(ex => ex.id === exerciseId);
+                if (exerciseIndex !== -1) {
+                    exercises[exerciseIndex] = { ...exercises[exerciseIndex], ...updates };
+                }
+                if (!warnedNoPersistence) {
+                    warnedNoPersistence = true;
+                    alert('Edits are applied locally only. To persist changes, connect a backend (e.g., Apps Script web app, Supabase, or a small server).');
+                }
+            } catch (err) {
+                console.error('Error updating exercise:', err);
+                alert('Failed to apply changes');
+            }
+        }
+
+        // Helper function to format duration display
+        function formatDurationDisplay(reps, isExercisePage = false) {
+            if (!reps) return reps;
+            
+            if (isExercisePage) {
+                // On exercise page, remove leading zeros: "030" -> "30", "1:00" -> "1:00"
+                return reps.replace(/^0+(?=\d)/, '');
+            } else {
+                // On exercise list page, ensure proper time format: "30" -> "0:30", "100" -> "1:40"
+                if (reps.includes(':')) {
+                    return reps; // Already formatted
+                }
+                
+                const seconds = parseInt(reps);
+                if (isNaN(seconds)) return reps;
+                
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }
+        }
+        function getYouTubeVideoId(url) {
+            if (!url) return null;
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        // Helper function to create media element
+        function createMediaElement(mediaUrl) {
+            if (!mediaUrl) {
+                return '<div class="video-placeholder">GIF or video</div>';
+            }
+            
+            const videoId = getYouTubeVideoId(mediaUrl);
+            if (videoId) {
+                return `
+                    <iframe 
+                        width="100%" 
+                        height="100%" 
+                        src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&rel=0&modestbranding=1" 
+                        frameborder="0" 
+                        allow="autoplay; encrypted-media"
+                        allowfullscreen
+                        style="border-radius: 20px;">
+                    </iframe>
+                `;
+            }
+            
+            // Check if it's an image (common image extensions)
+            const imageExtensions = /\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i;
+            if (imageExtensions.test(mediaUrl)) {
+                return `
+                    <img 
+                        src="${mediaUrl}" 
+                        alt="Exercise demonstration" 
+                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px;"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                    />
+                    <div class="video-placeholder" style="display: none;">Image failed to load</div>
+                `;
+            }
+            
+            // If it's not YouTube or a recognized image, try as image first, fallback to placeholder
+            return `
+                <img 
+                    src="${mediaUrl}" 
+                    alt="Exercise demonstration" 
+                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 20px;"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                />
+                <div class="video-placeholder" style="display: none;">Media failed to load</div>
+            `;
+        }
+
+        function startEdit(field, currentValue) {
+            editingField = field;
+            
+            // Create input element
+            let input;
+            const currentExercise = exercises[currentExerciseIndex];
+            
+            if (field === 'notes') {
+                input = document.createElement('textarea');
+                input.className = 'edit-notes-input';
+                input.value = currentValue || '';
+                input.setAttribute('inputmode', 'text');
+            } else {
+                input = document.createElement('input');
+                input.className = field === 'weight' ? 'edit-input weight-input' : 'edit-input';
+                input.value = currentValue || '';
+                
+                if (field === 'sets' || field === 'weight') {
+                    input.setAttribute('type', 'number');
+                    input.setAttribute('inputmode', 'numeric');
+                    input.setAttribute('pattern', '[0-9]*');
+                } else if (field === 'reps') {
+                    if (currentExercise.rep_kind === 'duration') {
+                        input.setAttribute('type', 'text');
+                        input.setAttribute('inputmode', 'text');
+                    } else {
+                        input.setAttribute('type', 'number');
+                        input.setAttribute('inputmode', 'numeric');
+                        input.setAttribute('pattern', '[0-9]*');
+                    }
+                }
+            }
+            
+            // Replace the display element with input
+            const targetElement = document.getElementById(`${field}-value`);
+            const parent = targetElement.parentNode;
+            parent.appendChild(input);
+            targetElement.style.display = 'none';
+            
+            // Focus and position cursor
+            setTimeout(() => {
+                input.focus();
+                if (field === 'notes') {
+                    // Move cursor to end for notes
+                    input.setSelectionRange(input.value.length, input.value.length);
+                } else {
+                    // Select all text for numbers
+                    input.select();
+                }
+            }, 100);
+            
+            // Auto-save on blur
+            input.addEventListener('blur', () => saveField(field, input.value));
+            
+            // Save on Enter (except for textarea)
+            if (field !== 'notes') {
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        input.blur();
+                    }
+                });
+            }
+        }
+
+        function saveField(field, value) {
+            const currentExercise = exercises[currentExerciseIndex];
+            const updates = {};
+            
+            if (field === 'weight') {
+                updates.weight = value || '-';
+            } else {
+                updates[field] = value;
+            }
+            
+            updateExercise(currentExercise.id, updates);
+            editingField = null;
+            render();
+        }
+
+        // Event Handlers
+        function handleSessionClick(session) {
+            selectedSession = session;
+            fetchExercises(session.id);
+            currentScreen = 'sessionDetail';
+            render();
+        }
+
+        function handleStartSession() {
+            console.log('Start button clicked, exercises length:', exercises.length);
+            if (exercises.length > 0) {
+                currentExerciseIndex = 0;
+                currentScreen = 'exercise';
+                console.log('Navigating to exercise screen');
+                render();
+            } else {
+                console.log('No exercises loaded yet');
+                // If exercises aren't loaded yet, try to fetch them again
+                if (selectedSession) {
+                    fetchExercises(selectedSession.id);
+                }
+            }
+        }
+
+        function handleExerciseDone() {
+            if (currentExerciseIndex < exercises.length - 1) {
+                currentExerciseIndex++;
+            } else {
+                currentScreen = 'allDone';
+            }
+            render();
+        }
+
+        function handleBackToSessions() {
+            currentScreen = 'sessions';
+            selectedSession = null;
+            currentExerciseIndex = 0;
+            exercises = [];
+            editingField = null;
+            render();
+        }
+
+        function handleBackToSessionDetail() {
+            currentScreen = 'sessionDetail';
+            editingField = null;
+            render();
+        }
+
+        // Render Functions
+        function renderSessions() {
+            if (loading) {
+                return '<div class="loading">Loading sessions...</div>';
+            }
+            
+            if (error) {
+                return `
+                    <div class="error">
+                        <div class="error-text">${error}</div>
+                        <button class="retry-button" onclick="fetchSessions()">Retry</button>
+                    </div>
+                `;
+            }
+
+            // Group sessions by category
+            const sessionsByCategory = sessions.reduce((groups, session) => {
+                const category = session.category || 'Other';
+                if (!groups[category]) {
+                    groups[category] = [];
+                }
+                groups[category].push(session);
+                return groups;
+            }, {});
+
+            // Get categories in a consistent order
+            const categories = Object.keys(sessionsByCategory).sort();
+
+            return `
+                <div class="sessions-content">
+                    <div class="header">
+                        <div class="header-title">Sessions</div>
+                    </div>
+                    
+                    ${categories.map(category => `
+                        <div class="section">
+                            <div class="section-title">${category}</div>
+                            <div class="session-list">
+                                ${sessionsByCategory[category].map(session => `
+                                    <div class="session-item" onclick="handleSessionClick(${JSON.stringify(session).replace(/"/g, '&quot;')})">
+                                        <div class="session-name">${session.name}</div>
+                                        <div class="session-count">${session.count}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderSessionDetail() {
+            return `
+                <div class="sessions-content">
+                    <div class="header">
+                        <div class="back-arrow" onclick="handleBackToSessions()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+                                <path d="m15 18-6-6 6-6"/>
+                            </svg>
+                        </div>
+                        <div class="header-title">${selectedSession.category || 'Sessions'} / ${selectedSession.name}</div>
+                    </div>
+                    
+                    <div class="start-button" onclick="handleStartSession()">
+                        <div class="start-text">Start</div>
+                    </div>
+                    
+                    <div class="content-section">
+                        <div class="content-title">Deets</div>
+                        <div class="content-text">${selectedSession.description}</div>
+                    </div>
+                    
+                    <div class="content-section">
+                        <div class="content-title">Exercises</div>
+                        <div class="exercise-list">
+                            ${exercises.map(exercise => `
+                                <div class="exercise-item">
+                                    <div class="exercise-name">${exercise.name}</div>
+                                    <div class="exercise-value">${exercise.rep_kind === 'duration' ? formatDurationDisplay(exercise.reps, false) : exercise.reps}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderExercise() {
+            const currentExercise = exercises[currentExerciseIndex];
+            if (!currentExercise) return '<div class="loading">Loading exercise...</div>';
+
+            // Determine the label for the reps/duration field
+            const repsLabel = currentExercise.rep_kind === 'duration' ? 'Duration' : 'Reps';
+            
+            // Format weight display - show "-" if no weight or weight is "-"
+            const weightDisplay = currentExercise.weight && currentExercise.weight !== '-' ? currentExercise.weight : '-';
+
+            return `
+                <div class="sessions-content">
+                    <div class="header">
+                        <div class="back-arrow" onclick="handleBackToSessionDetail()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+                                <path d="m15 18-6-6 6-6"/>
+                            </svg>
+                        </div>
+                        <div class="header-title">${currentExercise.name}</div>
+                    </div>
+                    
+                    <div class="video-area">
+                        ${createMediaElement(currentExercise.media_url)}
+                    </div>
+                    
+                    <div class="exercise-controls">
+                        <div class="control-card sets-card">
+                            <div class="control-label">Sets</div>
+                            <div id="sets-value" class="control-value" onclick="startEdit('sets', '${currentExercise.sets}')">${currentExercise.sets}</div>
+                        </div>
+                        <div class="control-card reps-card">
+                            <div class="control-label">${repsLabel}</div>
+                            <div id="reps-value" class="control-value" onclick="startEdit('reps', '${currentExercise.reps}')">${currentExercise.rep_kind === 'duration' ? formatDurationDisplay(currentExercise.reps, true) : currentExercise.reps}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="exercise-controls" style="align-self: stretch;">
+                        <div class="control-card weight-card">
+                            <div class="control-label">#</div>
+                            <div id="weight-value" class="control-value" onclick="startEdit('weight', '${currentExercise.weight !== '-' ? currentExercise.weight : ''}')">${weightDisplay}</div>
+                        </div>
+                        <div class="done-button" onclick="handleExerciseDone()">
+                            <div class="done-text">Done</div>
+                        </div>
+                    </div>
+                    
+                    <div class="notes-section">
+                        <div class="notes-title">Notes</div>
+                        <div id="notes-value" class="notes-text" onclick="startEdit('notes', '${(currentExercise.notes || '').replace(/'/g, '\\\'')}')">${currentExercise.notes || 'Tap to add notes'}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderAllDone() {
+            return `
+                <div class="all-done-container">
+                    <div class="back-to-sessions" onclick="handleBackToSessions()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#006821" stroke-width="1.5">
+                            <path d="m15 18-6-6 6-6"/>
+                        </svg>
+                        <div class="back-text">Back to sessions</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function render() {
+            const app = document.getElementById('app');
+            
+            switch (currentScreen) {
+                case 'sessions':
+                    app.innerHTML = renderSessions();
+                    break;
+                case 'sessionDetail':
+                    app.innerHTML = renderSessionDetail();
+                    break;
+                case 'exercise':
+                    app.innerHTML = renderExercise();
+                    break;
+                case 'allDone':
+                    app.innerHTML = renderAllDone();
+                    break;
+                default:
+                    app.innerHTML = renderSessions();
+            }
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchSessions();
+        });
+
+        // Make functions global for onclick handlers
+        window.handleSessionClick = handleSessionClick;
+        window.handleStartSession = handleStartSession;
+        window.handleExerciseDone = handleExerciseDone;
+        window.handleBackToSessions = handleBackToSessions;
+        window.handleBackToSessionDetail = handleBackToSessionDetail;
+        window.startEdit = startEdit;
+        window.fetchSessions = fetchSessions;
+    </script>
+</body>
+</html>

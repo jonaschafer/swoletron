@@ -1,287 +1,123 @@
-// scripts/import-csv.ts
-// Imports FinalSurge CSV into Supabase database
-// Usage: npx tsx scripts/import-csv.ts
-
-import { createClient } from '@supabase/supabase-js'
-import { readFileSync } from 'fs'
-import { parse } from 'csv-parse/sync'
-
-// Load environment variables
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
-
-if (!supabaseUrl || !supabaseKey) {
-  console.error('❌ Missing Supabase credentials in .env.local')
-  console.error('Required: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY')
-  process.exit(1)
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey)
-
-// Phase mapping
-const PHASE_MAP: Record<string, string> = {
-  '1': 'Recovery',
-  '2': 'Recovery',
-  '3': 'General Prep',
-  '4': 'General Prep',
-  '5': 'General Prep',
-  '6': 'General Prep',
-  '7': 'Max Strength',
-  '8': 'Max Strength',
-  '9': 'Max Strength',
-  '10': 'Power',
-  '11': 'Power',
-  '12': 'Taper'
-}
-
-// Extract week number from date (Week 1 starts Oct 13, 2025)
-function getWeekNumber(dateStr: string): number {
-  const date = new Date(dateStr)
-  const startDate = new Date('2025-10-13')
-  const diffTime = date.getTime() - startDate.getTime()
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
-  return Math.floor(diffDays / 7) + 1
-}
-
-// Parse workout type from title
-function getWorkoutType(title: string, workoutType?: string): string {
-  if (workoutType) return workoutType.toLowerCase()
-  
-  const titleLower = title.toLowerCase()
-  if (titleLower.includes('strength') || titleLower.includes('upper') || titleLower.includes('lower')) {
-    return 'strength'
-  }
-  if (titleLower.includes('run') || titleLower.includes('recovery')) {
-    return 'run'
-  }
-  if (titleLower.includes('micro') || titleLower.includes('core') || titleLower.includes('ankles')) {
-    return 'micro'
-  }
-  if (titleLower.includes('rest')) {
-    return 'rest'
-  }
-  return 'run' // default
-}
-
-// Extract exercises from description
-function extractExercises(description: string): Array<{
-  name: string
-  sets: number
-  reps: string
-  weight: number
-  unit: string
-}> {
-  const exercises: any[] = []
-  const lines = description.split('\n')
-  
-  for (const line of lines) {
-    // Match patterns like: "• Goblet Squat: 3×12 @35lb"
-    const match = line.match(/[•\-]\s*([^:]+):\s*(\d+)×(\d+|\d+-\d+|[\d.]+s|[\d.]+sec)\s*(?:@(\d+(?:\.\d+)?)\s*(lb|kg|BW|band|time))?/i)
-    
-    if (match) {
-      const [, name, sets, reps, weight, unit] = match
-      exercises.push({
-        name: name.trim(),
-        sets: parseInt(sets),
-        reps: reps.trim(),
-        weight: weight ? parseFloat(weight) : 0,
-        unit: unit ? unit.toLowerCase() : 'BW'
-      })
-    }
-    
-    // Also match simpler patterns like "Goblet Squat 3x12 35lb"
-    const simpleMatch = line.match(/([A-Za-z\s-]+?)\s+(\d+)x(\d+|\d+-\d+)\s*(?:@?\s*(\d+)\s*(lb|kg))?/)
-    if (simpleMatch && !match) {
-      const [, name, sets, reps, weight, unit] = simpleMatch
-      exercises.push({
-        name: name.trim(),
-        sets: parseInt(sets),
-        reps: reps.trim(),
-        weight: weight ? parseInt(weight) : 0,
-        unit: unit ? unit.toLowerCase() : 'BW'
-      })
-    }
-  }
-  
-  return exercises
-}
-
-async function importCSV() {
-  console.log('🚀 Starting CSV import...\n')
-
-  try {
-    // Read CSV file
-    const csvPath = process.argv[2] || './finalsurge-export.csv'
-    console.log(`📄 Reading CSV from: ${csvPath}`)
-    
-    const fileContent = readFileSync(csvPath, 'utf-8')
-    const records = parse(fileContent, {
-      columns: true,
-      skip_empty_lines: true,
-      trim: true
-    })
-
-    console.log(`✅ Parsed ${records.length} records from CSV\n`)
-
-    // Clear existing data (optional - comment out if you want to keep existing data)
-    console.log('🗑️  Clearing existing workouts...')
-    const { error: deleteError } = await supabase
-      .from('workouts')
-      .delete()
-      .neq('id', '00000000-0000-0000-0000-000000000000') // Delete all
-    
-    if (deleteError) console.warn('⚠️  Warning clearing data:', deleteError.message)
-
-    let successCount = 0
-    let errorCount = 0
-
-    // Process each record
-    for (const record of records) {
-      try {
-        const date = record['Date'] || record['date']
-        if (!date) {
-          console.warn('⚠️  Skipping record with no date:', record)
-          continue
-        }
-
-        const weekNumber = getWeekNumber(date)
-        const workoutType = getWorkoutType(
-          record['Workout Name'] || record['title'] || '',
-          record['Workout Type'] || record['type']
-        )
-
-        const workoutData = {
-          date,
-          week_number: weekNumber,
-          workout_type: workoutType,
-          title: record['Workout Name'] || record['title'] || 'Untitled',
-          description: record['Description'] || record['description'] || '',
-          duration_minutes: record['Duration'] ? parseInt(record['Duration']) : null,
-          distance_miles: record['Distance'] ? parseFloat(record['Distance']) : null,
-          elevation_gain_feet: record['Elevation Gain'] ? parseInt(record['Elevation Gain']) : null,
-          intensity: record['Intensity'] || record['intensity'] || null,
-          notes: record['Notes'] || record['notes'] || '',
-          phase: PHASE_MAP[weekNumber.toString()] || 'General Prep'
-        }
-
-        // Insert workout
-        const { data: workout, error: workoutError } = await supabase
-          .from('workouts')
-          .insert(workoutData)
-          .select()
-          .single()
-
-        if (workoutError) {
-          console.error(`❌ Error inserting workout for ${date}:`, workoutError.message)
-          errorCount++
-          continue
-        }
-
-        // Extract and insert exercises for strength workouts
-        if (workoutType === 'strength' && workoutData.description) {
-          const exercises = extractExercises(workoutData.description)
-          
-          for (let i = 0; i < exercises.length; i++) {
-            const ex = exercises[i]
-            
-            // Find or create exercise in library
-            let { data: exerciseRecord } = await supabase
-              .from('exercises')
-              .select('id')
-              .ilike('name', ex.name)
-              .maybeSingle()
-
-            if (!exerciseRecord) {
-              const { data: newExercise, error: exerciseError } = await supabase
-                .from('exercises')
-                .insert({
-                  name: ex.name,
-                  category: 'general',
-                  equipment: [ex.unit]
-                })
-                .select()
-                .single()
-
-              if (exerciseError) {
-                console.warn(`⚠️  Could not create exercise "${ex.name}":`, exerciseError.message)
-                continue
-              }
-              
-              exerciseRecord = newExercise
-            }
-
-            // Link exercise to workout
-            const { error: linkError } = await supabase
-              .from('workout_exercises')
-              .insert({
-                workout_id: workout.id,
-                exercise_id: exerciseRecord.id,
-                order_index: i + 1,
-                sets: ex.sets,
-                reps: ex.reps,
-                weight: ex.weight,
-                weight_unit: ex.unit
-              })
-
-            if (linkError) {
-              console.warn(`⚠️  Could not link exercise "${ex.name}" to workout:`, linkError.message)
-            }
-          }
-          
-          if (exercises.length > 0) {
-            console.log(`  ✓ ${workout.title} (${exercises.length} exercises)`)
-          }
-        } else {
-          console.log(`  ✓ ${workout.title}`)
-        }
-
-        successCount++
-
-      } catch (err: any) {
-        console.error(`❌ Error processing record:`, err.message)
-        errorCount++
-      }
-    }
-
-    console.log('\n🎉 Import complete!')
-    console.log(`✅ Successfully imported: ${successCount} workouts`)
-    if (errorCount > 0) {
-      console.log(`⚠️  Errors: ${errorCount}`)
-    }
-
-    // Verify data
-    const { count } = await supabase
-      .from('workouts')
-      .select('*', { count: 'exact', head: true })
-
-    console.log(`\n📊 Total workouts in database: ${count}`)
-
-    // Show week breakdown
-    const { data: weekCounts } = await supabase
-      .from('workouts')
-      .select('week_number')
-      .order('week_number')
-
-    if (weekCounts) {
-      const weeks = weekCounts.reduce((acc: any, w: any) => {
-        acc[w.week_number] = (acc[w.week_number] || 0) + 1
-        return acc
-      }, {})
-
-      console.log('\n📅 Workouts per week:')
-      Object.entries(weeks).forEach(([week, count]) => {
-        console.log(`  Week ${week}: ${count} workouts`)
-      })
-    }
-
-    console.log('\n✨ Database is ready! You can now start the app.\n')
-
-  } catch (error: any) {
-    console.error('\n💥 Fatal error:', error.message)
-    console.error(error.stack)
-    process.exit(1)
-  }
-}
-
-// Run import
-importCSV()
+Date,Workout Type,Workout Name,Description,Duration,Distance,Distance Unit,Intensity,Notes,Elevation
+2025-10-14,Strength,Recovery - Ankles & Feet,"Bosu balance: 2×30sec each leg | Banded dorsiflexion: 2×15 each | Toe towel grabs: 2×20",15,0,miles,Easy,Micro-dose on rest day,0
+2025-10-15,Run,Group Run - Hills,"Group run with crew. Your pace, your choice on duration.",120,7,miles,Moderate,"1500-2000ft gain. Non-negotiable social run."
+2025-10-15,Strength,Lower Body - Recovery Phase,"WARM-UP (5min): Hip circles, leg swings, BW squats | MAIN: Goblet Squat 3×12 @35lb | SL RDL 3×8 each (BW) | Glute Bridge (banded) 3×15 | Calf Raises (deficit) 3×15 | FINISHER: Plank 3×30sec | Bird dog 2×10 each",30,0,miles,Moderate,Post-run strength. Keep it light - legs are tired.
+2025-10-16,Run,Easy Recovery,"Easy conversational pace. Flat or gentle rolling.",50,5,miles,Easy,Recovery day
+2025-10-16,Strength,Core Endurance,"Dead bugs: 3×10 | Side plank: 2×30sec each | Flutter kicks: 2×20",12,0,miles,Easy,Micro-dose after easy run
+2025-10-17,Run,Easy Hills - Not Intervals,"4-6×90sec uphill @ conversational pace, jog down. Total 45-60min.",55,6,miles,Moderate,NOT intervals yet - just getting comfortable with hills again
+2025-10-17,Strength,Upper Body - Recovery Phase,"WARM-UP (5min): Arm circles, band pull-aparts, dead hangs 10sec | MAIN: Push-ups 3×8-10 (knees OK) | DB Row 3×10 @30lbs each | OH Press 3×8 @35lb | Dead Hang 3×15-20sec | FINISHER: Farmer Carry 2×1min @44lb KBs | Band pull-aparts 2×20",30,0,miles,Moderate,Post-run upper body. Start pull-up progression with hangs.
+2025-10-18,Run,Easy Recovery,"Easy conversational pace.",50,5,miles,Easy,Recovery day
+2025-10-19,Rest,Complete Rest,No running or strength. Recovery week.,0,0,miles,Rest,Sleep in! Or light walk if antsy.
+2025-10-20,Run,Long Run - Confidence Builder,"Focus: run ALL downhills, even if slow. Practice mud sections if possible.",130,11,miles,Easy,"<1500ft gain. This is about rebuilding confidence, not crushing it."
+2025-10-21,Strength,Recovery - Ankles & Feet,"Bosu balance: 2×30sec each leg | Banded dorsiflexion: 2×15 each | Toe towel grabs: 2×20",15,0,miles,Easy,Week 2 micro-dose
+2025-10-22,Run,Group Run - Hills,"Group run with crew.",120,7,miles,Moderate,1500-2000ft gain
+2025-10-22,Strength,Lower Body - Recovery Phase,"WARM-UP (5min): Hip circles, leg swings, BW squats | MAIN: Goblet Squat 3×12 @35lb | SL RDL 3×8 each (BW) | Glute Bridge (banded) 3×15 | Calf Raises (deficit) 3×15 | FINISHER: Plank 3×30sec | Bird dog 2×10 each",30,0,miles,Moderate,Same as Week 1 - building consistency
+2025-10-23,Run,Easy Recovery,"Easy conversational pace.",50,5,miles,Easy,Recovery day
+2025-10-23,Strength,Core Endurance,"Dead bugs: 3×10 | Side plank: 2×30sec each | Flutter kicks: 2×20",12,0,miles,Easy,Micro-dose
+2025-10-24,Run,Easy Hills,"4-6×90sec uphill @ conversational pace, jog down. Total 45-60min.",55,6,miles,Moderate,Building hill comfort
+2025-10-24,Strength,Upper Body - Recovery Phase,"WARM-UP (5min): Arm circles, band pull-aparts, dead hangs 10sec | MAIN: Push-ups 3×8-10 | DB Row 3×10 @30lbs each | OH Press 3×8 @35lb | Dead Hang 3×15-20sec | FINISHER: Farmer Carry 2×1min @44lb KBs | Band pull-aparts 2×20",30,0,miles,Moderate,Pull-up progression continues
+2025-10-25,Run,Easy Recovery,Easy conversational pace.,50,5,miles,Easy,Recovery day
+2025-10-26,Rest,Complete Rest,Recovery.,0,0,miles,Rest,Rest day
+2025-10-27,Run,Long Run - Build Confidence,"Focus: run downhills with quick feet, lean forward slightly.",140,13,miles,Easy,"1500ft gain. Celebrate every downhill you RUN, not walk."
+2025-10-28,Strength,Stability - Ankles & Bosu,"Bosu single-leg balance: 3×45sec each (eyes open) | Banded ankle eversion/inversion: 3×15 | Calf raises bent knee: 2×20",15,0,miles,Easy,Week 3 - General Prep Phase begins
+2025-10-29,Run,Group Run - Hills,Group run with crew.,120,7,miles,Moderate,1500-2000ft gain
+2025-10-29,Strength,Lower Body - General Prep,"WARM-UP (5min): Monster walks 2×10 | Clamshells 2×15 each | MAIN: Bulgarian Split Squat 3×8 each @20lb DBs | SL RDL 3×10 each @35lb KB | Eccentric Calf Raises (SL, deficit) 3×10 each BW | Step-ups (20in box) 3×12 each BW | FINISHER: Pallof Press 3×10 each w/green band | Suitcase Carry 2×45sec @44lb KB",30,0,miles,Moderate,General Prep phase - building work capacity
+2025-10-30,Run,Easy Recovery,Easy conversational pace. Flat or gentle rolling.,55,6,miles,Easy,Recovery day
+2025-10-30,Strength,Core Endurance - Level Up,"Plank w/shoulder taps: 3×30sec | Dead bugs: 3×12 | Russian twists: 3×20 @20lb ball | Side plank w/leg lift: 2×20sec each",15,0,miles,Easy,Micro-dose - stepping it up
+2025-10-31,Run,Hill Repeats - Moderate Effort,"5×2min uphill @ moderate effort (16min/mile power hike on steep sections). Jog down recovery.",65,7,miles,Hard,First structured Thursday workout. Focus on FORM.
+2025-10-31,Strength,Upper Body - General Prep + Pull-ups,"WARM-UP (5min): Band pull-aparts, scapular pull-ups | MAIN: Bench Press 3×8 @95lbs (or push-ups) | Assisted Pull-ups (thick band) 3×5 | DB Row (single-arm) 3×10 each @40lbs | Landmine Press 3×8 each @25lb plate | FINISHER: Negative Pull-ups 3×3 (5sec lower) | Face Pulls 2×15",30,0,miles,Moderate,Pull-up progression intensifies
+2025-11-01,Run,Easy Recovery,Easy conversational pace.,50,5,miles,Easy,Recovery day
+2025-11-01,Strength,Dessert Day - Optional,"KB Swings: 3×15 @44lb | Box Jumps (step down): 3×8 @20in | Turkish Get-up: 2×2 each @35lb KB",20,0,miles,Moderate,Optional session - only if feeling good
+2025-11-02,Rest,Complete Rest OR Easy 30min,Optional easy 30min if feeling good.,30,3,miles,Easy,Rest or very light
+2025-11-03,Run,Long Run - Mud Practice,"Practice mud sections. Focus: quick feet, lean forward, stay loose.",150,15,miles,Easy,"2000ft gain. If muddy, see it as PRACTICE not obstacle."
+2025-11-04,Strength,Stability - Ankles & Bosu,"Bosu single-leg balance: 3×45sec each (eyes open) | Banded ankle eversion/inversion: 3×15 | Calf raises bent knee: 2×20",15,0,miles,Easy,Week 4 micro-dose
+2025-11-05,Run,Group Run - Hills,Group run with crew.,120,7,miles,Moderate,1500-2000ft gain
+2025-11-05,Strength,Lower Body - Progressive Load,"WARM-UP (5min): Monster walks 2×10 | Clamshells 2×15 each | MAIN: Bulgarian Split Squat 3×8 each @25lb DBs | SL RDL 3×10 each @35lb KB | Eccentric Calf Raises (SL, deficit) 3×10 each BW | Step-ups (20in box) 3×12 each @10lb DBs | FINISHER: Pallof Press 3×10 each w/green band | Suitcase Carry 2×45sec @44lb KB",30,0,miles,Moderate,Adding weight from Week 3
+2025-11-06,Run,Easy Recovery,Easy conversational pace.,55,6,miles,Easy,Recovery day
+2025-11-06,Strength,Core Endurance,"Plank w/shoulder taps: 3×30sec | Dead bugs: 3×12 | Russian twists: 3×20 @20lb ball | Side plank w/leg lift: 2×20sec each",15,0,miles,Easy,Micro-dose
+2025-11-07,Run,Tempo Intervals,"2×12min @ half-marathon effort (~8:30-8:50 pace). 4min jog recovery between.",60,7,miles,Hard,First tempo work. Stay controlled.
+2025-11-07,Strength,Upper Body - Progressive Load,"WARM-UP (5min): Band pull-aparts, scapular pull-ups | MAIN: Bench Press 3×8 @100lbs | Assisted Pull-ups (thick band) 3×6 | DB Row (single-arm) 3×10 each @45lbs | Landmine Press 3×8 each @25lb plate | FINISHER: Negative Pull-ups 3×4 (5sec lower) | Face Pulls 2×15",30,0,miles,Moderate,Progressing pull-ups
+2025-11-08,Run,Easy Recovery,Easy conversational pace.,50,5,miles,Easy,Recovery day
+2025-11-09,Rest,Complete Rest,Recovery day.,0,0,miles,Rest,Full rest
+2025-11-10,Run,Long Run - Trail Section,"Include 3-4 mile trail section if possible. Focus on varied terrain.",165,16,miles,Easy,2500ft gain. Building endurance.
+2025-11-11,Strength,Stability - Ankles & Bosu,"Bosu single-leg balance: 3×45sec each (mix eyes open/closed) | Banded ankle eversion/inversion: 3×15 | Calf raises bent knee: 2×20",15,0,miles,Easy,Week 5 micro-dose
+2025-11-12,Run,Group Run - Hills,Group run with crew.,120,7,miles,Moderate,1500-2000ft gain
+2025-11-12,Strength,Lower Body - Peak General Prep,"WARM-UP (5min): Monster walks 2×10 | Clamshells 2×15 each | MAIN: Bulgarian Split Squat 3×8 each @30lb DBs | SL RDL 3×10 each @44lb KB | Eccentric Calf Raises (SL, deficit) 3×10 each BW | Step-ups (20in box) 3×12 each @15lb DBs | FINISHER: Pallof Press 3×10 each w/green band | Suitcase Carry 2×45sec @44lb KB",30,0,miles,Moderate,Peak of General Prep phase
+2025-11-13,Run,Easy Recovery,Easy conversational pace.,55,6,miles,Easy,Recovery day
+2025-11-13,Strength,Core Endurance,"Plank w/shoulder taps: 3×30sec | Dead bugs: 3×12 | Russian twists: 3×20 @20lb ball | Side plank w/leg lift: 2×20sec each",15,0,miles,Easy,Micro-dose
+2025-11-14,Run,VO2 Max Hills,"6×3min @ hard effort (~8:00-8:15 pace). 3min jog recovery.",70,8,miles,Very Hard,Hardest Thursday yet. You've got this.
+2025-11-14,Strength,Upper Body - Peak General Prep,"WARM-UP (5min): Band pull-aparts, scapular pull-ups | MAIN: Bench Press 3×8 @105lbs | Assisted Pull-ups (thick band) 3×6-7 | DB Row (single-arm) 3×10 each @50lbs | Landmine Press 3×8 each @25lb plate | FINISHER: Negative Pull-ups 3×5 (5sec lower) | Face Pulls 2×15",30,0,miles,Moderate,Almost ready for unassisted pull-ups
+2025-11-15,Run,Easy Recovery,Easy conversational pace.,50,5,miles,Easy,Recovery day
+2025-11-15,Strength,Dessert Day - Optional,"KB Swings: 3×15 @44lb | Box Jumps (step down): 3×8 @20in | Turkish Get-up: 2×2 each @35lb KB",20,0,miles,Moderate,Optional fun day
+2025-11-16,Rest,Complete Rest,Recovery.,0,0,miles,Rest,Rest day
+2025-11-17,Run,Long Run - Peak Week,"Biggest week. Walk breaks on climbs are OK. Stay fueled.",180,18,miles,Moderate,"3000ft gain. This is your peak long run for this phase."
+2025-11-18,Strength,Stability - Light Week,"Bosu single-leg balance: 2×30sec each | Clamshells: 2×15 each | Ankle work: 2×15",12,0,miles,Easy,Week 6 DOWN WEEK - micro-dose only
+2025-11-19,Run,Group Run - Easy Effort,"Group run but take it easier. It's a down week.",90,6,miles,Easy,"Down week. Tell the crew you're taking it easy."
+2025-11-19,Strength,Lower Body - Down Week,"WARM-UP: Light movement | MAIN: Goblet Squat 2×10 @35lb | SL RDL 2×8 each BW | Glute Bridge 2×12 | Calf Raises 2×15 | FINISHER: Plank 2×30sec",20,0,miles,Easy,Light maintenance week
+2025-11-20,Run,Easy Recovery,Easy conversational pace.,45,5,miles,Easy,Recovery day
+2025-11-20,Strength,Core - Light,"Dead bugs: 2×10 | Side plank: 2×20sec each | Bird dogs: 2×10 each",10,0,miles,Easy,Light core work
+2025-11-21,Run,Easy 45min + Strides,"Easy effort with 6×20sec strides at end.",45,5,miles,Easy,Down week Thursday - just strides to keep turnover
+2025-11-21,Strength,Upper Body - Down Week,"WARM-UP: Light movement | MAIN: Push-ups 2×10 | DB Row 2×10 @30lbs | Dead Hang 3×15sec | FINISHER: Farmer Carry 2×45sec",20,0,miles,Easy,Light upper body
+2025-11-22,Run,Easy Recovery,Easy conversational pace.,45,5,miles,Easy,Recovery day
+2025-11-23,Rest,Complete Rest,Full rest.,0,0,miles,Rest,Rest day
+2025-11-24,Run,Long Run - Down Week,"Keep it easy. This is active recovery.",100,10,miles,Easy,<1500ft gain. Easy effort.
+2025-11-25,Strength,Stability + Prehab,"Bosu balance (perturbations): 3×30sec each | Monster walks: 3×15 | Focus on quality",15,0,miles,Easy,Week 7 - MAX STRENGTH PHASE begins
+2025-11-26,Run,Group Run - Hills,Group run with crew.,120,7,miles,Moderate,1500-2000ft gain. Back to normal volume.
+2025-11-26,Strength,Lower Body - Max Strength Intro,"WARM-UP (5min): Glute bridges w/band 2×15 | Monster walks 2×10 | MAIN: Hex Bar Deadlift 4×6 @135lbs | Bulgarian Split Squat 3×6 each @35lb DBs | SL Calf Raise (deficit) 3×12 each @20lb DB | Glute-Ham Curl 3×8 | FINISHER: Farmers Carry (heavy) 2×1min @55lb DBs | Plank (weighted) 3×30sec w/25lb plate",30,0,miles,Hard,Max strength phase - time to get STRONG
+2025-11-27,Run,Easy Recovery,Easy conversational pace.,55,6,miles,Easy,Recovery day
+2025-11-27,Strength,Core Strength,"Weighted plank: 3×45sec @25lb plate | Pallof press: 3×12 each | Hanging knee raises: 3×8-10 | Bird dogs: 3×12 each",15,0,miles,Moderate,Micro-dose - core strength focus
+2025-11-28,Run,Threshold Work,"3×10min @ tempo pace (8:30-8:50). 3min jog recovery.",65,7,miles,Hard,Threshold Thursday
+2025-11-28,Strength,Upper Body - Max Strength Intro,"WARM-UP (5min): Dead hangs, scapular pull-ups | MAIN: Bench Press 4×6 @115lbs | Assisted Pull-ups (light band) 4×5-6 | Bent-over Barbell Row 4×6 @95lbs | OH Press (standing) 3×6 @65lbs | FINISHER: Negative Pull-ups 3×5 (6-8sec lower) | Inverted Rows 3×10",30,0,miles,Hard,Heavy upper body work
+2025-11-29,Run,Easy Recovery,Easy conversational pace.,50,5,miles,Easy,Recovery day
+2025-11-29,Strength,Power Day - Optional,"KB Swings (heavy): 4×12 @44lb | Box Jumps: 4×6 @24in | Med Ball Slams: 3×10 | Broad Jumps: 3×5",25,0,miles,Moderate,Optional Friday power work
+2025-11-30,Rest,Complete Rest OR Easy 30min,Optional easy 30min.,30,3,miles,Easy,Rest or light
+2025-12-01,Run,Long Run - Downhill Celebration,"Focus: celebrate every downhill section you RUN. Track this mentally.",165,16,miles,Easy,"2500ft gain. Confidence builder week."
+2025-12-02,Strength,Stability + Prehab,"Bosu balance (perturbations): 3×30sec each | Monster walks: 3×15",15,0,miles,Easy,Week 8 micro-dose
+2025-12-03,Run,Group Run - Hills,Group run with crew.,120,7,miles,Moderate,1500-2000ft gain
+2025-12-03,Strength,Lower Body - Max Strength Build,"WARM-UP (5min): Glute bridges w/band 2×15 | Monster walks 2×10 | MAIN: Hex Bar Deadlift 4×5 @155lbs | Bulgarian Split Squat 3×6 each @35lb DBs | SL Calf Raise (deficit) 3×12 each @20lb DB | Glute-Ham Curl 3×8 | FINISHER: Farmers Carry 2×1min @55lb DBs | Plank (weighted) 3×30sec",30,0,miles,Hard,Increasing weight - stay tight on form
+2025-12-04,Run,Easy Recovery,Easy conversational pace.,55,6,miles,Easy,Recovery day
+2025-12-04,Strength,Core Strength,"Weighted plank: 3×45sec @25lb plate | Pallof press: 3×12 each | Hanging knee raises: 3×8-10 | Bird dogs: 3×12 each",15,0,miles,Moderate,Micro-dose
+2025-12-05,Run,Hill Power,"5×3min uphill @ VO2 effort. Focus on FORM: quick feet, pump arms. Jog down.",70,8,miles,Very Hard,Hill power day
+2025-12-05,Strength,Upper Body - Max Strength Build,"WARM-UP (5min): Dead hangs, scapular pull-ups | MAIN: Bench Press 4×5 @125lbs | Assisted Pull-ups (light band) 4×5-6 | Bent-over Barbell Row 4×6 @105lbs | OH Press (standing) 3×6 @70lbs | FINISHER: Negative Pull-ups 3×5 (6-8sec) | Inverted Rows 3×10",30,0,miles,Hard,Heavy week
+2025-12-06,Run,Easy Recovery,Easy conversational pace.,50,5,miles,Easy,Recovery day
+2025-12-07,Rest,Complete Rest,Recovery.,0,0,miles,Rest,Rest day
+2025-12-08,Run,Long Run - Peak Volume,"Biggest long run. Walk breaks on climbs OK. Bring poles if helpful.",190,18,miles,Moderate,"3000ft gain. Peak week - you're ready."
+2025-12-09,Strength,Stability + Prehab,"Bosu balance (perturbations): 3×30sec each | Monster walks: 3×15",15,0,miles,Easy,Week 9 micro-dose
+2025-12-10,Run,Group Run - Hills,Group run with crew.,120,7,miles,Moderate,1500-2000ft gain
+2025-12-10,Strength,Lower Body - Max Strength Peak,"WARM-UP (5min): Glute bridges w/band 2×15 | Monster walks 2×10 | MAIN: Hex Bar Deadlift 3×3 @175lbs (go for 185-195 if feeling good) | Bulgarian Split Squat 3×6 each @35lb DBs | SL Calf Raise (deficit) 3×12 each @20lb DB | Glute-Ham Curl 3×8 | FINISHER: Farmers Carry 2×1min @55lb DBs | Plank (weighted) 3×30sec",30,0,miles,Very Hard,PEAK STRENGTH WEEK - test your max
+2025-12-11,Run,Easy Recovery,Easy conversational pace.,55,6,miles,Easy,Recovery day
+2025-12-11,Strength,Core Strength,"Weighted plank: 3×45sec @25lb plate | Pallof press: 3×12 each | Hanging knee raises: 3×8-10 | Bird dogs: 3×12 each",15,0,miles,Moderate,Micro-dose
+2025-12-12,Run,Mixed Workout,"2×12min tempo @ 8:30-8:50 + 4×90sec VO2 hills. 4min recovery after tempo, 2min after hills.",75,8,miles,Hard,Mixed intensity Thursday
+2025-12-12,Strength,Upper Body - Max Strength Peak,"WARM-UP (5min): Dead hangs, scapular pull-ups | MAIN: Bench Press 3×3 @135lbs | Assisted Pull-ups (lightest band) 4×5-6 | Bent-over Barbell Row 4×6 @115lbs | OH Press (standing) 3×6 @75lbs | FINISHER: Negative Pull-ups 3×5 (8sec) | Inverted Rows 3×10",30,0,miles,Very Hard,Peak upper body - almost ready for unassisted pulls
+2025-12-13,Run,Easy Recovery,Easy conversational pace.,50,5,miles,Easy,Recovery day
+2025-12-14,Rest,Complete Rest,Recovery.,0,0,miles,Rest,Rest day
+2025-12-15,Run,Long Run - Pull Back,"Slightly lower volume before power phase.",140,14,miles,Easy,2000ft gain. Easing off peak.
+2025-12-16,Strength,Ankle/Foot Resilience,"Bosu single-leg (eyes closed, throw/catch ball): 3×30sec | Calf raises (SL, various angles): 3×15 each | Toe yoga: 2min each",15,0,miles,Easy,Week 10 - POWER PHASE begins
+2025-12-17,Run,Group Run - Maybe Lead Downhill Session,"Group run. Consider leading a 'downhill bombing' session if trail allows.",120,7,miles,Moderate,"1500-2000ft gain. Time to lead!"
+2025-12-17,Strength,Lower Body - Power & Eccentric,"WARM-UP (5min): Jump rope 2min | Lateral bounds 2×10 each | MAIN: Box Jumps (step down controlled) 4×8 @24in | Bulgarian Split Squat (tempo) 3×8 each @30lb DBs (3sec down, explosive up) | SL Hops (forward/lateral) 3×10 each | Eccentric Step-downs (from box) 3×10 each (5sec descent) | FINISHER: Lateral Skaters 3×20 | SL Balance (eyes closed, unstable) 3×30sec each",30,0,miles,Hard,POWER PHASE - explosive movement
+2025-12-18,Run,Easy Recovery,Easy conversational pace.,55,6,miles,Easy,Recovery day
+2025-12-18,Strength,Anti-rotation Core,"Pallof press (explosive): 3×10 each | Suitcase carry (heavy): 3×1min @55lb DB | Wood choppers: 3×12 each | Dead bugs: 3×15",15,0,miles,Moderate,Micro-dose
+2025-12-19,Run,Downhill Intervals - KEY WORKOUT,"Find 2-3min moderate downhill. 5×DOWN @ controlled fast pace (9:00-9:30). Walk/jog up recovery.",65,7,miles,Hard,CRITICAL for downhill confidence. Focus: light feet, quick cadence.
+2025-12-19,Strength,Upper Body - Pull-up Test Week,"WARM-UP (5min): Band pull-aparts, dead hangs, scapular pulls | MAIN: Pull-up Attempt (band-assisted) 5 attempts | Plyometric Push-ups 4×6 | Barbell Row (explosive) 4×6 @95lbs | Med Ball Chest Pass 3×10 @20lb | FINISHER: Negative Pull-ups 3×5 | KB Swings 3×15",30,0,miles,Hard,Testing pull-up strength
+2025-12-20,Run,Easy Recovery,Easy conversational pace.,50,5,miles,Easy,Recovery day
+2025-12-20,Strength,Downhill Confidence Builder,"Eccentric Step-downs 4×12 each | Lateral Step-downs 3×10 each | SL Deadlift (unstable) 3×8 each @35lb KB | Bosu Squats 3×10",25,0,miles,Moderate,KEY SESSION for mud/downhill fear
+2025-12-21,Rest,Complete Rest OR Easy 30min,Optional easy 30min.,30,3,miles,Easy,Rest or light
+2025-12-22,Run,Long Run - Aid Station Practice,"Bring poles. Practice aid station stops (every 5 miles, stop 2min, refuel).",200,20,miles,Moderate,"3000ft gain. PEAK LONG RUN. You're ready."
+2025-12-23,Strength,Ankle/Foot Resilience,"Bosu single-leg (eyes closed): 3×30sec | Calf raises (SL): 3×15 each | Toe yoga: 2min each",15,0,miles,Easy,Week 11 micro-dose
+2025-12-24,Run,Group Run - Easy Effort,"Group run but taking it easier (taper begins).",90,6,miles,Easy,Taper week - just showing up
+2025-12-24,Strength,Lower Body - Taper Volume,"WARM-UP: Light movement | MAIN: Box Jumps 3×6 @24in | Bulgarian Split Squat 2×8 each @25lb DBs | SL Hops 2×8 each | Eccentric Step-downs 2×10 each | FINISHER: Lateral Skaters 2×15 | SL Balance 2×30sec each",25,0,miles,Moderate,Reduced volume - staying sharp
+2025-12-25,Run,Easy Recovery,Easy conversational pace. Merry Christmas!,50,5,miles,Easy,Recovery day - enjoy the day
+2025-12-25,Strength,Core - Light,"Pallof press: 2×10 each | Suitcase carry: 2×45sec | Dead bugs: 2×12",12,0,miles,Easy,Light core
+2025-12-26,Run,VO2 Max - Final Quality,"5×3min @ hard effort (8:00-8:15). 3min jog recovery.",70,8,miles,Very Hard,Final hard Thursday before taper
+2025-12-26,Strength,Upper Body - PULL-UP TEST,"WARM-UP: Dead hangs, scapular pulls | TEST: Pull-up Max Attempt - GO FOR 1-3 UNASSISTED! | Plyometric Push-ups 3×6 | Barbell Row (explosive) 3×6 @95lbs | Med Ball Chest Pass 3×10 | FINISHER: Negative Pull-ups 3×5",30,0,miles,Hard,THE BIG TEST - can you do a pull-up?
+2025-12-27,Run,Easy Recovery,Easy conversational pace.,45,5,miles,Easy,Recovery day
+2025-12-28,Rest,Complete Rest,Full rest.,0,0,miles,Rest,Rest day
+2025-12-29,Run,Long Run - Pre-Taper,"Stay fresh. Not crushing it.",160,16,miles,Easy,2500ft gain. Easing into taper.
+2025-12-30,Strength,Light Maintenance,"Goblet Squats: 2×10 @35lb | SL RDL: 2×8 each BW | Calf raises: 2×15 | Glute bridges: 2×15",20,0,miles,Easy,Week 12 TAPER - light maintenance
+2025-12-31,Run,Group Run - Light Effort,"Group run, just 4-5 miles.",60,5,miles,Easy,Taper week
+2025-12-31,Strength,Pull-up Test + Celebration,"WARM-UP: Dead hangs, scapular pulls | TEST: Pull-up Max Attempt - 1-3 unassisted | Push-ups Max reps | Plank Max hold time | VICTORY LAP: Whatever felt best over 12 weeks - KB swings, farmer carries, etc.",30,0,miles,Easy,CELEBRATION DAY - test your gains
+2026-01-01,Run,Easy Recovery OR E2E Prep,"If doing E2E (50k): this is your shakeout. If not: easy 45min.",45,5,miles,Easy,"Optional E2E race prep shakeout"
+2026-01-01,Strength,Core - Light,"Dead bugs: 2×10 | Side plank: 2×20sec each | Foam roll: 10min",15,0,miles,Easy,Light maintenance
+2026-01-02,Run,Strides Only,"4×90sec strides to keep turnover sharp.",30,3,miles,Easy,Taper sharpness
+2026-01-03,Rest,Complete Rest,Full rest before test day.,0,0,miles,Rest,REST DAY
+2026-01-04,Run,BPA Repeats OR E2E Race,"OPTION A: BPA Repeats - as many as possible in 60min. Track total vert. | OPTION B: E2E 50k race with friend. | OPTION C: Rest and celebrate 12 weeks complete!",180,20,miles,Hard,"TEST DAY - show what you've built!"
