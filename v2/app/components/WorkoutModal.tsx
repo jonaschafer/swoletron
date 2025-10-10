@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Workout, WorkoutExercise, Exercise, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion, getWorkoutExercises } from '@/lib/supabase'
+import { Workout, WorkoutExercise, Exercise, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion, getWorkoutExercises, getLatestExerciseLog } from '@/lib/supabase'
 import { ExerciseLogging } from '@/app/components/ExerciseLogging'
 import { X, Clock, MapPin, TrendingUp, Activity, Check, CheckCircle, Dumbbell, Play } from 'lucide-react'
 
@@ -18,6 +18,7 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
   const [exercises, setExercises] = useState<WorkoutExercise[]>([])
   const [loadingExercises, setLoadingExercises] = useState(false)
   const [notes, setNotes] = useState('')
+  const [exerciseLogs, setExerciseLogs] = useState<Record<number, any>>({})
 
   useEffect(() => {
     if (workout && isOpen) {
@@ -60,6 +61,20 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
       try {
         const workoutExercises = await getWorkoutExercises(workout.id)
         setExercises(workoutExercises)
+        
+        // Load exercise logs for each exercise
+        const logs: Record<number, any> = {}
+        for (const exercise of workoutExercises) {
+          try {
+            const log = await getLatestExerciseLog(exercise.id)
+            if (log) {
+              logs[exercise.id] = log
+            }
+          } catch (error) {
+            console.error(`Error loading log for exercise ${exercise.id}:`, error)
+          }
+        }
+        setExerciseLogs(logs)
       } catch (error) {
         console.error('Error loading exercises:', error)
       } finally {
@@ -237,45 +252,52 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {/* Group exercises by type */}
+                  {/* Group exercises by logged status */}
                   {(() => {
-                    // Group exercises by whether they're loggable
-                    const loggableExercises = exercises.filter(ex => ex.sets && ex.sets > 0)
-                    const referenceExercises = exercises.filter(ex => !ex.sets || ex.sets === 0)
+                    // Separate exercises into logged and non-logged
+                    const loggedExercises = exercises.filter(ex => exerciseLogs[ex.id])
+                    const nonLoggedExercises = exercises.filter(ex => !exerciseLogs[ex.id])
                     
                     return (
                       <>
-                        {/* Reference exercises (warm-up, mobility, etc.) */}
-                        {referenceExercises.length > 0 && (
+                        {/* Non-logged exercises (reference exercises) */}
+                        {nonLoggedExercises.length > 0 && (
                           <div>
                             <h4 className="text-md font-medium text-gray-700 mb-3 flex items-center gap-2">
                               <span className="text-sm bg-gray-100 text-gray-600 px-2 py-1 rounded">Reference</span>
-                              Warm-up & Mobility
+                              Non-logged Exercises
                             </h4>
-                            <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-                              {referenceExercises.map((exercise, index) => (
-                                <div key={exercise.id} className="flex items-center justify-between text-sm">
-                                  <span className="text-gray-700 font-medium">
-                                    {exercise.exercises?.name || 'Exercise'}
-                                  </span>
-                                  <span className="text-gray-500 text-xs">
-                                    {exercise.reps ? `${exercise.reps} reps` : 'As needed'}
-                                  </span>
-                                </div>
+                            <div className="space-y-3">
+                              {nonLoggedExercises.map((exercise, index) => (
+                                workout.workout_type === 'strength' ? (
+                                  <ExerciseLogging key={exercise.id} workoutExercise={exercise} />
+                                ) : (
+                                  <div key={exercise.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                    <div className="flex items-center justify-between">
+                                      <span className="font-medium text-gray-900">
+                                        {exercise.exercises?.name || 'Exercise'}
+                                      </span>
+                                      <span className="text-sm text-gray-700 font-medium">
+                                        {String(exercise.sets)}×{String(exercise.reps)}
+                                        {exercise.weight && exercise.weight > 0 && ` @${exercise.weight}${exercise.weight_unit}`}
+                                      </span>
+                                    </div>
+                                  </div>
+                                )
                               ))}
                             </div>
                           </div>
                         )}
                         
-                        {/* Loggable exercises */}
-                        {loggableExercises.length > 0 && (
+                        {/* Logged exercises */}
+                        {loggedExercises.length > 0 && (
                           <div>
                             <h4 className="text-md font-medium text-gray-700 mb-3 flex items-center gap-2">
-                              <span className="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded">Loggable</span>
-                              {workout.workout_type === 'strength' ? 'Exercise Logging' : 'Exercises'}
+                              <span className="text-sm bg-green-100 text-green-600 px-2 py-1 rounded">Logged</span>
+                              Completed Exercises
                             </h4>
-                            <div className="space-y-4">
-                              {loggableExercises.map((exercise, index) => (
+                            <div className="space-y-3">
+                              {loggedExercises.map((exercise, index) => (
                                 workout.workout_type === 'strength' ? (
                                   <ExerciseLogging key={exercise.id} workoutExercise={exercise} />
                                 ) : (
