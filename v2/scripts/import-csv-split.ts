@@ -201,8 +201,8 @@ function extractExercises(exercises: string): Array<{
   const exerciseStrings = exercises.split(',').map(ex => ex.trim())
   
   for (const exerciseStr of exerciseStrings) {
-    // Match patterns like: "Goblet Squat: 3×12 @ 35lb"
-    const match = exerciseStr.match(/([^:]+):\s*(\d+)×(\d+(?:-\d+)?)\s*(?:@\s*(\d+(?:\.\d+)?)\s*(lb|kg|BW|time))?/i)
+    // Match patterns like: "Bosu balance: 2×30sec each leg" or "Goblet Squat: 3×12 @ 35lb"
+    const match = exerciseStr.match(/([^:]+):\s*(\d+)×(\d+(?:sec|min|-\d+)?)\s*(?:each\s+\w+)?\s*(?:@\s*(\d+(?:\.\d+)?)\s*(lb|kg|BW|time))?/i)
     
     if (match) {
       const [, name, sets, reps, weight, unit] = match
@@ -214,7 +214,7 @@ function extractExercises(exercises: string): Array<{
         unit: unit ? unit.toLowerCase() : 'BW'
       })
     } else {
-      // Try to match simpler patterns
+      // Try to match simpler patterns without time units
       const simpleMatch = exerciseStr.match(/([^:]+):\s*(\d+)×(\d+)/)
       if (simpleMatch) {
         const [, name, sets, reps] = simpleMatch

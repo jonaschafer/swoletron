@@ -54,8 +54,8 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
       console.error('Error loading workout completion:', error)
     }
 
-    // Load exercises for strength workouts
-    if (workout.workout_type === 'strength') {
+    // Load exercises for strength and micro workouts
+    if (workout.workout_type === 'strength' || workout.workout_type === 'micro') {
       setLoadingExercises(true)
       try {
         const workoutExercises = await getWorkoutExercises(workout.id)
@@ -225,10 +225,12 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
           </div>
 
           {/* Description OR Exercise Logging - not both */}
-          {workout.workout_type === 'strength' && exercises.length > 0 ? (
-            /* Show Exercise Logging for Strength Workouts with structured exercises */
+          {(workout.workout_type === 'strength' || workout.workout_type === 'micro') && exercises.length > 0 ? (
+            /* Show Exercise Logging for Strength/Micro Workouts with structured exercises */
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Workout Structure</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                {workout.workout_type === 'strength' ? 'Workout Structure' : 'Exercise Details'}
+              </h3>
               {loadingExercises ? (
                 <div className="flex items-center justify-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -270,11 +272,25 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
                           <div>
                             <h4 className="text-md font-medium text-gray-700 mb-3 flex items-center gap-2">
                               <span className="text-sm bg-blue-100 text-blue-600 px-2 py-1 rounded">Loggable</span>
-                              Exercise Logging
+                              {workout.workout_type === 'strength' ? 'Exercise Logging' : 'Exercises'}
                             </h4>
                             <div className="space-y-4">
                               {loggableExercises.map((exercise, index) => (
-                                <ExerciseLogging key={exercise.id} workoutExercise={exercise} />
+                                workout.workout_type === 'strength' ? (
+                                  <ExerciseLogging key={exercise.id} workoutExercise={exercise} />
+                                ) : (
+                                  <div key={exercise.id} className="bg-green-50 rounded-lg p-4 border border-green-200">
+                                    <div className="flex items-center justify-between">
+                                      <span className="font-medium text-gray-900">
+                                        {exercise.exercises?.name || 'Exercise'}
+                                      </span>
+                                      <span className="text-sm text-green-700 font-medium">
+                                        {exercise.sets}×{exercise.reps}
+                                        {exercise.weight && exercise.weight > 0 && ` @${exercise.weight}${exercise.weight_unit}`}
+                                      </span>
+                                    </div>
+                                  </div>
+                                )
                               ))}
                             </div>
                           </div>
