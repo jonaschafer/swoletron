@@ -1,8 +1,9 @@
 import { format, startOfWeek, endOfWeek, addDays } from 'date-fns'
 
 export function getWeekDates(date: Date) {
-  const start = startOfWeek(date, { weekStartsOn: 0 }) // Sunday
-  const end = endOfWeek(date, { weekStartsOn: 0 })
+  // Use the date as-is (should be a Monday)
+  const start = date
+  const end = addDays(date, 6) // Add 6 days to get Sunday
   
   return {
     startDate: format(start, 'yyyy-MM-dd'),
@@ -11,7 +12,8 @@ export function getWeekDates(date: Date) {
 }
 
 export function getWeekDays(date: Date) {
-  const start = startOfWeek(date, { weekStartsOn: 0 })
+  // Use the date as-is (should be a Monday)
+  const start = date
   
   return Array.from({ length: 7 }, (_, i) => {
     const dayDate = addDays(start, i)

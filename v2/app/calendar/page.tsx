@@ -9,7 +9,7 @@ import { getWeekDates, getWeekDays, formatDate } from '@/lib/utils/date'
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react'
 
 export default function CalendarPage() {
-  const [currentWeek, setCurrentWeek] = useState(new Date('2025-10-14'))
+  const [currentWeek, setCurrentWeek] = useState(new Date(2025, 9, 13))
   const [workouts, setWorkouts] = useState<Workout[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -41,7 +41,7 @@ export default function CalendarPage() {
   }
 
   const goToCurrentWeek = () => {
-    setCurrentWeek(new Date('2025-10-14'))
+    setCurrentWeek(new Date(2025, 9, 13))
   }
 
   const isCurrentWeek = () => {

@@ -43,14 +43,36 @@ function getWeekNumber(dateStr: string): number {
   return Math.floor(diffDays / 7) + 1
 }
 
-// Parse workout type from title
+// Parse workout type from title and content
 function getWorkoutType(title: string, workoutType?: string): string {
-  if (workoutType) return workoutType.toLowerCase()
-  
   const titleLower = title.toLowerCase()
-  if (titleLower.includes('strength') || titleLower.includes('upper') || titleLower.includes('lower')) {
+  
+  // Always check content first - some "Strength" workouts are actually micro
+  if (titleLower.includes('recovery - ankles') || 
+      titleLower.includes('stability - ankles') || 
+      titleLower.includes('stability + prehab') ||
+      titleLower.includes('dessert day') ||
+      titleLower.includes('power day') ||
+      titleLower.includes('core strength') ||
+      titleLower.includes('core endurance') ||
+      titleLower.includes('core - light') ||
+      titleLower.includes('anti-rotation core') ||
+      titleLower.includes('ankle/foot resilience') ||
+      titleLower.includes('light maintenance') ||
+      titleLower.includes('light week') ||
+      titleLower.includes('maintenance')) {
+    return 'micro'
+  }
+  
+  // Real strength workouts have "upper body" or "lower body" in the title
+  if (titleLower.includes('upper body') || titleLower.includes('lower body')) {
     return 'strength'
   }
+  
+  // Use CSV workout type as fallback, but convert to lowercase
+  if (workoutType) return workoutType.toLowerCase()
+  
+  // Additional fallbacks based on title content
   if (titleLower.includes('run') || titleLower.includes('recovery')) {
     return 'run'
   }
@@ -72,11 +94,20 @@ function extractExercises(description: string): Array<{
   unit: string
 }> {
   const exercises: any[] = []
-  const lines = description.split('\n')
   
-  for (const line of lines) {
-    // Match patterns like: "• Goblet Squat: 3×12 @35lb"
-    const match = line.match(/[•\-]\s*([^:]+):\s*(\d+)×(\d+|\d+-\d+|[\d.]+s|[\d.]+sec)\s*(?:@(\d+(?:\.\d+)?)\s*(lb|kg|BW|band|time))?/i)
+  // Split by | to get individual exercises, then process each
+  const sections = description.split('|')
+  
+  for (const section of sections) {
+    const trimmed = section.trim()
+    
+    // Skip section headers like "WARM-UP (5min):", "MAIN:", "FINISHER:"
+    if (trimmed.includes(':') && !trimmed.includes('×')) {
+      continue
+    }
+    
+    // Match patterns like: "Goblet Squat 3×12 @35lb"
+    const match = trimmed.match(/([A-Za-z\s\-()]+?)\s+(\d+)×(\d+(?:-\d+)?|[\d.]+s|[\d.]+sec)\s*(?:@(\d+(?:\.\d+)?)\s*(lb|kg|BW|KB|band|time))?/i)
     
     if (match) {
       const [, name, sets, reps, weight, unit] = match
@@ -89,16 +120,29 @@ function extractExercises(description: string): Array<{
       })
     }
     
-    // Also match simpler patterns like "Goblet Squat 3x12 35lb"
-    const simpleMatch = line.match(/([A-Za-z\s-]+?)\s+(\d+)x(\d+|\d+-\d+)\s*(?:@?\s*(\d+)\s*(lb|kg))?/)
-    if (simpleMatch && !match) {
-      const [, name, sets, reps, weight, unit] = simpleMatch
+    // Also match patterns with "each" like "SL RDL 3×8 each (BW)"
+    const eachMatch = trimmed.match(/([A-Za-z\s\-()]+?)\s+(\d+)×(\d+(?:-\d+)?)\s+each\s*(?:\(([A-Za-z0-9]+)\))?/i)
+    if (eachMatch && !match) {
+      const [, name, sets, reps, weightUnit] = eachMatch
       exercises.push({
         name: name.trim(),
         sets: parseInt(sets),
         reps: reps.trim(),
-        weight: weight ? parseInt(weight) : 0,
-        unit: unit ? unit.toLowerCase() : 'BW'
+        weight: 0,
+        unit: weightUnit ? weightUnit.toLowerCase() : 'BW'
+      })
+    }
+    
+    // Match time-based exercises like "Plank 3×30sec"
+    const timeMatch = trimmed.match(/([A-Za-z\s\-()]+?)\s+(\d+)×(\d+sec)/i)
+    if (timeMatch && !match && !eachMatch) {
+      const [, name, sets, reps] = timeMatch
+      exercises.push({
+        name: name.trim(),
+        sets: parseInt(sets),
+        reps: reps.trim(),
+        weight: 0,
+        unit: 'time'
       })
     }
   }
