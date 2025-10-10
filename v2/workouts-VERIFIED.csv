@@ -1,0 +1,85 @@
+week,day,date,day_of_week,workout_type,description,distance,duration,exercises
+1,1,2025-10-13,Monday,Rest/Easy,"Rest or 30-45min easy + Ankle/Foot micro-dose",0,30,"Bosu balance: 2×30sec each leg, Banded dorsiflexion: 2×15 each foot, Toe towel grabs: 2×20"
+1,2,2025-10-14,Tuesday,Run + Strength,"Group Run (6-8mi, 1500-2000ft) + Lower Body Strength",7,90,"Goblet Squat: 3×12 @ 35lb, Single-leg RDL: 3×8 each (BW), Glute Bridge (banded): 3×15, Calf Raises (deficit): 3×15, Plank: 3×30sec, Bird dog: 2×10 each"
+1,3,2025-10-15,Wednesday,Easy Run + Core,"Easy 45-60min recovery + Core micro-dose",5,60,"Dead bugs: 3×10, Side plank: 2×30sec each side, Flutter kicks: 2×20"
+1,4,2025-10-16,Thursday,Run + Strength,"Easy hills + Upper Body Strength",6,90,"Push-ups: 3×8-10, Dumbbell Row: 3×10 @ 30lbs, Overhead Press: 3×8 @ 35lb, Dead Hang: 3×15-20sec, Farmer's Carry: 2×1min @ 44lb"
+1,5,2025-10-17,Friday,Easy Run,"Easy 45-60min recovery",5,60,
+1,6,2025-10-18,Saturday,Rest,"Rest or 30-45min easy",0,30,
+1,7,2025-10-19,Sunday,Long Run,"Long run easy pace",10,120,
+2,1,2025-10-20,Monday,Rest/Easy,"Rest or 30-45min easy + Ankle/Foot micro-dose",0,30,"Bosu balance: 2×30sec each leg, Banded dorsiflexion: 2×15 each foot, Toe towel grabs: 2×20"
+2,2,2025-10-21,Tuesday,Run + Strength,"Group Run (6-8mi, 1500-2000ft) + Lower Body Strength",7,90,"Goblet Squat: 3×12 @ 35lb, Single-leg RDL: 3×8 each (BW), Glute Bridge (banded): 3×15, Calf Raises (deficit): 3×15, Plank: 3×30sec, Bird dog: 2×10 each"
+2,3,2025-10-22,Wednesday,Easy Run + Core,"Easy 45-60min recovery + Core micro-dose",5,60,"Dead bugs: 3×10, Side plank: 2×30sec each side, Flutter kicks: 2×20"
+2,4,2025-10-23,Thursday,Run + Strength,"Easy hills + Upper Body Strength",6,90,"Push-ups: 3×8-10, Dumbbell Row: 3×10 @ 30lbs, Overhead Press: 3×8 @ 35lb, Dead Hang: 3×15-20sec, Farmer's Carry: 2×1min @ 44lb"
+2,5,2025-10-24,Friday,Easy Run,"Easy 45-60min recovery",5,60,
+2,6,2025-10-25,Saturday,Rest,"Rest or 30-45min easy",0,30,
+2,7,2025-10-26,Sunday,Long Run,"Long run easy pace",13,150,
+3,1,2025-10-27,Monday,Rest/Easy,"Rest or 30-45min easy + Ankle/Foot micro-dose",0,30,"Bosu single-leg balance: 3×45sec each (eyes open), Banded ankle eversion/inversion: 3×15, Calf raises (bent knee): 2×20"
+3,2,2025-10-28,Tuesday,Run + Strength,"Group Run (6-8mi, 1500-2000ft) + Lower Body Strength",7,90,"Bulgarian Split Squat: 3×8 each @ 20lb DBs, Single-leg RDL: 3×10 each @ 35lb KB, Eccentric Calf Raises (SL): 3×10 each, Step-ups (20in box): 3×12 each @ BW, Pallof Press: 3×10 each, Suitcase Carry: 2×45sec @ 44lb KB"
+3,3,2025-10-29,Wednesday,Easy Run + Core,"Easy 45-60min recovery + Core micro-dose",6,60,"Plank w/ shoulder taps: 3×30sec, Dead bugs: 3×12, Russian twists: 3×20 @ 20lb ball, Side plank w/ leg lift: 2×20sec each"
+3,4,2025-10-30,Thursday,Run + Strength,"Hill repeats + Upper Body Strength",7,90,"Bench Press: 3×8 @ 95lbs, Assisted Pull-ups (thick band): 3×5, Dumbbell Row (single-arm): 3×10 each @ 40lbs, Landmine Press: 3×8 each @ 25lb plate, Negative Pull-ups: 3×3 (5sec lower), Face Pulls: 2×15"
+3,5,2025-10-31,Friday,Easy Run,"Easy 45-60min recovery",6,60,
+3,6,2025-11-01,Saturday,Rest,"Rest or 30-45min easy",0,30,
+3,7,2025-11-02,Sunday,Long Run,"Long run easy pace",13,150,
+4,1,2025-11-03,Monday,Rest/Easy,"Rest or 30-45min easy + Ankle/Foot micro-dose",0,30,"Bosu single-leg balance: 3×45sec each, Banded ankle eversion/inversion: 3×15, Calf raises (bent knee): 2×20"
+4,2,2025-11-04,Tuesday,Run + Strength,"Group Run (6-8mi, 1500-2000ft) + Lower Body Strength",7,90,"Bulgarian Split Squat: 3×8 each @ 22lb DBs, Single-leg RDL: 3×10 each @ 35lb KB, Eccentric Calf Raises (SL): 3×10 each, Step-ups (20in box): 3×12 each @ BW, Pallof Press: 3×10 each, Suitcase Carry: 2×45sec @ 44lb KB"
+4,3,2025-11-05,Wednesday,Easy Run + Core,"Easy 45-60min recovery + Core micro-dose",6,60,"Plank w/ shoulder taps: 3×30sec, Dead bugs: 3×12, Russian twists: 3×20 @ 20lb ball, Side plank w/ leg lift: 2×20sec each"
+4,4,2025-11-06,Thursday,Run + Strength,"Tempo intervals + Upper Body Strength",7,90,"Bench Press: 3×8 @ 98lbs, Assisted Pull-ups (thick band): 3×6, Dumbbell Row (single-arm): 3×10 each @ 42lbs, Landmine Press: 3×8 each @ 25lb plate, Negative Pull-ups: 3×4 (5sec lower), Face Pulls: 2×15"
+4,5,2025-11-07,Friday,Easy Run,"Easy 45-60min recovery",6,60,
+4,6,2025-11-08,Saturday,Rest,"Rest or 30-45min easy",0,30,
+4,7,2025-11-09,Sunday,Long Run,"Long run easy pace",15,180,
+5,1,2025-11-10,Monday,Rest/Easy,"Rest or 30-45min easy + Ankle/Foot micro-dose",0,30,"Bosu single-leg balance: 3×45sec each, Banded ankle eversion/inversion: 3×15, Calf raises (bent knee): 2×20"
+5,2,2025-11-11,Tuesday,Run + Strength,"Group Run (6-8mi, 1500-2000ft) + Lower Body Strength",7,90,"Bulgarian Split Squat: 3×8 each @ 25lb DBs, Single-leg RDL: 3×10 each @ 40lb KB, Eccentric Calf Raises (SL): 3×10 each, Step-ups (20in box): 3×12 each @ 10lb DBs, Pallof Press: 3×10 each, Suitcase Carry: 2×45sec @ 44lb KB"
+5,3,2025-11-12,Wednesday,Easy Run + Core,"Easy 45-60min recovery + Core micro-dose",6,60,"Plank w/ shoulder taps: 3×30sec, Dead bugs: 3×12, Russian twists: 3×20 @ 20lb ball, Side plank w/ leg lift: 2×20sec each"
+5,4,2025-11-13,Thursday,Run + Strength,"VO2 max hills + Upper Body Strength",7,90,"Bench Press: 3×8 @ 100lbs, Assisted Pull-ups (thick band): 3×6, Dumbbell Row (single-arm): 3×10 each @ 45lbs, Landmine Press: 3×8 each @ 25lb plate, Negative Pull-ups: 3×4 (5sec lower), Face Pulls: 2×15"
+5,5,2025-11-14,Friday,Easy Run,"Easy 45-60min recovery",6,60,
+5,6,2025-11-15,Saturday,Rest,"Rest or 30-45min easy",0,30,
+5,7,2025-11-16,Sunday,Long Run,"Long run easy pace",16,190,
+6,1,2025-11-17,Monday,Rest/Easy,"Rest or 30-45min easy + Ankle/Foot micro-dose",0,30,"Bosu single-leg balance: 3×45sec each (eyes closed), Banded ankle eversion/inversion: 3×15, Calf raises (bent knee): 2×20"
+6,2,2025-11-18,Tuesday,Run + Strength,"Group Run (6-8mi, 1500-2000ft) + Lower Body Strength",7,90,"Bulgarian Split Squat: 3×8 each @ 30lb DBs, Single-leg RDL: 3×10 each @ 44lb KB, Eccentric Calf Raises (SL): 3×10 each, Step-ups (20in box): 3×12 each @ 20lb DBs, Pallof Press: 3×10 each, Suitcase Carry: 2×45sec @ 44lb KB"
+6,3,2025-11-19,Wednesday,Easy Run + Core,"Easy 45-60min recovery + Core micro-dose",5,60,"Plank w/ shoulder taps: 3×30sec, Dead bugs: 3×12, Russian twists: 3×20 @ 20lb ball, Side plank w/ leg lift: 2×20sec each"
+6,4,2025-11-20,Thursday,Run + Strength,"Hill repeats + Upper Body Strength",6,90,"Bench Press: 3×8 @ 105lbs, Assisted Pull-ups (thick band): 3×7, Dumbbell Row (single-arm): 3×10 each @ 50lbs, Landmine Press: 3×8 each @ 25lb plate, Negative Pull-ups: 3×5 (5sec lower), Face Pulls: 2×15"
+6,5,2025-11-21,Friday,Easy Run,"Easy 45-60min recovery (Down Week)",5,60,
+6,6,2025-11-22,Saturday,Rest,"Rest or 30-45min easy",0,30,
+6,7,2025-11-23,Sunday,Long Run,"Long run easy pace (Down Week)",10,120,
+7,1,2025-11-24,Monday,Rest/Easy,"Rest or 30-45min easy + Ankle/Foot micro-dose",0,30,"Bosu single-leg (eyes closed, throw/catch): 3×30sec, Calf raises (SL, various angles): 3×15 each, Toe yoga: 2min each foot"
+7,2,2025-11-25,Tuesday,Run + Strength,"Group Run (6-8mi, 1500-2000ft) + Lower Body Strength",7,90,"Hex Bar Deadlift: 4×6 @ 135lbs, Bulgarian Split Squat: 3×6 each @ 35lb DBs, Single-leg Calf Raise (deficit): 3×12 each @ 20lb DB, Glute-Ham Curl: 3×8, Farmers Carry (heavy): 2×1min @ 55lb DBs, Plank (weighted): 3×30sec"
+7,3,2025-11-26,Wednesday,Easy Run + Core,"Easy 45-60min recovery + Core micro-dose",6,60,"Pallof press (explosive): 3×10 each, Suitcase carry (heavy): 3×1min @ 55lb DB, Wood choppers: 3×12 each, Dead bugs: 3×15"
+7,4,2025-11-27,Thursday,Run + Strength,"Hill repeats + Upper Body Strength",7,90,"Bench Press: 4×6 @ 115lbs, Assisted Pull-ups (light band): 4×5, Bent-over Barbell Row: 4×6 @ 95lbs, Overhead Press: 3×6 @ 65lbs, Negative Pull-ups: 3×5 (6-8sec lower)"
+7,5,2025-11-28,Friday,Easy Run,"Easy 45-60min recovery",6,60,
+7,6,2025-11-29,Saturday,Rest,"Rest or 30-45min easy",0,30,
+7,7,2025-11-30,Sunday,Long Run,"Long run easy pace",16,190,
+8,1,2025-12-01,Monday,Rest/Easy,"Rest or 30-45min easy + Ankle/Foot micro-dose",0,30,"Bosu single-leg (eyes closed, throw/catch): 3×30sec, Calf raises (SL, various angles): 3×15 each, Toe yoga: 2min each foot"
+8,2,2025-12-02,Tuesday,Run + Strength,"Group Run (6-8mi, 1500-2000ft) + Lower Body Strength",7,90,"Hex Bar Deadlift: 4×5 @ 155lbs, Bulgarian Split Squat: 3×6 each @ 35lb DBs, Single-leg Calf Raise (deficit): 3×12 each @ 20lb DB, Glute-Ham Curl: 3×8, Farmers Carry (heavy): 2×1min @ 55lb DBs, Plank (weighted): 3×30sec"
+8,3,2025-12-03,Wednesday,Easy Run + Core,"Easy 45-60min recovery + Core micro-dose",6,60,"Pallof press (explosive): 3×10 each, Suitcase carry (heavy): 3×1min @ 55lb DB, Wood choppers: 3×12 each, Dead bugs: 3×15"
+8,4,2025-12-04,Thursday,Run + Strength,"Tempo intervals + Upper Body Strength",7,90,"Bench Press: 4×5 @ 125lbs, Assisted Pull-ups (light band): 4×5-6, Bent-over Barbell Row: 4×6 @ 105lbs, Overhead Press: 3×6 @ 70lbs, Negative Pull-ups: 3×5 (6-8sec lower)"
+8,5,2025-12-05,Friday,Easy Run,"Easy 45-60min recovery",6,60,
+8,6,2025-12-06,Saturday,Rest,"Rest or 30-45min easy",0,30,
+8,7,2025-12-07,Sunday,Long Run,"Long run easy pace",18,210,
+9,1,2025-12-08,Monday,Rest/Easy,"Rest or 30-45min easy + Ankle/Foot micro-dose",0,30,"Bosu single-leg (eyes closed, throw/catch): 3×30sec, Calf raises (SL, various angles): 3×15 each, Toe yoga: 2min each foot"
+9,2,2025-12-09,Tuesday,Run + Strength,"Group Run (6-8mi, 1500-2000ft) + Lower Body Strength",7,90,"Hex Bar Deadlift: 3×3 @ 175lbs, Bulgarian Split Squat: 3×6 each @ 35lb DBs, Single-leg Calf Raise (deficit): 3×12 each @ 20lb DB, Glute-Ham Curl: 3×8, Farmers Carry (heavy): 2×1min @ 55lb DBs, Plank (weighted): 3×30sec"
+9,3,2025-12-10,Wednesday,Easy Run + Core,"Easy 45-60min recovery + Core micro-dose",6,60,"Pallof press (explosive): 3×10 each, Suitcase carry (heavy): 3×1min @ 55lb DB, Wood choppers: 3×12 each, Dead bugs: 3×15"
+9,4,2025-12-11,Thursday,Run + Strength,"VO2 max hills + Upper Body Strength",7,90,"Bench Press: 3×3 @ 135lbs, Assisted Pull-ups (light band): 4×6, Bent-over Barbell Row: 4×6 @ 115lbs, Overhead Press: 3×6 @ 75lbs, Negative Pull-ups: 3×5 (6-8sec lower)"
+9,5,2025-12-12,Friday,Easy Run,"Easy 45-60min recovery",6,60,
+9,6,2025-12-13,Saturday,Rest,"Rest or 30-45min easy",0,30,
+9,7,2025-12-14,Sunday,Long Run,"Long run easy pace",14,165,
+10,1,2025-12-15,Monday,Rest/Easy,"Rest or 30-45min easy + Ankle/Foot micro-dose",0,30,"Bosu single-leg (eyes closed, throw/catch): 3×30sec, Calf raises (SL, various angles): 3×15 each, Toe yoga: 2min each foot"
+10,2,2025-12-16,Tuesday,Run + Strength,"Group Run (6-8mi, 1500-2000ft) + Lower Body Strength",7,90,"Box Jumps: 4×8 @ 24in (step down), Bulgarian Split Squat (tempo): 3×8 each @ 30lb DBs, Single-leg Hops: 3×10 each, Eccentric Step-downs: 3×10 each (5sec), Lateral Skaters: 3×20, Single-leg Balance (eyes closed): 3×30sec each"
+10,3,2025-12-17,Wednesday,Easy Run + Core,"Easy 45-60min recovery + Core micro-dose",6,60,"Pallof press (explosive): 3×10 each, Suitcase carry (heavy): 3×1min @ 55lb DB, Wood choppers: 3×12 each, Dead bugs: 3×15"
+10,4,2025-12-18,Thursday,Run + Strength,"Hill repeats + Upper Body Strength",7,90,"Pull-up Attempt (band-assisted): 5 attempts, Plyometric Push-ups: 4×6, Barbell Row (explosive): 4×6 @ 95lbs, Med Ball Chest Pass: 3×10 @ 20lb, Negative Pull-ups: 3×5, KB swings: 3×15"
+10,5,2025-12-19,Friday,Easy Run,"Easy 45-60min recovery",6,60,
+10,6,2025-12-20,Saturday,Rest,"Rest or 30-45min easy",0,30,
+10,7,2025-12-21,Sunday,Long Run,"Long run easy pace",18,210,
+11,1,2025-12-22,Monday,Rest/Easy,"Rest or 30-45min easy + Ankle/Foot micro-dose",0,30,"Bosu single-leg (eyes closed, throw/catch): 3×30sec, Calf raises (SL, various angles): 3×15 each, Toe yoga: 2min each foot"
+11,2,2025-12-23,Tuesday,Run + Strength,"Group Run (6-8mi, 1500-2000ft) + Lower Body Strength",7,90,"Box Jumps: 4×8 @ 24in (step down), Bulgarian Split Squat (tempo): 3×8 each @ 30lb DBs, Single-leg Hops: 3×10 each, Eccentric Step-downs: 3×10 each (5sec), Lateral Skaters: 3×20, Single-leg Balance (eyes closed): 3×30sec each"
+11,3,2025-12-24,Wednesday,Easy Run + Core,"Easy 45-60min recovery + Core micro-dose",6,60,"Pallof press (explosive): 3×10 each, Suitcase carry (heavy): 3×1min @ 55lb DB, Wood choppers: 3×12 each, Dead bugs: 3×15"
+11,4,2025-12-25,Thursday,Run + Strength,"Tempo intervals + Upper Body Strength",7,90,"Pull-up Attempt (UNASSISTED): 5 attempts, Plyometric Push-ups: 4×6, Barbell Row (explosive): 4×6 @ 95lbs, Med Ball Chest Pass: 3×10 @ 20lb, Negative Pull-ups: 3×5, KB swings: 3×15"
+11,5,2025-12-26,Friday,Easy Run,"Easy 45-60min recovery",6,60,
+11,6,2025-12-27,Saturday,Rest,"Rest or 30-45min easy",0,30,
+11,7,2025-12-28,Sunday,Long Run,"Long run easy pace",20,240,
+12,1,2025-12-29,Monday,Rest/Easy,"Rest or easy shakeout",0,30,
+12,2,2025-12-30,Tuesday,Run + Strength,"Easy group run + Light Maintenance Strength",5,60,"Goblet Squats: 2×10 @ 35lb, Single-leg RDL: 2×8 each @ BW, Calf raises: 2×15, Glute bridges: 2×15"
+12,3,2025-12-31,Wednesday,Easy Run,"Easy 45min recovery",5,45,
+12,4,2026-01-01,Thursday,Run + Strength,"Easy run + Pull-up Test & Celebration",5,60,"Pull-up Max Attempt: 1-3 unassisted, Push-ups Max Test, Plank Max Hold, Victory lap exercises"
+12,5,2026-01-02,Friday,Easy Run,"Easy 45min recovery",5,45,
+12,6,2026-01-03,Saturday,Rest,"Rest and prep for race/test",0,0,
+12,7,2026-01-04,Sunday,Race/Test,"BPA repeats or E2E 50k test",20,240,
