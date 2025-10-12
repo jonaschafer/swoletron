@@ -119,29 +119,29 @@ export function ExerciseLogging({ workoutExercise }: ExerciseLoggingProps) {
   }
 
   return (
-    <div className="bg-gray-50 rounded-lg p-4">
-      <div className="flex items-center justify-between">
+    <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         {/* Exercise name and status */}
         <div className="flex flex-col gap-1">
-          <h4 className="font-medium text-gray-900 text-base">
+          <h4 className="font-medium text-gray-900 text-sm sm:text-base">
             {workoutExercise.exercises?.name || 'Exercise'}
           </h4>
-          <p className="text-sm text-gray-500 opacity-75">
+          <p className="text-xs sm:text-sm text-gray-500 opacity-75">
             {latestLog ? 'Logged' : 'Not logged'}
           </p>
         </div>
         
         {/* Input fields and action button */}
-        <div className="flex items-start gap-3">
+        <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-3">
           {/* Sets */}
           <div className="flex flex-col items-center gap-1">
-            <div className="bg-white border border-gray-300 rounded-lg w-12 h-12 flex items-center justify-center">
+            <div className="bg-white border border-gray-300 rounded-lg w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
               <input
                 type="number"
                 min="0"
                 value={setsCompleted}
                 onChange={(e) => handleInputChange('sets', e.target.value)}
-                className="font-medium text-lg text-gray-900 text-center w-full h-full bg-transparent border-none outline-none flex items-center justify-center"
+                className="font-medium text-sm sm:text-lg text-gray-900 text-center w-full h-full bg-transparent border-none outline-none flex items-center justify-center"
                 placeholder="0"
               />
             </div>
@@ -150,13 +150,13 @@ export function ExerciseLogging({ workoutExercise }: ExerciseLoggingProps) {
           
           {/* Reps */}
           <div className="flex flex-col items-center gap-1">
-            <div className="bg-white border border-gray-300 rounded-lg w-12 h-12 flex items-center justify-center">
+            <div className="bg-white border border-gray-300 rounded-lg w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
               <input
                 type="number"
                 min="0"
                 value={repsCompleted}
                 onChange={(e) => handleInputChange('reps', e.target.value)}
-                className="font-medium text-lg text-gray-900 text-center w-full h-full bg-transparent border-none outline-none flex items-center justify-center"
+                className="font-medium text-sm sm:text-lg text-gray-900 text-center w-full h-full bg-transparent border-none outline-none flex items-center justify-center"
                 placeholder="0"
               />
             </div>
@@ -165,14 +165,14 @@ export function ExerciseLogging({ workoutExercise }: ExerciseLoggingProps) {
           
           {/* Weight */}
           <div className="flex flex-col items-center gap-1">
-            <div className="bg-white border border-gray-300 rounded-lg w-12 h-12 flex items-center justify-center">
+            <div className="bg-white border border-gray-300 rounded-lg w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center">
               <input
                 type="number"
                 min="0"
                 step="0.5"
                 value={weightUsed}
                 onChange={(e) => handleInputChange('weight', e.target.value)}
-                className="font-medium text-lg text-gray-900 text-center w-full h-full bg-transparent border-none outline-none flex items-center justify-center"
+                className="font-medium text-sm sm:text-lg text-gray-900 text-center w-full h-full bg-transparent border-none outline-none flex items-center justify-center"
                 placeholder="0"
               />
             </div>
@@ -184,14 +184,14 @@ export function ExerciseLogging({ workoutExercise }: ExerciseLoggingProps) {
             <button
               onClick={handleSave}
               disabled={isLoading}
-              className={`w-12 h-12 flex items-center justify-center rounded-lg transition-colors ${
+              className={`w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg transition-colors ${
                 latestLog 
                   ? 'bg-green-500 text-white hover:bg-green-600' 
                   : 'bg-gray-200 text-gray-400 hover:bg-gray-300'
               } disabled:opacity-50`}
               title={latestLog ? 'Update log' : 'Save log'}
             >
-              <Check className="w-5 h-5" />
+              <Check className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             {latestLog && (
               <button
