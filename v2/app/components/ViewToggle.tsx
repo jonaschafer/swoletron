@@ -15,13 +15,15 @@ export function ViewToggle() {
 
   return (
     <div className="flex rounded-lg overflow-hidden border border-gray-200">
-      <Link href="/calendar" className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors ${isWeekly ? activeClasses : inactiveClasses}`}>
+      <Link href="/calendar" className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 text-sm font-medium transition-colors ${isWeekly ? activeClasses : inactiveClasses}`}>
         <Calendar className="w-4 h-4" />
-        Weekly
+        <span className="hidden sm:inline">Weekly</span>
+        <span className="sm:hidden">Week</span>
       </Link>
-      <Link href="/monthly" className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors ${isMonthly ? activeClasses : inactiveClasses}`}>
+      <Link href="/monthly" className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 text-sm font-medium transition-colors ${isMonthly ? activeClasses : inactiveClasses}`}>
         <LayoutGrid className="w-4 h-4" />
-        Monthly
+        <span className="hidden sm:inline">Monthly</span>
+        <span className="sm:hidden">Month</span>
       </Link>
     </div>
   )

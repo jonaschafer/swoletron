@@ -94,54 +94,61 @@ export default function CalendarPage() {
     <div className="min-h-screen bg-gray-50 p-3 sm:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6 sm:mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
-            <div className="flex items-center gap-3">
-              <CalendarIcon className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Training Calendar</h1>
-            </div>
+        <div className="mb-4 sm:mb-6">
+          {/* Title */}
+          <div className="flex items-center gap-2 mb-4">
+            <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Training Calendar</h1>
+          </div>
+          
+          {/* Controls Row 1: View Toggle and Plan Button */}
+          <div className="flex items-center justify-between mb-3">
             <ViewToggle />
             <Link
               href="/training-plan"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors text-sm sm:text-base"
+              className="flex items-center gap-1 px-3 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors text-sm font-medium"
             >
               <FileText className="w-4 h-4" />
               <span className="hidden sm:inline">See Full Plan</span>
               <span className="sm:hidden">Plan</span>
             </Link>
+          </div>
+          
+          {/* Controls Row 2: First Week Button */}
+          <div className="flex justify-center mb-4">
             <button
               onClick={goToCurrentWeek}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
                 isCurrentWeek()
                   ? 'bg-blue-600 text-white'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
               }`}
             >
-              <CalendarIcon className="w-4 h-4 mr-2" />
-              First Week
+              <CalendarIcon className="w-4 h-4" />
+              <span>First Week</span>
             </button>
           </div>
           
           {/* Week Navigation */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-3">
             <button
               onClick={() => navigateWeek('prev')}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-1 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm font-medium"
             >
               <ChevronLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Previous Week</span>
               <span className="sm:hidden">Prev</span>
             </button>
             
-            <div className="text-center">
-              <h2 className="text-lg font-semibold text-gray-900">
-                {formatDate(currentWeek, 'MMMM d, yyyy')}
+            <div className="text-center flex-1 px-2">
+              <h2 className="text-sm sm:text-base font-semibold text-gray-900">
+                {formatDate(currentWeek, 'MMM d')} - {formatDate(new Date(currentWeek.getTime() + 6 * 24 * 60 * 60 * 1000), 'MMM d, yyyy')}
               </h2>
             </div>
             
             <button
               onClick={() => navigateWeek('next')}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-1 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm font-medium"
             >
               <span className="hidden sm:inline">Next Week</span>
               <span className="sm:hidden">Next</span>
@@ -176,15 +183,15 @@ export default function CalendarPage() {
 
         {/* Mobile Horizontal Scroll */}
         <div className="md:hidden">
-          <div className="flex gap-4 overflow-x-auto pb-4">
+          <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory">
             {weekDays.map((day) => (
-              <div key={day.date} className="flex-shrink-0 w-72">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+              <div key={day.date} className="flex-shrink-0 w-80 snap-center">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3">
                   <div className="mb-3">
-                    <h3 className="text-sm font-medium text-gray-600 uppercase tracking-wide">
+                    <h3 className="text-xs font-medium text-gray-600 uppercase tracking-wide">
                       {day.dayName}
                     </h3>
-                    <p className="text-2xl font-bold text-gray-900">{day.dayNumber}</p>
+                    <p className="text-xl font-bold text-gray-900">{day.dayNumber}</p>
                   </div>
                   <div className="space-y-2 w-full">
                     {getWorkoutsForDay(day.date).map((workout) => (
