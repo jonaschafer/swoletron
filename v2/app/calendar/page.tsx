@@ -6,7 +6,8 @@ import { WorkoutModal } from '@/app/components/WorkoutModal'
 import { ViewToggle } from '@/app/components/ViewToggle'
 import { getWorkoutsForWeek, Workout } from '@/lib/supabase'
 import { getWeekDates, getWeekDays, formatDate } from '@/lib/utils/date'
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, FileText } from 'lucide-react'
+import Link from 'next/link'
 
 export default function CalendarPage() {
   const [currentWeek, setCurrentWeek] = useState(new Date(2025, 9, 13))
@@ -100,6 +101,14 @@ export default function CalendarPage() {
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Training Calendar</h1>
             </div>
             <ViewToggle />
+            <Link
+              href="/training-plan"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors text-sm sm:text-base"
+            >
+              <FileText className="w-4 h-4" />
+              <span className="hidden sm:inline">See Full Plan</span>
+              <span className="sm:hidden">Plan</span>
+            </Link>
             <button
               onClick={goToCurrentWeek}
               className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
