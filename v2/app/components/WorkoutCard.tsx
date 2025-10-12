@@ -72,7 +72,7 @@ export function WorkoutCard({ workout, onClick, onCompletionChange }: WorkoutCar
       <div className="p-2 sm:p-3 w-full overflow-hidden">
         {/* Header Row - Workout type and checkbox */}
         <div className="flex items-center justify-between mb-2 gap-2">
-          <span className="font-semibold text-xs sm:text-sm capitalize">
+          <span className="font-semibold text-sm sm:text-sm capitalize">
             {workout.workout_type}
           </span>
           <button
@@ -94,7 +94,7 @@ export function WorkoutCard({ workout, onClick, onCompletionChange }: WorkoutCar
         </div>
         
         {/* Title */}
-        <h3 className="font-bold text-xs sm:text-sm mb-1 break-words">
+        <h3 className="font-bold text-sm sm:text-sm mb-1 break-words">
           {workout.title}
         </h3>
         
@@ -102,7 +102,7 @@ export function WorkoutCard({ workout, onClick, onCompletionChange }: WorkoutCar
         {workout.duration_minutes && (
           <div className="flex items-center gap-1 mb-2">
             <Clock className="w-3 h-3 flex-shrink-0" />
-            <span className="text-xs opacity-80">
+            <span className="text-sm opacity-80">
               {workout.duration_minutes} minutes
             </span>
           </div>
@@ -110,27 +110,27 @@ export function WorkoutCard({ workout, onClick, onCompletionChange }: WorkoutCar
         
         {/* Description */}
         {workout.description && (
-          <p className="text-xs opacity-80 mb-2 break-words line-clamp-2">
+          <p className="text-sm opacity-80 mb-2 break-words line-clamp-2">
             {workout.description}
           </p>
         )}
         
         {/* Workout Metrics */}
-        <div className="flex flex-wrap gap-1 sm:gap-2 text-xs">
+        <div className="flex flex-wrap gap-1 sm:gap-2 text-sm">
           {workout.distance_miles && (
-            <span className="flex items-center gap-1 bg-white/30 px-1 py-0.5 rounded text-xs">
+            <span className="flex items-center gap-1 bg-white/30 px-1 py-0.5 rounded text-sm">
               <MapPin className="w-3 h-3" />
               {workout.distance_miles}mi
             </span>
           )}
           {workout.elevation_gain_feet && (
-            <span className="flex items-center gap-1 bg-white/30 px-1 py-0.5 rounded text-xs">
+            <span className="flex items-center gap-1 bg-white/30 px-1 py-0.5 rounded text-sm">
               <span>↗</span>
               {workout.elevation_gain_feet}ft
             </span>
           )}
           {workout.intensity && (
-            <span className="px-2 py-1 bg-white/50 rounded text-xs font-medium">
+            <span className="px-2 py-1 bg-white/50 rounded text-sm font-medium">
               {workout.intensity}
             </span>
           )}
@@ -140,14 +140,14 @@ export function WorkoutCard({ workout, onClick, onCompletionChange }: WorkoutCar
           <div className="mt-3 pt-3 border-t border-current/20">
             {workout.notes && (
               <div className="mb-2">
-                <p className="text-xs font-medium mb-1">Notes:</p>
-                <p className="text-xs opacity-80 break-words">{workout.notes}</p>
+                <p className="text-sm font-medium mb-1">Notes:</p>
+                <p className="text-sm opacity-80 break-words">{workout.notes}</p>
               </div>
             )}
             {workout.phase && (
               <div className="mb-2">
-                <p className="text-xs font-medium mb-1">Phase:</p>
-                <p className="text-xs opacity-80 break-words">{workout.phase}</p>
+                <p className="text-sm font-medium mb-1">Phase:</p>
+                <p className="text-sm opacity-80 break-words">{workout.phase}</p>
               </div>
             )}
           </div>

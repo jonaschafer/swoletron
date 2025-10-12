@@ -118,23 +118,23 @@ export default function TrainingPlanPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-4">
-            <div className="flex items-center gap-3">
+        <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Post LNF Block</h1>
+            </div>
+            <div className="flex items-center gap-2 text-gray-600">
               <Link 
                 href="/calendar"
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
               >
-                <ArrowLeft className="w-5 h-5" />
-                Back to Calendar
+                <ArrowLeft className="w-4 h-4" />
+                <span className="text-sm font-medium">Calendar</span>
               </Link>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600">
-              <Calendar className="w-5 h-5" />
-              <span className="text-sm font-medium">Training Plan</span>
             </div>
           </div>
         </div>

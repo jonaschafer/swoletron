@@ -171,11 +171,11 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
         {/* Completion Button */}
         {workout.workout_type !== 'rest' && (
           <div className="p-4 sm:p-6 border-b border-gray-200">
-            <div className="flex justify-center">
+            <div className="flex justify-center sm:justify-center">
               <button
                 onClick={handleCompletionToggle}
                 disabled={isLoading}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                className={`flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 rounded-lg font-medium transition-colors ${
                   isCompleted
                     ? 'bg-green-100 text-green-800 hover:bg-green-200'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'

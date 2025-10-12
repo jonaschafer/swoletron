@@ -6,16 +6,22 @@ import { WorkoutModal } from '@/app/components/WorkoutModal'
 import { ViewToggle } from '@/app/components/ViewToggle'
 import { getWorkoutsForWeek, Workout } from '@/lib/supabase'
 import { getWeekDates, getWeekDays, formatDate } from '@/lib/utils/date'
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, FileText } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, FileText, Calendar, LayoutGrid } from 'lucide-react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 export default function CalendarPage() {
+  const pathname = usePathname()
   const [currentWeek, setCurrentWeek] = useState(new Date(2025, 9, 13))
   const [workouts, setWorkouts] = useState<Workout[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  
+  // Determine active view
+  const isWeekly = pathname === '/calendar' || pathname === '/'
+  const isMonthly = pathname === '/monthly'
 
   useEffect(() => {
     async function fetchWorkouts() {
@@ -98,35 +104,47 @@ export default function CalendarPage() {
           {/* Title */}
           <div className="flex items-center gap-2 mb-4">
             <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Training Calendar</h1>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Post LNF Block</h1>
           </div>
           
-          {/* Controls Row 1: View Toggle and Plan Button */}
-          <div className="flex items-center justify-between mb-3">
-            <ViewToggle />
+          {/* Controls Row 1: Combined Button Group */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+            {/* Combined Button Group */}
+            <div className="flex rounded-lg overflow-hidden border border-gray-200 w-full sm:w-auto">
+              {/* First Week Button */}
+              <button
+                onClick={goToCurrentWeek}
+                className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors flex-1 sm:flex-none ${
+                  isCurrentWeek()
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                <CalendarIcon className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span className="truncate">First Week</span>
+              </button>
+              
+              {/* Weekly Button */}
+              <Link href="/calendar" className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-l border-gray-200 flex-1 sm:flex-none ${isWeekly ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>
+                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span className="truncate">Week</span>
+              </Link>
+              
+              {/* Monthly Button */}
+              <Link href="/monthly" className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-l border-gray-200 flex-1 sm:flex-none ${isMonthly ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>
+                <LayoutGrid className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span className="truncate">Month</span>
+              </Link>
+            </div>
+            
+            {/* Plan Button */}
             <Link
               href="/training-plan"
-              className="flex items-center gap-1 px-3 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors text-sm font-medium"
+              className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors text-xs sm:text-sm font-medium w-full sm:w-auto"
             >
-              <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline">See Full Plan</span>
-              <span className="sm:hidden">Plan</span>
+              <FileText className="w-4 h-4 flex-shrink-0" />
+              <span className="truncate">Plan</span>
             </Link>
-          </div>
-          
-          {/* Controls Row 2: First Week Button */}
-          <div className="flex justify-center mb-4">
-            <button
-              onClick={goToCurrentWeek}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
-                isCurrentWeek()
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              <CalendarIcon className="w-4 h-4" />
-              <span>First Week</span>
-            </button>
           </div>
           
           {/* Week Navigation */}
