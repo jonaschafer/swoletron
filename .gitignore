@@ -1,3 +1,7 @@
+# md files
+*.md
+! README.md
+
 # Dependencies
 node_modules/
 v2/node_modules/
