@@ -269,21 +269,7 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
                             </h4>
                             <div className="space-y-3">
                               {nonLoggedExercises.map((exercise, index) => (
-                                workout.workout_type === 'strength' ? (
-                                  <ExerciseLogging key={exercise.id} workoutExercise={exercise} />
-                                ) : (
-                                  <div key={exercise.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                                    <div className="flex items-center justify-between">
-                                      <span className="font-medium text-gray-900">
-                                        {exercise.exercises?.name || 'Exercise'}
-                                      </span>
-                                      <span className="text-sm text-gray-700 font-medium">
-                                        {String(exercise.sets)}×{String(exercise.reps)}
-                                        {exercise.weight && exercise.weight > 0 && ` @${exercise.weight}${exercise.weight_unit}`}
-                                      </span>
-                                    </div>
-                                  </div>
-                                )
+                                <ExerciseLogging key={exercise.id} workoutExercise={exercise} />
                               ))}
                             </div>
                           </div>
@@ -298,21 +284,7 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
                             </h4>
                             <div className="space-y-3">
                               {loggedExercises.map((exercise, index) => (
-                                workout.workout_type === 'strength' ? (
-                                  <ExerciseLogging key={exercise.id} workoutExercise={exercise} />
-                                ) : (
-                                  <div key={exercise.id} className="bg-green-50 rounded-lg p-4 border border-green-200">
-                                    <div className="flex items-center justify-between">
-                                      <span className="font-medium text-gray-900">
-                                        {exercise.exercises?.name || 'Exercise'}
-                                      </span>
-                                      <span className="text-sm text-green-700 font-medium">
-                                        {String(exercise.sets)}×{String(exercise.reps)}
-                                        {exercise.weight && exercise.weight > 0 && ` @${exercise.weight}${exercise.weight_unit}`}
-                                      </span>
-                                    </div>
-                                  </div>
-                                )
+                                <ExerciseLogging key={exercise.id} workoutExercise={exercise} />
                               ))}
                             </div>
                           </div>
