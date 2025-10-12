@@ -1,6 +1,7 @@
 # md files
 *.md
 ! README.md
+! public/training-plan.md
 
 # Dependencies
 node_modules/
