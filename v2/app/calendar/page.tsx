@@ -71,8 +71,16 @@ export default function CalendarPage() {
     setSelectedWorkout(null)
   }
 
-  const handleCompletionChange = (workoutId: number, completed: boolean) => {
+  const handleCompletionChange = async (workoutId: number, completed: boolean) => {
     console.log(`Workout ${workoutId} ${completed ? 'completed' : 'marked incomplete'}`)
+    // Refresh the workouts data to show updated completion status
+    try {
+      const { startDate, endDate } = getWeekDates(currentWeek)
+      const data = await getWorkoutsForWeek(startDate, endDate)
+      setWorkouts(data)
+    } catch (err) {
+      console.error('Failed to refresh workouts:', err)
+    }
   }
 
   const weekDays = getWeekDays(currentWeek)

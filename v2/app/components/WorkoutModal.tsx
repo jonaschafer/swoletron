@@ -93,7 +93,7 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
         setIsCompleted(false)
         onCompletionChange?.(workout.id, false)
       } else {
-        await markWorkoutComplete(workout.id, 'default-user', undefined, notes || undefined)
+        await markWorkoutComplete(workout.id)
         setIsCompleted(true)
         onCompletionChange?.(workout.id, true)
       }

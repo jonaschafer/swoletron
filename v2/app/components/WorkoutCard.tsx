@@ -25,7 +25,7 @@ export function WorkoutCard({ workout, onClick, onCompletionChange }: WorkoutCar
       }
     }
     checkCompletion()
-  }, [workout.id])
+  }, [workout])
 
   const handleCompletionToggle = async (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -50,23 +50,40 @@ export function WorkoutCard({ workout, onClick, onCompletionChange }: WorkoutCar
   }
 
   const getWorkoutTypeColor = (type: string) => {
-    switch (type) {
-      case 'run':
-        return 'bg-blue-100 text-blue-800 border-blue-200'
-      case 'strength':
-        return 'bg-red-100 text-red-800 border-red-200'
-      case 'micro':
-        return 'bg-green-100 text-green-800 border-green-200'
-      case 'rest':
-        return 'bg-gray-100 text-gray-800 border-gray-200'
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200'
+    if (isCompleted) {
+      // When completed, fill the entire block with the workout type color
+      switch (type) {
+        case 'run':
+          return 'bg-blue-500 text-white border-blue-500'
+        case 'strength':
+          return 'bg-red-500 text-white border-red-500'
+        case 'micro':
+          return 'bg-green-500 text-white border-green-500'
+        case 'rest':
+          return 'bg-gray-100 text-gray-800 border-gray-200'
+        default:
+          return 'bg-gray-100 text-gray-800 border-gray-200'
+      }
+    } else {
+      // When not completed, use the original light colors with borders
+      switch (type) {
+        case 'run':
+          return 'bg-blue-100 text-blue-800 border-blue-200'
+        case 'strength':
+          return 'bg-red-100 text-red-800 border-red-200'
+        case 'micro':
+          return 'bg-green-100 text-green-800 border-green-200'
+        case 'rest':
+          return 'bg-gray-100 text-gray-800 border-gray-200'
+        default:
+          return 'bg-gray-100 text-gray-800 border-gray-200'
+      }
     }
   }
 
   return (
     <div 
-      className={`workout-card bg-white rounded-lg border-2 ${getWorkoutTypeColor(workout.workout_type)} cursor-pointer transition-all hover:shadow-md touch-manipulation w-full`}
+      className={`workout-card rounded-lg border-2 ${getWorkoutTypeColor(workout.workout_type)} cursor-pointer transition-all hover:shadow-md touch-manipulation w-full`}
       onClick={onClick || (() => setIsExpanded(!isExpanded))}
     >
       <div className="p-2 sm:p-3 w-full overflow-hidden">
@@ -75,22 +92,24 @@ export function WorkoutCard({ workout, onClick, onCompletionChange }: WorkoutCar
           <span className="font-semibold text-sm sm:text-sm capitalize">
             {workout.workout_type}
           </span>
-          <button
-            onClick={handleCompletionToggle}
-            disabled={isLoading}
-            className={`p-1 rounded-full transition-colors flex-shrink-0 ${
-              isCompleted
-                ? 'text-green-600 bg-green-100'
-                : 'text-gray-400 hover:text-green-600 hover:bg-green-50'
-            } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-            title={isCompleted ? 'Mark as incomplete' : 'Mark as complete'}
-          >
-            {isCompleted ? (
-              <CheckCircle className="w-4 h-4" />
-            ) : (
-              <Check className="w-4 h-4" />
-            )}
-          </button>
+          {workout.workout_type !== 'rest' && (
+            <button
+              onClick={handleCompletionToggle}
+              disabled={isLoading}
+              className={`p-1 rounded-full transition-colors flex-shrink-0 ${
+                isCompleted
+                  ? 'text-white bg-white/20 hover:bg-white/30'
+                  : 'text-gray-400 hover:text-green-600 hover:bg-green-50'
+              } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              title={isCompleted ? 'Mark as incomplete' : 'Mark as complete'}
+            >
+              {isCompleted ? (
+                <CheckCircle className="w-4 h-4" />
+              ) : (
+                <Check className="w-4 h-4" />
+              )}
+            </button>
+          )}
         </div>
         
         {/* Title */}

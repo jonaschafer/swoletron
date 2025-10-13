@@ -22,10 +22,8 @@ export interface Workout {
 
 export interface WorkoutCompletion {
   id: number
-  user_id: string
   workout_id: number
   completed_at: string
-  rating: number | null
   notes: string | null
 }
 
@@ -51,7 +49,6 @@ export interface WorkoutExercise {
 
 export interface ExerciseLog {
   id: number
-  user_id: string
   workout_exercise_id: number
   sets_completed: number
   reps_completed: number | null
@@ -109,16 +106,12 @@ export async function getTotalWorkoutCount() {
 
 export async function markWorkoutComplete(
   workoutId: number,
-  userId: string = 'default-user',
-  rating?: number,
   notes?: string
 ) {
   const { data, error } = await supabase
     .from('workout_completions')
     .insert({
       workout_id: workoutId,
-      user_id: userId,
-      rating: rating || null,
       notes: notes || null,
       completed_at: new Date().toISOString()
     })
@@ -133,12 +126,11 @@ export async function markWorkoutComplete(
   return data as WorkoutCompletion
 }
 
-export async function markWorkoutIncomplete(workoutId: number, userId: string = 'default-user') {
+export async function markWorkoutIncomplete(workoutId: number) {
   const { error } = await supabase
     .from('workout_completions')
     .delete()
     .eq('workout_id', workoutId)
-    .eq('user_id', userId)
 
   if (error) {
     console.error('Error marking workout incomplete:', error)
@@ -146,12 +138,11 @@ export async function markWorkoutIncomplete(workoutId: number, userId: string = 
   }
 }
 
-export async function getWorkoutCompletion(workoutId: number, userId: string = 'default-user') {
+export async function getWorkoutCompletion(workoutId: number) {
   const { data, error } = await supabase
     .from('workout_completions')
     .select('*')
     .eq('workout_id', workoutId)
-    .eq('user_id', userId)
     .single()
 
   if (error && error.code !== 'PGRST116') {
@@ -164,8 +155,7 @@ export async function getWorkoutCompletion(workoutId: number, userId: string = '
 
 export async function getWorkoutCompletionsForWeek(
   startDate: string,
-  endDate: string,
-  userId: string = 'default-user'
+  endDate: string
 ) {
   const { data, error } = await supabase
     .from('workout_completions')
@@ -173,7 +163,6 @@ export async function getWorkoutCompletionsForWeek(
       *,
       workouts(*)
     `)
-    .eq('user_id', userId)
     .gte('workouts.date', startDate)
     .lte('workouts.date', endDate)
 
@@ -231,14 +220,12 @@ export async function logExercise(
   repsCompleted?: number,
   weightUsed?: number,
   weightUnit?: string,
-  notes?: string,
-  userId: string = 'default-user'
+  notes?: string
 ) {
   const { data, error } = await supabase
     .from('exercise_logs')
     .insert({
       workout_exercise_id: workoutExerciseId,
-      user_id: userId,
       sets_completed: setsCompleted,
       reps_completed: repsCompleted || null,
       weight_used: weightUsed || null,
@@ -257,12 +244,11 @@ export async function logExercise(
   return data as ExerciseLog
 }
 
-export async function getExerciseLogs(workoutExerciseId: number, userId: string = 'default-user') {
+export async function getExerciseLogs(workoutExerciseId: number) {
   const { data, error } = await supabase
     .from('exercise_logs')
     .select('*')
     .eq('workout_exercise_id', workoutExerciseId)
-    .eq('user_id', userId)
     .order('completed_at', { ascending: false })
 
   if (error) {
@@ -273,12 +259,11 @@ export async function getExerciseLogs(workoutExerciseId: number, userId: string 
   return data as ExerciseLog[]
 }
 
-export async function getLatestExerciseLog(workoutExerciseId: number, userId: string = 'default-user') {
+export async function getLatestExerciseLog(workoutExerciseId: number) {
   const { data, error } = await supabase
     .from('exercise_logs')
     .select('*')
     .eq('workout_exercise_id', workoutExerciseId)
-    .eq('user_id', userId)
     .order('completed_at', { ascending: false })
     .limit(1)
     .single()
