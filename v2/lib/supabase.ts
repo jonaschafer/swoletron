@@ -49,9 +49,10 @@ export interface WorkoutExercise {
 
 export interface ExerciseLog {
   id: number
-  workout_exercise_id: number
+  workout_id: number
+  exercise_name: string
   sets_completed: number
-  reps_completed: number | null
+  reps_completed: number[] | null
   weight_used: number | null
   weight_unit: string | null
   notes: string | null
@@ -214,23 +215,25 @@ export async function getWorkoutsForMonth(monthDate: Date) {
   return data as Workout[]
 }
 
-export async function logExercise(
-  workoutExerciseId: number,
-  setsCompleted: number,
-  repsCompleted?: number,
-  weightUsed?: number,
-  weightUnit?: string,
+export async function logExercise(data: {
+  workout_id: number
+  exercise_name: string
+  sets_completed: number
+  reps_completed: number[]
+  weight_used: number
+  weight_unit: string
   notes?: string
-) {
-  const { data, error } = await supabase
+}) {
+  const { data: result, error } = await supabase
     .from('exercise_logs')
     .insert({
-      workout_exercise_id: workoutExerciseId,
-      sets_completed: setsCompleted,
-      reps_completed: repsCompleted || null,
-      weight_used: weightUsed || null,
-      weight_unit: weightUnit || 'lbs',
-      notes: notes || null,
+      workout_id: data.workout_id,
+      exercise_name: data.exercise_name,
+      sets_completed: data.sets_completed,
+      reps_completed: data.reps_completed,
+      weight_used: data.weight_used,
+      weight_unit: data.weight_unit,
+      notes: data.notes || null,
       completed_at: new Date().toISOString()
     })
     .select()
@@ -241,14 +244,14 @@ export async function logExercise(
     throw error
   }
 
-  return data as ExerciseLog
+  return result as ExerciseLog
 }
 
-export async function getExerciseLogs(workoutExerciseId: number) {
+export async function getExerciseLogsForWorkout(workout_id: number) {
   const { data, error } = await supabase
     .from('exercise_logs')
     .select('*')
-    .eq('workout_exercise_id', workoutExerciseId)
+    .eq('workout_id', workout_id)
     .order('completed_at', { ascending: false })
 
   if (error) {
@@ -259,11 +262,12 @@ export async function getExerciseLogs(workoutExerciseId: number) {
   return data as ExerciseLog[]
 }
 
-export async function getLatestExerciseLog(workoutExerciseId: number) {
+export async function getLatestExerciseLog(workout_id: number, exercise_name: string) {
   const { data, error } = await supabase
     .from('exercise_logs')
     .select('*')
-    .eq('workout_exercise_id', workoutExerciseId)
+    .eq('workout_id', workout_id)
+    .eq('exercise_name', exercise_name)
     .order('completed_at', { ascending: false })
     .limit(1)
     .single()
@@ -278,23 +282,25 @@ export async function getLatestExerciseLog(workoutExerciseId: number) {
 
 export async function updateExerciseLog(
   logId: number,
-  setsCompleted?: number,
-  repsCompleted?: number,
-  weightUsed?: number,
-  weightUnit?: string,
-  notes?: string
+  data: {
+    sets_completed?: number
+    reps_completed?: number[]
+    weight_used?: number
+    weight_unit?: string
+    notes?: string
+  }
 ) {
   const updateData: any = {
     updated_at: new Date().toISOString()
   }
 
-  if (setsCompleted !== undefined) updateData.sets_completed = setsCompleted
-  if (repsCompleted !== undefined) updateData.reps_completed = repsCompleted
-  if (weightUsed !== undefined) updateData.weight_used = weightUsed
-  if (weightUnit !== undefined) updateData.weight_unit = weightUnit
-  if (notes !== undefined) updateData.notes = notes
+  if (data.sets_completed !== undefined) updateData.sets_completed = data.sets_completed
+  if (data.reps_completed !== undefined) updateData.reps_completed = data.reps_completed
+  if (data.weight_used !== undefined) updateData.weight_used = data.weight_used
+  if (data.weight_unit !== undefined) updateData.weight_unit = data.weight_unit
+  if (data.notes !== undefined) updateData.notes = data.notes
 
-  const { data, error } = await supabase
+  const { data: result, error } = await supabase
     .from('exercise_logs')
     .update(updateData)
     .eq('id', logId)
@@ -306,7 +312,7 @@ export async function updateExerciseLog(
     throw error
   }
 
-  return data as ExerciseLog
+  return result as ExerciseLog
 }
 
 export async function deleteExerciseLog(logId: number) {
@@ -319,4 +325,65 @@ export async function deleteExerciseLog(logId: number) {
     console.error('Error deleting exercise log:', error)
     throw error
   }
+}
+
+// Parse exercises from workout description/notes
+export function parseExercisesFromWorkout(workout: Workout): Array<{
+  name: string
+  sets: number
+  reps: string
+  weight: number
+  unit: string
+}> {
+  const exercises: Array<{
+    name: string
+    sets: number
+    reps: string
+    weight: number
+    unit: string
+  }> = []
+  
+  // Get exercises from workout_exercises table if available
+  if (workout.id) {
+    // This will be populated by getWorkoutExercises function
+    return exercises
+  }
+  
+  // Fallback: parse from notes field if workout_exercises not available
+  const notes = workout.notes || ''
+  if (!notes) return exercises
+  
+  // Split by comma and process each exercise
+  const exerciseStrings = notes.split(',').map(ex => ex.trim())
+  
+  for (const exerciseStr of exerciseStrings) {
+    // Match patterns like: "Bosu balance: 2×30sec each leg" or "Goblet Squat: 3×12 @ 35lb"
+    const match = exerciseStr.match(/([^:]+):\s*(\d+)×(\d+(?:sec|min|-\d+)?)\s*(?:each\s+\w+)?\s*(?:@\s*(\d+(?:\.\d+)?)\s*(lb|kg|BW|time))?/i)
+    
+    if (match) {
+      const [, name, sets, reps, weight, unit] = match
+      exercises.push({
+        name: name.trim(),
+        sets: parseInt(sets),
+        reps: reps.trim(),
+        weight: weight ? parseFloat(weight) : 0,
+        unit: unit ? unit.toLowerCase() : 'BW'
+      })
+    } else {
+      // Try to match simpler patterns without time units
+      const simpleMatch = exerciseStr.match(/([^:]+):\s*(\d+)×(\d+)/)
+      if (simpleMatch) {
+        const [, name, sets, reps] = simpleMatch
+        exercises.push({
+          name: name.trim(),
+          sets: parseInt(sets),
+          reps: reps.trim(),
+          weight: 0,
+          unit: 'BW'
+        })
+      }
+    }
+  }
+  
+  return exercises
 }

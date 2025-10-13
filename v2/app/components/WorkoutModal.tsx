@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Workout, WorkoutExercise, Exercise, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion, getWorkoutExercises, getLatestExerciseLog } from '@/lib/supabase'
-import { ExerciseLogging } from '@/app/components/ExerciseLogging'
+import { Workout, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion } from '@/lib/supabase'
+import { ExerciseLogForm } from '@/app/components/ExerciseLogForm'
 import { X, Clock, MapPin, TrendingUp, Activity, Check, CheckCircle, Dumbbell, Play } from 'lucide-react'
 
 interface WorkoutModalProps {
@@ -15,10 +15,7 @@ interface WorkoutModalProps {
 export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: WorkoutModalProps) {
   const [isCompleted, setIsCompleted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [exercises, setExercises] = useState<WorkoutExercise[]>([])
-  const [loadingExercises, setLoadingExercises] = useState(false)
   const [notes, setNotes] = useState('')
-  const [exerciseLogs, setExerciseLogs] = useState<Record<number, any>>({})
 
   useEffect(() => {
     if (workout && isOpen) {
@@ -55,32 +52,6 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
       console.error('Error loading workout completion:', error)
     }
 
-    // Load exercises for strength and micro workouts
-    if (workout.workout_type === 'strength' || workout.workout_type === 'micro') {
-      setLoadingExercises(true)
-      try {
-        const workoutExercises = await getWorkoutExercises(workout.id)
-        setExercises(workoutExercises)
-        
-        // Load exercise logs for each exercise
-        const logs: Record<number, any> = {}
-        for (const exercise of workoutExercises) {
-          try {
-            const log = await getLatestExerciseLog(exercise.id)
-            if (log) {
-              logs[exercise.id] = log
-            }
-          } catch (error) {
-            console.error(`Error loading log for exercise ${exercise.id}:`, error)
-          }
-        }
-        setExerciseLogs(logs)
-      } catch (error) {
-        console.error('Error loading exercises:', error)
-      } finally {
-        setLoadingExercises(false)
-      }
-    }
   }
 
   const handleCompletionToggle = async () => {
@@ -240,61 +211,9 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
           </div>
 
           {/* Description OR Exercise Logging - not both */}
-          {(workout.workout_type === 'strength' || workout.workout_type === 'micro') && exercises.length > 0 ? (
-            /* Show Exercise Logging for Strength/Micro Workouts with structured exercises */
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                {workout.workout_type === 'strength' ? 'Workout Structure' : 'Exercise Details'}
-              </h3>
-              {loadingExercises ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {/* Group exercises by logged status */}
-                  {(() => {
-                    // Separate exercises into logged and non-logged
-                    const loggedExercises = exercises.filter(ex => exerciseLogs[ex.id])
-                    const nonLoggedExercises = exercises.filter(ex => !exerciseLogs[ex.id])
-                    
-                    return (
-                      <>
-                        {/* Non-logged exercises (reference exercises) */}
-                        {nonLoggedExercises.length > 0 && (
-                          <div>
-                            <h4 className="text-md font-medium text-gray-700 mb-3 flex items-center gap-2">
-                              <span className="text-sm bg-gray-100 text-gray-600 px-2 py-1 rounded">Reference</span>
-                              Non-logged Exercises
-                            </h4>
-                            <div className="space-y-3">
-                              {nonLoggedExercises.map((exercise, index) => (
-                                <ExerciseLogging key={exercise.id} workoutExercise={exercise} />
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        
-                        {/* Logged exercises */}
-                        {loggedExercises.length > 0 && (
-                          <div>
-                            <h4 className="text-md font-medium text-gray-700 mb-3 flex items-center gap-2">
-                              <span className="text-sm bg-green-100 text-green-600 px-2 py-1 rounded">Logged</span>
-                              Completed Exercises
-                            </h4>
-                            <div className="space-y-3">
-                              {loggedExercises.map((exercise, index) => (
-                                <ExerciseLogging key={exercise.id} workoutExercise={exercise} />
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    )
-                  })()}
-                </div>
-              )}
-            </div>
+          {(workout.workout_type === 'strength' || workout.workout_type === 'micro') ? (
+            /* Show Exercise Logging for Strength/Micro Workouts */
+            <ExerciseLogForm workout={workout} />
           ) : workout.description ? (
             /* Show Description for workouts without structured exercises */
             <div>
