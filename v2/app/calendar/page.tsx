@@ -186,7 +186,7 @@ export default function CalendarPage() {
         {/* Desktop Calendar Grid */}
         <div className="hidden md:grid md:grid-cols-7 gap-4 mb-6">
           {weekDays.map((day) => (
-            <div key={day.date} className="space-y-2">
+                <div key={day.date} className="space-y-2 border-r border-gray-200 pr-4 last:border-r-0 last:pr-0">
               <div className="mb-3">
                 <h3 className="text-sm font-medium text-gray-600 uppercase tracking-wide">
                   {day.dayName}
