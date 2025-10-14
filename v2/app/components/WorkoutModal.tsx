@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Workout, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion } from '@/lib/supabase'
-import { ExerciseLogForm } from '@/app/components/ExerciseLogForm'
+import { Workout, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion, getWorkoutExercises, logExercise, getLatestExerciseLog, deleteExerciseLog, WorkoutExercise, ExerciseLog } from '@/lib/supabase'
+import InlineExerciseCard from '@/app/components/InlineExerciseCard'
 import { X, Clock, MapPin, TrendingUp, Activity, Check, CheckCircle, Dumbbell, Play } from 'lucide-react'
 
 interface WorkoutModalProps {
@@ -16,6 +16,8 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
   const [isCompleted, setIsCompleted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [notes, setNotes] = useState('')
+  const [exercises, setExercises] = useState<WorkoutExercise[]>([])
+  const [exerciseLogs, setExerciseLogs] = useState<Map<number, ExerciseLog>>(new Map())
 
   useEffect(() => {
     if (workout && isOpen) {
@@ -52,6 +54,29 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
       console.error('Error loading workout completion:', error)
     }
 
+    // Load exercises for strength/micro workouts
+    if (workout.workout_type === 'strength' || workout.workout_type === 'micro') {
+      try {
+        const workoutExercises = await getWorkoutExercises(workout.id)
+        setExercises(workoutExercises)
+
+        // Load existing logs for each exercise
+        const logsMap = new Map<number, ExerciseLog>()
+        for (const exercise of workoutExercises) {
+          try {
+            const latestLog = await getLatestExerciseLog(exercise.id)
+            if (latestLog) {
+              logsMap.set(exercise.id, latestLog)
+            }
+          } catch (error) {
+            console.error(`Error loading log for exercise ${exercise.id}:`, error)
+          }
+        }
+        setExerciseLogs(logsMap)
+      } catch (error) {
+        console.error('Error loading workout exercises:', error)
+      }
+    }
   }
 
   const handleCompletionToggle = async () => {
@@ -72,6 +97,58 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
       console.error('Error toggling workout completion:', error)
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleSaveLog = async (workoutExerciseId: number, sets: number, reps: number, weight: number) => {
+    try {
+      // Convert single reps number to array format for database storage
+      const repsArray = repsToArray(reps, sets)
+      const newLog = await logExercise(workoutExerciseId, sets, repsArray, weight)
+      
+      // Update the logs map with the new log
+      setExerciseLogs(prev => {
+        const newMap = new Map(prev)
+        newMap.set(workoutExerciseId, newLog)
+        return newMap
+      })
+    } catch (error) {
+      console.error('Error saving exercise log:', error)
+      throw error // Re-throw to let InlineExerciseCard handle the error
+    }
+  }
+
+  const handleDeleteLog = async (workoutExerciseId: number) => {
+    const existingLog = exerciseLogs.get(workoutExerciseId)
+    if (!existingLog) return
+
+    try {
+      await deleteExerciseLog(existingLog.id)
+      
+      // Remove the log from the map
+      setExerciseLogs(prev => {
+        const newMap = new Map(prev)
+        newMap.delete(workoutExerciseId)
+        return newMap
+      })
+    } catch (error) {
+      console.error('Error deleting exercise log:', error)
+      throw error // Re-throw to let InlineExerciseCard handle the error
+    }
+  }
+
+  // Helper functions for reps array conversion
+  const repsToArray = (reps: number, sets: number) => new Array(sets).fill(reps);
+  const arrayToReps = (repsArray: number[]) => repsArray[0] || 0;
+
+  const getLogForExercise = (workoutExerciseId: number) => {
+    const log = exerciseLogs.get(workoutExerciseId)
+    if (!log) return null
+    
+    return {
+      sets: log.sets_completed || 0,
+      reps: Array.isArray(log.reps_completed) ? arrayToReps(log.reps_completed) : log.reps_completed || 0,
+      weight: log.weight_used || 0
     }
   }
 
@@ -219,7 +296,25 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
           {/* Description OR Exercise Logging - not both */}
           {(workout.workout_type === 'strength' || workout.workout_type === 'micro') ? (
             /* Show Exercise Logging for Strength/Micro Workouts */
-            <ExerciseLogForm workout={workout} />
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Exercises</h3>
+              <div className="space-y-3">
+                {exercises.map(exercise => (
+                  <InlineExerciseCard
+                    key={exercise.id}
+                    exercise={{
+                      name: exercise.exercises?.name || 'Unknown Exercise',
+                      planned_sets: exercise.sets || 0,
+                      planned_reps: exercise.reps || 0,
+                      planned_weight: exercise.weight || 0
+                    }}
+                    existingLog={getLogForExercise(exercise.id)}
+                    onSave={(sets, reps, weight) => handleSaveLog(exercise.id, sets, reps, weight)}
+                    onDelete={() => handleDeleteLog(exercise.id)}
+                  />
+                ))}
+              </div>
+            </div>
           ) : workout.description ? (
             /* Show Description for workouts without structured exercises */
             <div>
