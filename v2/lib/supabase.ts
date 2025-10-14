@@ -23,7 +23,7 @@ export interface Workout {
 export interface WorkoutCompletion {
   id: number
   workout_id: number
-  completed_at: string
+  logged_at: string
   notes: string | null
 }
 
@@ -113,7 +113,7 @@ export async function markWorkoutComplete(
     .insert({
       workout_id: workoutId,
       notes: notes || null,
-      completed_at: new Date().toISOString()
+      logged_at: new Date().toISOString()
     })
     .select()
     .single()
@@ -222,12 +222,24 @@ export async function logExercise(
   weightUnit?: string,
   notes?: string
 ) {
+  console.log('=== logExercise() DEBUG START ===')
+  console.log('Input parameters:', {
+    workoutExerciseId,
+    setsCompleted,
+    repsCompleted,
+    weightUsed,
+    weightUnit,
+    notes
+  })
+
   // First, get the exercise_id from workout_exercises table
   const { data: workoutExercise, error: exerciseError } = await supabase
     .from('workout_exercises')
     .select('exercise_id, workout_id')
     .eq('id', workoutExerciseId)
     .single()
+
+  console.log('Workout exercise lookup result:', { workoutExercise, exerciseError })
 
   if (exerciseError || !workoutExercise) {
     console.error('Error finding workout exercise:', exerciseError)
@@ -245,25 +257,33 @@ export async function logExercise(
     }
   }
 
+  const insertData = {
+    exercise_id: workoutExercise.exercise_id,
+    workout_id: workoutExercise.workout_id,
+    sets_completed: setsCompleted,
+    reps_completed: repsArray,
+    weight_used: weightUsed || null,
+    weight_unit: weightUnit || 'lbs',
+    notes: notes || null
+  }
+
+  console.log('Data being inserted into exercise_logs:', insertData)
+
   const { data, error } = await supabase
     .from('exercise_logs')
-    .insert({
-      exercise_id: workoutExercise.exercise_id,
-      workout_id: workoutExercise.workout_id,
-      sets_completed: setsCompleted,
-      reps_completed: repsArray,
-      weight_used: weightUsed || null,
-      weight_unit: weightUnit || 'lbs',
-      notes: notes || null
-    })
+    .insert(insertData)
     .select()
     .single()
 
+  console.log('Supabase response:', { data, error })
+
   if (error) {
     console.error('Error logging exercise:', error)
+    console.error('Full error object:', JSON.stringify(error, null, 2))
     throw error
   }
 
+  console.log('=== logExercise() DEBUG END ===')
   return data as ExerciseLog
 }
 

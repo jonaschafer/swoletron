@@ -110,6 +110,11 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
       const data = formData[exercise.id]
       if (!data) return
 
+      // Extract number from reps string (e.g., "30sec" -> 30)
+      const repsNumber = typeof data.reps === 'string' 
+        ? parseInt(data.reps.replace(/\D/g, '')) || 0 
+        : data.reps
+
       const existingLog = getExerciseLog(exercise.id)
       
       if (existingLog) {
@@ -117,7 +122,7 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
         await updateExerciseLog(
           existingLog.id,
           data.sets,
-          data.reps,
+          repsNumber,
           data.weight,
           data.unit,
           data.notes
@@ -127,7 +132,7 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
         await logExercise(
           exercise.id,
           data.sets,
-          data.reps,
+          repsNumber,
           data.weight,
           data.unit,
           data.notes
@@ -291,10 +296,9 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
                       Reps Completed
                     </label>
                     <input
-                      type="number"
-                      min="0"
+                      type="text"
                       value={data.reps}
-                      onChange={(e) => updateFormData(exercise.id, 'reps', parseInt(e.target.value) || 0)}
+                      onChange={(e) => updateFormData(exercise.id, 'reps', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
