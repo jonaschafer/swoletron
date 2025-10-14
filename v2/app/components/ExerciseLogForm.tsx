@@ -24,8 +24,8 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
 
   // Form data for each exercise
   const [formData, setFormData] = useState<Record<number, {
-    sets: number
-    reps: number
+    sets: number | null
+    reps: number[]
     weight: number
     unit: string
     notes: string
@@ -76,7 +76,7 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
         ...prev,
         [exercise.id]: {
           sets: existingLog.sets_completed,
-          reps: existingLog.reps_completed || 0,
+          reps: existingLog.reps_completed || [],
           weight: existingLog.weight_used || 0,
           unit: existingLog.weight_unit || 'lb',
           notes: existingLog.notes || ''
@@ -87,8 +87,8 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
       setFormData(prev => ({
         ...prev,
         [exercise.id]: {
-          sets: exercise.sets || 0,
-          reps: exercise.reps || 0,
+          sets: exercise.sets || null,
+          reps: exercise.reps ? [exercise.reps] : [],
           weight: exercise.weight || 0,
           unit: exercise.weight_unit || 'lb',
           notes: ''
@@ -110,19 +110,14 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
       const data = formData[exercise.id]
       if (!data) return
 
-      // Extract number from reps string (e.g., "30sec" -> 30)
-      const repsNumber = typeof data.reps === 'string' 
-        ? parseInt(data.reps.replace(/\D/g, '')) || 0 
-        : data.reps
-
       const existingLog = getExerciseLog(exercise.id)
       
       if (existingLog) {
         // Update existing log
         await updateExerciseLog(
           existingLog.id,
-          data.sets,
-          repsNumber,
+          data.sets || undefined,
+          data.reps,
           data.weight,
           data.unit,
           data.notes
@@ -131,8 +126,8 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
         // Create new log
         await logExercise(
           exercise.id,
-          data.sets,
-          repsNumber,
+          data.sets || 0,
+          data.reps,
           data.weight,
           data.unit,
           data.notes
@@ -284,8 +279,8 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
                     <input
                       type="number"
                       min="0"
-                      value={data.sets}
-                      onChange={(e) => updateFormData(exercise.id, 'sets', parseInt(e.target.value) || 0)}
+                      value={data.sets || ''}
+                      onChange={(e) => updateFormData(exercise.id, 'sets', parseInt(e.target.value) || null)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -297,8 +292,12 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
                     </label>
                     <input
                       type="text"
-                      value={data.reps}
-                      onChange={(e) => updateFormData(exercise.id, 'reps', e.target.value)}
+                      value={Array.isArray(data.reps) ? data.reps.join(', ') : data.reps}
+                      onChange={(e) => {
+                        // Convert comma-separated string to array of numbers
+                        const repsArray = e.target.value.split(',').map(r => parseInt(r.trim()) || 0).filter(n => n > 0)
+                        updateFormData(exercise.id, 'reps', repsArray)
+                      }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
