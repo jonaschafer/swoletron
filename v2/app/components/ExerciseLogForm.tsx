@@ -120,7 +120,7 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
       };
 
       // Convert reps to integer array based on number of sets
-      const parsedReps = parseReps(data.reps[0] || data.reps);
+      const parsedReps = parseReps(data.reps[0] || 0);
       const repsArray = new Array(data.sets || 1).fill(parsedReps);
 
       console.log('Parsed reps data:', {
