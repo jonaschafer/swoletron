@@ -1,11 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Workout, ExerciseLog } from '@/lib/supabase'
+import { Workout, WorkoutExercise, ExerciseLog } from '@/lib/supabase'
 import { 
   getWorkoutExercises, 
-  parseExercisesFromWorkout,
-  getExerciseLogsForWorkout,
   logExercise,
   updateExerciseLog,
   deleteExerciseLog,
@@ -17,35 +15,21 @@ interface ExerciseLogFormProps {
   workout: Workout
 }
 
-interface ParsedExercise {
-  name: string
-  sets: number
-  reps: string
-  weight: number
-  unit: string
-}
-
-interface LogFormData {
-  sets: number
-  reps: number[]
-  weight: number
-  unit: string
-  notes: string
-}
-
 export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
-  const [exercises, setExercises] = useState<ParsedExercise[]>([])
-  const [exerciseLogs, setExerciseLogs] = useState<ExerciseLog[]>([])
+  const [exercises, setExercises] = useState<WorkoutExercise[]>([])
+  const [exerciseLogs, setExerciseLogs] = useState<Record<number, ExerciseLog>>({})
   const [loading, setLoading] = useState(true)
-  const [expandedExercise, setExpandedExercise] = useState<string | null>(null)
-  const [formData, setFormData] = useState<LogFormData>({
-    sets: 0,
-    reps: [],
-    weight: 0,
-    unit: 'lb',
-    notes: ''
-  })
+  const [expandedExercise, setExpandedExercise] = useState<number | null>(null)
   const [saving, setSaving] = useState(false)
+
+  // Form data for each exercise
+  const [formData, setFormData] = useState<Record<number, {
+    sets: number
+    reps: number
+    weight: number
+    unit: string
+    notes: string
+  }>>({})
 
   useEffect(() => {
     loadExerciseData()
@@ -55,27 +39,22 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
     try {
       setLoading(true)
       
-      // Try to get exercises from workout_exercises table first
+      // Get exercises from workout_exercises table
       const workoutExercises = await getWorkoutExercises(workout.id)
-      
-      if (workoutExercises.length > 0) {
-        // Convert WorkoutExercise to ParsedExercise format
-        const parsedExercises: ParsedExercise[] = workoutExercises.map(we => ({
-          name: we.exercises?.name || 'Unknown Exercise',
-          sets: we.sets || 0,
-          reps: String(we.reps || 0),
-          weight: we.weight || 0,
-          unit: we.weight_unit || 'BW'
-        }))
-        setExercises(parsedExercises)
-      } else {
-        // Fallback: parse from workout notes
-        const parsedExercises = parseExercisesFromWorkout(workout)
-        setExercises(parsedExercises)
-      }
+      setExercises(workoutExercises)
 
-      // Load existing logs
-      const logs = await getExerciseLogsForWorkout(workout.id)
+      // Load existing logs for each exercise
+      const logs: Record<number, ExerciseLog> = {}
+      for (const exercise of workoutExercises) {
+        try {
+          const log = await getLatestExerciseLog(exercise.id)
+          if (log) {
+            logs[exercise.id] = log
+          }
+        } catch (error) {
+          console.error(`Error loading log for exercise ${exercise.id}:`, error)
+        }
+      }
       setExerciseLogs(logs)
     } catch (error) {
       console.error('Error loading exercise data:', error)
@@ -84,73 +63,75 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
     }
   }
 
-  const getExerciseLog = (exerciseName: string) => {
-    return exerciseLogs.find(log => log.exercise_name === exerciseName)
+  const getExerciseLog = (exerciseId: number) => {
+    return exerciseLogs[exerciseId]
   }
 
-  const handleStartLogging = (exercise: ParsedExercise) => {
-    const existingLog = getExerciseLog(exercise.name)
+  const handleStartLogging = (exercise: WorkoutExercise) => {
+    const existingLog = getExerciseLog(exercise.id)
     
     if (existingLog) {
       // Pre-fill form with existing log data
-      setFormData({
-        sets: existingLog.sets_completed,
-        reps: existingLog.reps_completed || [],
-        weight: existingLog.weight_used || 0,
-        unit: existingLog.weight_unit || 'lb',
-        notes: existingLog.notes || ''
-      })
+      setFormData(prev => ({
+        ...prev,
+        [exercise.id]: {
+          sets: existingLog.sets_completed,
+          reps: existingLog.reps_completed || 0,
+          weight: existingLog.weight_used || 0,
+          unit: existingLog.weight_unit || 'lb',
+          notes: existingLog.notes || ''
+        }
+      }))
     } else {
       // Pre-fill form with planned workout data
-      setFormData({
-        sets: exercise.sets,
-        reps: new Array(exercise.sets).fill(parseInt(exercise.reps) || 0),
-        weight: exercise.weight,
-        unit: exercise.unit,
-        notes: ''
-      })
+      setFormData(prev => ({
+        ...prev,
+        [exercise.id]: {
+          sets: exercise.sets || 0,
+          reps: exercise.reps || 0,
+          weight: exercise.weight || 0,
+          unit: exercise.weight_unit || 'lb',
+          notes: ''
+        }
+      }))
     }
     
-    setExpandedExercise(exercise.name)
+    setExpandedExercise(exercise.id)
   }
 
   const handleCancelLogging = () => {
     setExpandedExercise(null)
-    setFormData({
-      sets: 0,
-      reps: [],
-      weight: 0,
-      unit: 'lb',
-      notes: ''
-    })
   }
 
-  const handleSaveLog = async (exerciseName: string) => {
+  const handleSaveLog = async (exercise: WorkoutExercise) => {
     try {
       setSaving(true)
       
-      const existingLog = getExerciseLog(exerciseName)
+      const data = formData[exercise.id]
+      if (!data) return
+
+      const existingLog = getExerciseLog(exercise.id)
       
       if (existingLog) {
         // Update existing log
-        await updateExerciseLog(existingLog.id, {
-          sets_completed: formData.sets,
-          reps_completed: formData.reps,
-          weight_used: formData.weight,
-          weight_unit: formData.unit,
-          notes: formData.notes
-        })
+        await updateExerciseLog(
+          existingLog.id,
+          data.sets,
+          data.reps,
+          data.weight,
+          data.unit,
+          data.notes
+        )
       } else {
         // Create new log
-        await logExercise({
-          workout_id: workout.id,
-          exercise_name: exerciseName,
-          sets_completed: formData.sets,
-          reps_completed: formData.reps,
-          weight_used: formData.weight,
-          weight_unit: formData.unit,
-          notes: formData.notes
-        })
+        await logExercise(
+          exercise.id,
+          data.sets,
+          data.reps,
+          data.weight,
+          data.unit,
+          data.notes
+        )
       }
       
       // Refresh logs
@@ -158,14 +139,15 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
       handleCancelLogging()
     } catch (error) {
       console.error('Error saving exercise log:', error)
+      alert('Failed to save exercise log')
     } finally {
       setSaving(false)
     }
   }
 
-  const handleDeleteLog = async (exerciseName: string) => {
+  const handleDeleteLog = async (exerciseId: number) => {
     try {
-      const existingLog = getExerciseLog(exerciseName)
+      const existingLog = getExerciseLog(exerciseId)
       if (existingLog) {
         await deleteExerciseLog(existingLog.id)
         await loadExerciseData()
@@ -175,22 +157,14 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
     }
   }
 
-  const updateReps = (index: number, value: number) => {
-    const newReps = [...formData.reps]
-    newReps[index] = value
-    setFormData({ ...formData, reps: newReps })
-  }
-
-  const addRep = () => {
-    setFormData({
-      ...formData,
-      reps: [...formData.reps, 0]
-    })
-  }
-
-  const removeRep = (index: number) => {
-    const newReps = formData.reps.filter((_, i) => i !== index)
-    setFormData({ ...formData, reps: newReps })
+  const updateFormData = (exerciseId: number, field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [exerciseId]: {
+        ...prev[exerciseId],
+        [field]: value
+      }
+    }))
   }
 
   if (loading) {
@@ -214,17 +188,20 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
       <h4 className="text-lg font-semibold text-gray-900 mb-4">Exercise Logging</h4>
       
       {exercises.map((exercise) => {
-        const existingLog = getExerciseLog(exercise.name)
-        const isExpanded = expandedExercise === exercise.name
+        const existingLog = getExerciseLog(exercise.id)
+        const isExpanded = expandedExercise === exercise.id
+        const data = formData[exercise.id]
         
         return (
-          <div key={exercise.name} className="border border-gray-200 rounded-lg p-4">
+          <div key={exercise.id} className="border border-gray-200 rounded-lg p-4">
             {/* Exercise Header */}
             <div className="flex items-center justify-between mb-3">
               <div className="flex-1">
-                <h5 className="font-semibold text-gray-900">{exercise.name}</h5>
+                <h5 className="font-semibold text-gray-900">
+                  {exercise.exercises?.name || 'Unknown Exercise'}
+                </h5>
                 <p className="text-sm text-gray-600">
-                  Planned: {exercise.sets}×{exercise.reps} {exercise.weight > 0 ? `@ ${exercise.weight}${exercise.unit}` : exercise.unit}
+                  Planned: {exercise.sets}×{exercise.reps} {exercise.weight && exercise.weight > 0 ? `@ ${exercise.weight}${exercise.weight_unit}` : exercise.weight_unit}
                 </p>
               </div>
               
@@ -239,7 +216,7 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
                 <div className="flex gap-1">
                   {existingLog && (
                     <button
-                      onClick={() => handleDeleteLog(exercise.name)}
+                      onClick={() => handleDeleteLog(exercise.id)}
                       className="p-1 text-red-500 hover:text-red-700 transition-colors"
                       title="Delete log"
                     >
@@ -279,7 +256,7 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
                   Completed: {existingLog.sets_completed} sets
                 </p>
                 <p className="text-sm text-green-700">
-                  Reps: {existingLog.reps_completed?.join(', ')}
+                  Reps: {existingLog.reps_completed}
                   {existingLog.weight_used && existingLog.weight_used > 0 && 
                     ` @ ${existingLog.weight_used}${existingLog.weight_unit}`
                   }
@@ -291,7 +268,7 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
             )}
 
             {/* Logging Form */}
-            {isExpanded && (
+            {isExpanded && data && (
               <div className="bg-gray-50 border border-gray-200 rounded p-4 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   {/* Sets */}
@@ -302,12 +279,28 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
                     <input
                       type="number"
                       min="0"
-                      value={formData.sets}
-                      onChange={(e) => setFormData({ ...formData, sets: parseInt(e.target.value) || 0 })}
+                      value={data.sets}
+                      onChange={(e) => updateFormData(exercise.id, 'sets', parseInt(e.target.value) || 0)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
 
+                  {/* Reps */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Reps Completed
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={data.reps}
+                      onChange={(e) => updateFormData(exercise.id, 'reps', parseInt(e.target.value) || 0)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
                   {/* Weight */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -318,13 +311,13 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
                         type="number"
                         min="0"
                         step="0.5"
-                        value={formData.weight}
-                        onChange={(e) => setFormData({ ...formData, weight: parseFloat(e.target.value) || 0 })}
+                        value={data.weight}
+                        onChange={(e) => updateFormData(exercise.id, 'weight', parseFloat(e.target.value) || 0)}
                         className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                       <select
-                        value={formData.unit}
-                        onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
+                        value={data.unit}
+                        onChange={(e) => updateFormData(exercise.id, 'unit', e.target.value)}
                         className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
                         <option value="lb">lb</option>
@@ -336,52 +329,14 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
                   </div>
                 </div>
 
-                {/* Reps */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm font-medium text-gray-700">
-                      Reps per Set
-                    </label>
-                    <button
-                      onClick={addRep}
-                      className="text-blue-600 hover:text-blue-700 text-sm flex items-center gap-1"
-                    >
-                      <Plus className="w-3 h-3" />
-                      Add Set
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-4 gap-2">
-                    {formData.reps.map((rep, index) => (
-                      <div key={index} className="flex items-center gap-1">
-                        <input
-                          type="number"
-                          min="0"
-                          value={rep}
-                          onChange={(e) => updateReps(index, parseInt(e.target.value) || 0)}
-                          className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                          placeholder={`Set ${index + 1}`}
-                        />
-                        {formData.reps.length > 1 && (
-                          <button
-                            onClick={() => removeRep(index)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
                 {/* Notes */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Notes (Optional)
                   </label>
                   <textarea
-                    value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                    value={data.notes}
+                    onChange={(e) => updateFormData(exercise.id, 'notes', e.target.value)}
                     placeholder="How did it feel? Any modifications?"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     rows={2}
@@ -391,8 +346,8 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
                 {/* Form Actions */}
                 <div className="flex gap-2 pt-2">
                   <button
-                    onClick={() => handleSaveLog(exercise.name)}
-                    disabled={saving || formData.sets === 0}
+                    onClick={() => handleSaveLog(exercise)}
+                    disabled={saving || data.sets === 0}
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
                     {saving ? (
