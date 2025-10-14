@@ -48,16 +48,16 @@ export interface WorkoutExercise {
 }
 
 export interface ExerciseLog {
-  id: number
-  workout_exercise_id: number
-  sets_completed: number
-  reps_completed: number | null
+  id: string
+  user_id: string | null
+  exercise_id: string | null
+  workout_id: string | null
+  sets_completed: number | null
+  reps_completed: number[] | null
   weight_used: number | null
   weight_unit: string | null
   notes: string | null
-  completed_at: string
-  created_at: string
-  updated_at: string
+  logged_at: string
 }
 
 export async function getWorkoutsForWeek(startDate: string, endDate: string) {
@@ -217,21 +217,44 @@ export async function getWorkoutsForMonth(monthDate: Date) {
 export async function logExercise(
   workoutExerciseId: number,
   setsCompleted: number,
-  repsCompleted?: number,
+  repsCompleted?: number | number[],
   weightUsed?: number,
   weightUnit?: string,
   notes?: string
 ) {
+  // First, get the exercise_id from workout_exercises table
+  const { data: workoutExercise, error: exerciseError } = await supabase
+    .from('workout_exercises')
+    .select('exercise_id, workout_id')
+    .eq('id', workoutExerciseId)
+    .single()
+
+  if (exerciseError || !workoutExercise) {
+    console.error('Error finding workout exercise:', exerciseError)
+    throw new Error('Workout exercise not found')
+  }
+
+  // Convert reps to array format if it's a single number
+  let repsArray = null
+  if (repsCompleted !== undefined) {
+    if (Array.isArray(repsCompleted)) {
+      repsArray = repsCompleted
+    } else {
+      // If it's a single number, create an array with that number repeated for each set
+      repsArray = Array(setsCompleted).fill(repsCompleted)
+    }
+  }
+
   const { data, error } = await supabase
     .from('exercise_logs')
     .insert({
-      workout_exercise_id: workoutExerciseId,
+      exercise_id: workoutExercise.exercise_id,
+      workout_id: workoutExercise.workout_id,
       sets_completed: setsCompleted,
-      reps_completed: repsCompleted || null,
+      reps_completed: repsArray,
       weight_used: weightUsed || null,
       weight_unit: weightUnit || 'lbs',
-      notes: notes || null,
-      completed_at: new Date().toISOString()
+      notes: notes || null
     })
     .select()
     .single()
@@ -245,11 +268,24 @@ export async function logExercise(
 }
 
 export async function getExerciseLogs(workoutExerciseId: number) {
+  // First get the exercise_id and workout_id from workout_exercises
+  const { data: workoutExercise, error: exerciseError } = await supabase
+    .from('workout_exercises')
+    .select('exercise_id, workout_id')
+    .eq('id', workoutExerciseId)
+    .single()
+
+  if (exerciseError || !workoutExercise) {
+    console.error('Error finding workout exercise:', exerciseError)
+    throw new Error('Workout exercise not found')
+  }
+
   const { data, error } = await supabase
     .from('exercise_logs')
     .select('*')
-    .eq('workout_exercise_id', workoutExerciseId)
-    .order('completed_at', { ascending: false })
+    .eq('exercise_id', workoutExercise.exercise_id)
+    .eq('workout_id', workoutExercise.workout_id)
+    .order('logged_at', { ascending: false })
 
   if (error) {
     console.error('Error fetching exercise logs:', error)
@@ -260,11 +296,24 @@ export async function getExerciseLogs(workoutExerciseId: number) {
 }
 
 export async function getLatestExerciseLog(workoutExerciseId: number) {
+  // First get the exercise_id and workout_id from workout_exercises
+  const { data: workoutExercise, error: exerciseError } = await supabase
+    .from('workout_exercises')
+    .select('exercise_id, workout_id')
+    .eq('id', workoutExerciseId)
+    .single()
+
+  if (exerciseError || !workoutExercise) {
+    console.error('Error finding workout exercise:', exerciseError)
+    return null
+  }
+
   const { data, error } = await supabase
     .from('exercise_logs')
     .select('*')
-    .eq('workout_exercise_id', workoutExerciseId)
-    .order('completed_at', { ascending: false })
+    .eq('exercise_id', workoutExercise.exercise_id)
+    .eq('workout_id', workoutExercise.workout_id)
+    .order('logged_at', { ascending: false })
     .limit(1)
     .single()
 
@@ -277,19 +326,26 @@ export async function getLatestExerciseLog(workoutExerciseId: number) {
 }
 
 export async function updateExerciseLog(
-  logId: number,
+  logId: string,
   setsCompleted?: number,
-  repsCompleted?: number,
+  repsCompleted?: number | number[],
   weightUsed?: number,
   weightUnit?: string,
   notes?: string
 ) {
-  const updateData: any = {
-    updated_at: new Date().toISOString()
-  }
+  const updateData: any = {}
 
   if (setsCompleted !== undefined) updateData.sets_completed = setsCompleted
-  if (repsCompleted !== undefined) updateData.reps_completed = repsCompleted
+  if (repsCompleted !== undefined) {
+    if (Array.isArray(repsCompleted)) {
+      updateData.reps_completed = repsCompleted
+    } else if (setsCompleted !== undefined) {
+      // If it's a single number, create an array with that number repeated for each set
+      updateData.reps_completed = Array(setsCompleted).fill(repsCompleted)
+    } else {
+      updateData.reps_completed = [repsCompleted]
+    }
+  }
   if (weightUsed !== undefined) updateData.weight_used = weightUsed
   if (weightUnit !== undefined) updateData.weight_unit = weightUnit
   if (notes !== undefined) updateData.notes = notes
@@ -309,7 +365,7 @@ export async function updateExerciseLog(
   return data as ExerciseLog
 }
 
-export async function deleteExerciseLog(logId: number) {
+export async function deleteExerciseLog(logId: string) {
   const { error } = await supabase
     .from('exercise_logs')
     .delete()
