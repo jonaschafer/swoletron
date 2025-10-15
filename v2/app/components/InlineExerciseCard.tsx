@@ -92,6 +92,7 @@ export default function InlineExerciseCard({
                 inputMode="numeric"
                 value={sets}
                 onChange={(e) => setSets(parseInt(e.target.value) || 0)}
+                onFocus={(e) => e.target.select()}
                 className="w-full text-center text-xl font-semibold text-black bg-transparent border-none outline-none"
                 style={{
                   MozAppearance: 'textfield',
@@ -114,6 +115,7 @@ export default function InlineExerciseCard({
                 inputMode="numeric"
                 value={reps}
                 onChange={(e) => setReps(parseInt(e.target.value) || 0)}
+                onFocus={(e) => e.target.select()}
                 className="w-full text-center text-xl font-semibold text-black bg-transparent border-none outline-none"
                 style={{
                   MozAppearance: 'textfield',
@@ -136,6 +138,7 @@ export default function InlineExerciseCard({
                 inputMode="numeric"
                 value={weight}
                 onChange={(e) => setWeight(parseInt(e.target.value) || 0)}
+                onFocus={(e) => e.target.select()}
                 className="w-full text-center text-xl font-semibold text-black bg-transparent border-none outline-none"
                 style={{
                   MozAppearance: 'textfield',
