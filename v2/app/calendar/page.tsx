@@ -180,7 +180,7 @@ export default function CalendarPage() {
             </button>
             
             <div className="text-center flex-1 px-2">
-              <div className="flex items-center justify-center gap-3 flex-wrap">
+              <div className="flex items-center justify-center gap-2 sm:gap-3">
                 <h2 className="text-sm sm:text-base font-semibold text-gray-900">
                   {format(currentWeek, 'MMM d')} - {format(new Date(currentWeek.getTime() + 6 * 24 * 60 * 60 * 1000), 'MMM d, yyyy')}
                 </h2>

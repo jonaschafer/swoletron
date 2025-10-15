@@ -43,3 +43,8 @@
 .flex-no-overlap > * {
   flex-shrink: 0;
 }
+
+/* Ensure app never gets narrower than 375px (iPhone SE width) */
+body {
+  min-width: 375px;
+}
