@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useDebouncedCallback } from 'use-debounce'
 import { Workout, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion, getWorkoutExercises, logExercise, getLatestExerciseLog, deleteExerciseLog, WorkoutExercise, ExerciseLog } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import InlineExerciseCard from '@/app/components/InlineExerciseCard'
 import { X, Clock, MapPin, TrendingUp, Activity, Check, CheckCircle, Dumbbell, Play } from 'lucide-react'
 
@@ -16,6 +18,7 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
   const [isCompleted, setIsCompleted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [notes, setNotes] = useState('')
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
   const [exercises, setExercises] = useState<WorkoutExercise[]>([])
   const [exerciseLogs, setExerciseLogs] = useState<Map<number, ExerciseLog>>(new Map())
 
@@ -99,6 +102,48 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
       setIsLoading(false)
     }
   }
+
+  const debouncedSaveNotes = useDebouncedCallback(
+    async (newNotes: string) => {
+      if (!workout) return
+      
+      setSaveStatus('saving')
+      
+      try {
+        // Check if workout has a completion record
+        const completion = await getWorkoutCompletion(workout.id)
+        
+        if (completion) {
+          // Update existing completion with new notes
+          const { error } = await supabase
+            .from('workout_completions')
+            .update({ notes: newNotes })
+            .eq('workout_id', workout.id)
+          
+          if (error) throw error
+        } else {
+          // Create new completion record with just notes
+          const { error } = await supabase
+            .from('workout_completions')
+            .insert({
+              workout_id: workout.id,
+              notes: newNotes,
+              completed_at: new Date().toISOString()
+            })
+          
+          if (error) throw error
+        }
+        
+        setSaveStatus('saved')
+        // Reset to idle after 2 seconds
+        setTimeout(() => setSaveStatus('idle'), 2000)
+      } catch (error) {
+        console.error('Error saving notes:', error)
+        setSaveStatus('idle')
+      }
+    },
+    1000 // Wait 1 second after user stops typing
+  )
 
   const handleSaveLog = async (workoutExerciseId: number, sets: number, reps: number, weight: number) => {
     try {
@@ -336,10 +381,22 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
           {/* Notes */}
           <div className="space-y-4">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Notes</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-lg font-semibold text-gray-900">Notes</h3>
+                {saveStatus === 'saving' && (
+                  <span className="text-sm text-gray-500">Saving...</span>
+                )}
+                {saveStatus === 'saved' && (
+                  <span className="text-sm text-green-600">✓ Saved</span>
+                )}
+              </div>
               <textarea
                 value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                onChange={(e) => {
+                  const newValue = e.target.value
+                  setNotes(newValue)
+                  debouncedSaveNotes(newValue)
+                }}
                 placeholder="Add notes about your workout..."
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 rows={3}
