@@ -9,6 +9,7 @@ import { getWeekDates, getWeekDays, formatDate } from '@/lib/utils/date'
 import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, FileText, Calendar, LayoutGrid } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { format } from 'date-fns'
 
 export default function CalendarPage() {
   const pathname = usePathname()
@@ -22,6 +23,18 @@ export default function CalendarPage() {
   // Determine active view
   const isWeekly = pathname === '/calendar' || pathname === '/'
   const isMonthly = pathname === '/monthly'
+
+  // Calculate weekly mileage
+  const getWeeklyMileage = () => {
+    const weekWorkouts = workouts.filter(w => {
+      // Get the week number for the current week
+      const { startDate, endDate } = getWeekDates(currentWeek)
+      return w.date >= startDate && w.date <= endDate
+    })
+    const runWorkouts = weekWorkouts.filter(w => w.workout_type === 'run')
+    const totalMiles = runWorkouts.reduce((sum, w) => sum + (w.distance_miles || 0), 0)
+    return Math.round(totalMiles) // Round to nearest whole number
+  }
 
   useEffect(() => {
     async function fetchWorkouts() {
@@ -167,9 +180,14 @@ export default function CalendarPage() {
             </button>
             
             <div className="text-center flex-1 px-2">
-              <h2 className="text-sm sm:text-base font-semibold text-gray-900">
-                {formatDate(currentWeek, 'MMM d')} - {formatDate(new Date(currentWeek.getTime() + 6 * 24 * 60 * 60 * 1000), 'MMM d, yyyy')}
-              </h2>
+              <div className="flex items-center justify-center gap-3 flex-wrap">
+                <h2 className="text-sm sm:text-base font-semibold text-gray-900">
+                  {format(currentWeek, 'MMM d')} - {format(new Date(currentWeek.getTime() + 6 * 24 * 60 * 60 * 1000), 'MMM d, yyyy')}
+                </h2>
+                <div className="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full">
+                  <span className="text-xs sm:text-sm font-semibold">{getWeeklyMileage()} miles</span>
+                </div>
+              </div>
             </div>
             
             <button
