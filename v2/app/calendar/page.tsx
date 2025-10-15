@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react'
 import { WorkoutCard } from '@/app/components/WorkoutCard'
 import { WorkoutModal } from '@/app/components/WorkoutModal'
 import { ViewToggle } from '@/app/components/ViewToggle'
+import { WeeklyNavigationCard } from '@/app/components/WeeklyNavigationCard'
 import { getWorkoutsForWeek, Workout } from '@/lib/supabase'
 import { getWeekDates, getWeekDays, formatDate } from '@/lib/utils/date'
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, FileText, Calendar, LayoutGrid } from 'lucide-react'
+import { Calendar as CalendarIcon, FileText, Calendar, LayoutGrid } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { format } from 'date-fns'
@@ -169,36 +170,11 @@ export default function CalendarPage() {
           </div>
           
           {/* Week Navigation */}
-          <div className="flex items-center justify-between bg-white rounded-lg border border-gray-200 p-3">
-            <button
-              onClick={() => navigateWeek('prev')}
-              className="flex items-center gap-1 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm font-medium"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Previous Week</span>
-              <span className="sm:hidden">Prev</span>
-            </button>
-            
-            <div className="text-center flex-1 px-2">
-              <div className="flex items-center justify-center gap-2 sm:gap-3">
-                <h2 className="text-sm sm:text-base font-semibold text-gray-900">
-                  {format(currentWeek, 'MMM d')} - {format(new Date(currentWeek.getTime() + 6 * 24 * 60 * 60 * 1000), 'MMM d, yyyy')}
-                </h2>
-                <div className="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full">
-                  <span className="text-xs sm:text-sm font-semibold">{getWeeklyMileage()} miles</span>
-                </div>
-              </div>
-            </div>
-            
-            <button
-              onClick={() => navigateWeek('next')}
-              className="flex items-center gap-1 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-sm font-medium"
-            >
-              <span className="hidden sm:inline">Next Week</span>
-              <span className="sm:hidden">Next</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
+          <WeeklyNavigationCard
+            currentWeek={currentWeek}
+            weeklyMileage={getWeeklyMileage()}
+            onNavigateWeek={navigateWeek}
+          />
         </div>
 
         {/* Desktop Calendar Grid */}

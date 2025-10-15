@@ -14,19 +14,19 @@ interface ExistingLog {
   weight: number;
 }
 
-interface InlineExerciseCardProps {
+interface FigmaExerciseCardProps {
   exercise: Exercise;
   existingLog: ExistingLog | null;
   onSave: (sets: number, reps: number, weight: number) => void;
   onDelete: () => void;
 }
 
-export default function InlineExerciseCard({
+export default function FigmaExerciseCard({
   exercise,
   existingLog,
   onSave,
   onDelete
-}: InlineExerciseCardProps) {
+}: FigmaExerciseCardProps) {
   const [sets, setSets] = useState(existingLog?.sets || exercise.planned_sets);
   const [reps, setReps] = useState(existingLog?.reps || exercise.planned_reps);
   const [weight, setWeight] = useState(existingLog?.weight || exercise.planned_weight);
