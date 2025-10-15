@@ -23,7 +23,7 @@ export interface Workout {
 export interface WorkoutCompletion {
   id: number
   workout_id: number
-  logged_at: string
+  completed_at: string
   notes: string | null
 }
 
@@ -113,7 +113,7 @@ export async function markWorkoutComplete(
     .insert({
       workout_id: workoutId,
       notes: notes || null,
-      logged_at: new Date().toISOString()
+      completed_at: new Date().toISOString()
     })
     .select()
     .single()
