@@ -13,18 +13,23 @@ const formatTime = (seconds: number): string => {
 };
 
 // Helper function to parse time from strings
-const parseTime = (timeStr: string): number => {
-  const str = String(timeStr).toLowerCase();
+const parseTime = (timeStr: string | number): number => {
+  if (typeof timeStr === 'number') return timeStr;
   
+  const str = String(timeStr).toLowerCase().trim();
+  
+  // Handle "1min" format
   if (str.includes('min')) {
-    const mins = parseInt(str);
+    const mins = parseInt(str.replace(/\D/g, ''));
     return mins * 60;
   }
   
+  // Handle "30sec" format
   if (str.includes('sec')) {
-    return parseInt(str);
+    return parseInt(str.replace(/\D/g, ''));
   }
   
+  // Handle plain numbers
   return parseInt(str) || 0;
 };
 
@@ -33,6 +38,7 @@ interface Exercise {
   planned_sets: number;
   planned_reps: number;
   planned_weight: number;
+  reps?: string | number;
 }
 
 interface ExistingLog {
@@ -54,16 +60,17 @@ export default function InlineExerciseCard({
   onSave,
   onDelete
 }: InlineExerciseCardProps) {
-  // Detect if this is a time-based exercise
-  const isTimeBased = exercise.planned_reps && 
-    (String(exercise.planned_reps).includes('sec') || 
-     String(exercise.planned_reps).includes('min'));
+  // Detect if this is a time-based exercise by checking exercise.reps
+  const isTimeBased = exercise.reps && 
+    (typeof exercise.reps === 'string' && (exercise.reps.includes('sec') || exercise.reps.includes('min')));
 
   // Initialize with parsed time values if time-based
   const initialReps = existingLog?.reps || 
-    (exercise.planned_reps 
-      ? (isTimeBased ? parseTime(exercise.planned_reps) : exercise.planned_reps)
-      : 0);
+    (exercise.reps 
+      ? (typeof exercise.reps === 'string' && (exercise.reps.includes('sec') || exercise.reps.includes('min'))
+          ? parseTime(exercise.reps)  // Convert "30sec" to 30
+          : parseInt(String(exercise.reps)) || exercise.planned_reps)
+      : exercise.planned_reps || 0);
 
   const [sets, setSets] = useState(existingLog?.sets || exercise.planned_sets);
   const [reps, setReps] = useState(initialReps);
@@ -133,9 +140,7 @@ export default function InlineExerciseCard({
                 onFocus={(e) => e.target.select()}
                 className="w-full text-center text-xl font-semibold text-black bg-transparent border-none outline-none"
                 style={{
-                  MozAppearance: 'textfield',
-                  WebkitAppearance: 'none',
-                  appearance: 'none'
+                  appearance: 'textfield'
                 }}
                 min="0"
               />
@@ -161,11 +166,6 @@ export default function InlineExerciseCard({
                   onFocus={(e) => e.target.select()}
                   placeholder="30s"
                   className="w-full text-center text-xl font-semibold text-black bg-transparent border-none outline-none"
-                  style={{
-                    MozAppearance: 'textfield',
-                    WebkitAppearance: 'none',
-                    appearance: 'none'
-                  }}
                 />
               ) : (
                 <input
@@ -176,9 +176,7 @@ export default function InlineExerciseCard({
                   onFocus={(e) => e.target.select()}
                   className="w-full text-center text-xl font-semibold text-black bg-transparent border-none outline-none"
                   style={{
-                    MozAppearance: 'textfield',
-                    WebkitAppearance: 'none',
-                    appearance: 'none'
+                    appearance: 'textfield'
                   }}
                   min="0"
                 />
@@ -202,9 +200,7 @@ export default function InlineExerciseCard({
                 onFocus={(e) => e.target.select()}
                 className="w-full text-center text-xl font-semibold text-black bg-transparent border-none outline-none"
                 style={{
-                  MozAppearance: 'textfield',
-                  WebkitAppearance: 'none',
-                  appearance: 'none'
+                  appearance: 'textfield'
                 }}
                 min="0"
               />
