@@ -18,6 +18,12 @@ const parseTime = (timeStr: string | number): number => {
   
   const str = String(timeStr).toLowerCase().trim();
   
+  // Handle ranges like "8-10" or "15-20" - use the first number
+  if (str.includes('-')) {
+    const firstNum = parseInt(str.split('-')[0]);
+    return firstNum;
+  }
+  
   // Handle "1min" format
   if (str.includes('min')) {
     const mins = parseInt(str.replace(/\D/g, ''));
@@ -31,6 +37,21 @@ const parseTime = (timeStr: string | number): number => {
   
   // Handle plain numbers
   return parseInt(str) || 0;
+};
+
+// Helper function to display reps properly
+const displayReps = (reps: string | number): string => {
+  if (typeof reps === 'string' && reps.includes('-')) {
+    // Keep range format for display: "8-10"
+    return reps;
+  }
+  
+  if (typeof reps === 'string' && (reps.includes('sec') || reps.includes('min'))) {
+    // Format time: "30sec" → "30s"
+    return formatTime(parseTime(reps));
+  }
+  
+  return String(reps);
 };
 
 interface Exercise {
@@ -61,21 +82,30 @@ export default function InlineExerciseCard({
   onDelete
 }: InlineExerciseCardProps) {
   // Detect if this is a time-based exercise by checking exercise.reps
+  // Ranges (like "8-10") are NOT time-based
   const isTimeBased = exercise.reps && 
-    (typeof exercise.reps === 'string' && (exercise.reps.includes('sec') || exercise.reps.includes('min')));
+    (typeof exercise.reps === 'string' && 
+     !exercise.reps.includes('-') && 
+     (exercise.reps.includes('sec') || exercise.reps.includes('min')));
 
-  // Initialize with parsed time values if time-based
+  // Initialize with parsed values
   const initialReps = existingLog?.reps || 
     (exercise.reps 
       ? (typeof exercise.reps === 'string' && (exercise.reps.includes('sec') || exercise.reps.includes('min'))
           ? parseTime(exercise.reps)  // Convert "30sec" to 30
-          : parseInt(String(exercise.reps)) || exercise.planned_reps)
+          : parseTime(exercise.reps)) // Parse ranges or plain numbers
       : exercise.planned_reps || 0);
 
   const [sets, setSets] = useState(existingLog?.sets || exercise.planned_sets);
   const [reps, setReps] = useState(initialReps);
   const [weight, setWeight] = useState(existingLog?.weight || exercise.planned_weight);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // For ranges, we need to track both the display value and the internal numeric value
+  const isRange = typeof exercise.reps === 'string' && exercise.reps.includes('-');
+  const [displayReps, setDisplayReps] = useState(
+    isRange ? exercise.reps : (isTimeBased ? formatTime(reps) : String(reps))
+  );
   
   const isLogged = existingLog !== null;
 
@@ -169,16 +199,26 @@ export default function InlineExerciseCard({
                 />
               ) : (
                 <input
-                  type="number"
+                  type={isRange ? "text" : "number"}
                   inputMode="numeric"
-                  value={reps}
-                  onChange={(e) => setReps(parseInt(e.target.value) || 0)}
+                  value={isRange ? displayReps : reps}
+                  onChange={(e) => {
+                    if (isRange) {
+                      // For ranges, allow editing the range format
+                      const newValue = e.target.value;
+                      setDisplayReps(newValue);
+                      setReps(parseTime(newValue)); // Store the first number for internal use
+                    } else {
+                      setReps(parseInt(e.target.value) || 0);
+                    }
+                  }}
                   onFocus={(e) => e.target.select()}
                   className="w-full text-center text-xl font-semibold text-black bg-transparent border-none outline-none"
                   style={{
                     appearance: 'textfield'
                   }}
                   min="0"
+                  placeholder={isRange ? "8-10" : "12"}
                 />
               )}
             </div>
