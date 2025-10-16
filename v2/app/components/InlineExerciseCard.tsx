@@ -106,6 +106,17 @@ export default function InlineExerciseCard({
   const [displayReps, setDisplayReps] = useState(
     isRange ? exercise.reps : (isTimeBased ? formatTime(reps) : String(reps))
   );
+
+  // Debug logging to see what data we're getting
+  console.log('Exercise Debug:', {
+    name: exercise.name,
+    reps_from_db: exercise.reps,
+    reps_state: reps,
+    display_reps: displayReps,
+    is_time_based: isTimeBased,
+    is_range: isRange,
+    full_exercise: exercise
+  });
   
   const isLogged = existingLog !== null;
 
@@ -199,7 +210,7 @@ export default function InlineExerciseCard({
                 />
               ) : (
                 <input
-                  type={isRange ? "text" : "number"}
+                  type="text"
                   inputMode="numeric"
                   value={isRange ? displayReps : reps}
                   onChange={(e) => {
