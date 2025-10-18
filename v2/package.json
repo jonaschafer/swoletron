@@ -10,7 +10,6 @@
     "import": "tsx scripts/import-csv.ts"
   },
   "dependencies": {
-    "@supabase/auth-helpers-nextjs": "^0.8.7",
     "@supabase/supabase-js": "^2.39.0",
     "date-fns": "^3.0.0",
     "dotenv": "^17.2.3",

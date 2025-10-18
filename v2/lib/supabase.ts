@@ -49,7 +49,6 @@ export interface WorkoutExercise {
 
 export interface ExerciseLog {
   id: string
-  user_id: string | null
   exercise_id: string | null
   workout_id: string | null
   sets_completed: number | null
