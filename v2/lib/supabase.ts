@@ -3,7 +3,18 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
+if (!supabaseUrl || !supabaseKey) {
+  console.error('Missing Supabase environment variables!')
+  console.error('URL:', supabaseUrl)
+  console.error('Key exists:', !!supabaseKey)
+  throw new Error('Missing required Supabase environment variables')
+}
+
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: false
+  }
+})
 
 export interface Workout {
   id: number
@@ -109,11 +120,14 @@ export async function markWorkoutComplete(
 ) {
   const { data, error } = await supabase
     .from('workout_completions')
-    .insert({
-      workout_id: workoutId,
-      notes: notes || null,
-      completed_at: new Date().toISOString()
-    })
+    .upsert(
+      {
+        workout_id: workoutId,
+        notes: notes || null,
+        completed_at: new Date().toISOString()
+      },
+      { onConflict: 'workout_id' }
+    )
     .select()
     .single()
 
@@ -142,9 +156,9 @@ export async function getWorkoutCompletion(workoutId: number) {
     .from('workout_completions')
     .select('*')
     .eq('workout_id', workoutId)
-    .single()
+    .maybeSingle()
 
-  if (error && error.code !== 'PGRST116') {
+  if (error) {
     console.error('Error fetching workout completion:', error)
     return null
   }
@@ -334,9 +348,9 @@ export async function getLatestExerciseLog(workoutExerciseId: number) {
     .eq('workout_id', workoutExercise.workout_id)
     .order('logged_at', { ascending: false })
     .limit(1)
-    .single()
+    .maybeSingle()
 
-  if (error && error.code !== 'PGRST116') {
+  if (error) {
     console.error('Error fetching latest exercise log:', error)
     return null
   }
@@ -392,6 +406,36 @@ export async function deleteExerciseLog(logId: string) {
 
   if (error) {
     console.error('Error deleting exercise log:', error)
+    throw error
+  }
+}
+
+export async function updateWorkoutCompletionNotes(workoutId: number, notes: string) {
+  const { error } = await supabase
+    .from('workout_completions')
+    .update({ notes })
+    .eq('workout_id', workoutId)
+
+  if (error) {
+    console.error('Error updating workout completion notes:', error)
+    throw error
+  }
+}
+
+export async function createWorkoutCompletionWithNotes(workoutId: number, notes: string) {
+  const { error } = await supabase
+    .from('workout_completions')
+    .upsert(
+      {
+        workout_id: workoutId,
+        notes,
+        completed_at: new Date().toISOString()
+      },
+      { onConflict: 'workout_id' }
+    )
+
+  if (error) {
+    console.error('Error creating workout completion with notes:', error)
     throw error
   }
 }

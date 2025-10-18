@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
-import { Workout, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion, getWorkoutExercises, logExercise, getLatestExerciseLog, deleteExerciseLog, WorkoutExercise, ExerciseLog } from '@/lib/supabase'
-import { supabase } from '@/lib/supabase'
+import { Workout, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion, getWorkoutExercises, logExercise, getLatestExerciseLog, deleteExerciseLog, WorkoutExercise, ExerciseLog, updateWorkoutCompletionNotes, createWorkoutCompletionWithNotes } from '@/lib/supabase'
 import InlineExerciseCard from '@/app/components/InlineExerciseCard'
 import { X, Clock, MapPin, TrendingUp, Activity, Check, CheckCircle, Dumbbell, Play } from 'lucide-react'
 
@@ -115,23 +114,10 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
         
         if (completion) {
           // Update existing completion with new notes
-          const { error } = await supabase
-            .from('workout_completions')
-            .update({ notes: newNotes })
-            .eq('workout_id', workout.id)
-          
-          if (error) throw error
+          await updateWorkoutCompletionNotes(workout.id, newNotes)
         } else {
           // Create new completion record with just notes
-          const { error } = await supabase
-            .from('workout_completions')
-            .insert({
-              workout_id: workout.id,
-              notes: newNotes,
-              completed_at: new Date().toISOString()
-            })
-          
-          if (error) throw error
+          await createWorkoutCompletionWithNotes(workout.id, newNotes)
         }
         
         setSaveStatus('saved')
