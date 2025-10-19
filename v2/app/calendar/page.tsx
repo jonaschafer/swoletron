@@ -73,72 +73,33 @@ export default function CalendarPage() {
 
   useEffect(() => {
     const scrollToToday = () => {
-      // Only run on mobile
       if (window.innerWidth >= 768) {
-        setDebugInfo('Desktop detected, skipping mobile scroll');
+        setDebugInfo('Desktop - no scroll');
         return;
       }
       
       const today = format(new Date(), 'yyyy-MM-dd');
-      setDebugInfo(`Looking for: ${today}`);
-      
-      // Debug: log all data-date attributes
-      const allCards = document.querySelectorAll('[data-date]');
-      setDebugInfo(`Cards found: ${allCards.length}`);
-      
       const todayElement = document.querySelector(`[data-date="${today}"]`) as HTMLElement;
       
       if (!todayElement) {
-        setDebugInfo('Today element NOT FOUND');
+        setDebugInfo('Today card not found');
         return;
       }
       
-      // Try multiple methods to find the scroll container
-      let scrollContainer = todayElement.closest('.overflow-x-auto') as HTMLElement;
-
-      if (!scrollContainer) {
-        // Look for a flex container that's NOT space-y-2 (which is vertical)
-        let candidate = todayElement.closest('.flex') as HTMLElement;
-        
-        // If we found space-y-2, go up one more level
-        if (candidate && candidate.className.includes('space-y')) {
-          candidate = candidate.parentElement?.closest('.flex') as HTMLElement;
-        }
-        
-        scrollContainer = candidate;
+      // Log the entire parent chain
+      let debugStr = '';
+      let current = todayElement;
+      let level = 0;
+      
+      while (current && level < 5) {
+        const classes = current.className || 'NO_CLASS';
+        const tag = current.tagName.toLowerCase();
+        debugStr += `L${level}:${tag}.${classes.substring(0, 30)}... | `;
+        current = current.parentElement as HTMLElement;
+        level++;
       }
-
-      if (!scrollContainer) {
-        // Last resort: go up levels until we find something with overflow or flex without space-y
-        let current = todayElement.parentElement;
-        while (current && !scrollContainer) {
-          const classes = current.className || '';
-          if (classes.includes('overflow-x') || (classes.includes('flex') && classes.includes('gap'))) {
-            scrollContainer = current as HTMLElement;
-            break;
-          }
-          current = current.parentElement;
-        }
-      }
-
-      // Debug: show what we found
-      if (scrollContainer) {
-        setDebugInfo(`Found! ${scrollContainer.className.substring(0, 60)}`);
-        
-        const elementLeft = todayElement.offsetLeft;
-        const containerWidth = scrollContainer.clientWidth;
-        const elementWidth = todayElement.clientWidth;
-        
-        const scrollPosition = elementLeft - (containerWidth / 2) + (elementWidth / 2);
-        
-        scrollContainer.scrollTo({
-          left: scrollPosition,
-          behavior: 'smooth'
-        });
-      } else {
-        setDebugInfo('All methods failed');
-        return;
-      }
+      
+      setDebugInfo(debugStr);
     };
 
     const timer = setTimeout(scrollToToday, 500);
