@@ -35,6 +35,7 @@ export default function CalendarPage() {
   const [error, setError] = useState<string | null>(null)
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [debugInfo, setDebugInfo] = useState('')
   
   // Determine active view
   const isWeekly = pathname === '/calendar' || pathname === '/'
@@ -74,39 +75,27 @@ export default function CalendarPage() {
     const scrollToToday = () => {
       // Only run on mobile
       if (window.innerWidth >= 768) {
-        console.log('Desktop detected, skipping mobile scroll');
+        setDebugInfo('Desktop detected, skipping mobile scroll');
         return;
       }
       
       const today = format(new Date(), 'yyyy-MM-dd');
-      console.log('Looking for date:', today);
+      setDebugInfo(`Looking for: ${today}`);
       
       // Debug: log all data-date attributes
       const allCards = document.querySelectorAll('[data-date]');
-      console.log('All workout cards found:', allCards.length);
-      allCards.forEach((card, i) => {
-        console.log(`Card ${i}:`, card.getAttribute('data-date'));
-      });
+      setDebugInfo(`Cards found: ${allCards.length}`);
       
       const todayElement = document.querySelector(`[data-date="${today}"]`) as HTMLElement;
       
-      console.log('Mobile scroll debug:', { 
-        today, 
-        elementFound: !!todayElement,
-        windowWidth: window.innerWidth
-      });
-      
       if (!todayElement) {
-        console.log('Today element NOT FOUND');
+        setDebugInfo('Today element NOT FOUND');
         return;
       }
       
       // Find the horizontal scroll container - need to go up the DOM tree
       // Look for the container with overflow-x-auto class
       const scrollContainer = todayElement.closest('.overflow-x-auto') as HTMLElement;
-      
-      console.log('Scroll container:', scrollContainer);
-      console.log('Scroll container classes:', scrollContainer?.className);
       
       if (scrollContainer) {
         const elementLeft = todayElement.offsetLeft;
@@ -115,19 +104,14 @@ export default function CalendarPage() {
         
         const scrollPosition = elementLeft - (containerWidth / 2) + (elementWidth / 2);
         
-        console.log('Scroll calculation:', {
-          elementLeft,
-          containerWidth,
-          elementWidth,
-          scrollPosition
-        });
+        setDebugInfo(`Width: ${window.innerWidth}, Found: ${!!todayElement}, Container: ${!!scrollContainer}`);
         
         scrollContainer.scrollTo({
           left: scrollPosition,
           behavior: 'smooth'
         });
       } else {
-        console.log('Scroll container with overflow-x-auto NOT FOUND');
+        setDebugInfo('Container NOT FOUND');
       }
     };
 
@@ -201,6 +185,11 @@ export default function CalendarPage() {
 
   return (
     <div className="min-h-screen bg-white px-5 py-3 sm:p-6">
+      {debugInfo && (
+        <div className="fixed top-0 left-0 right-0 bg-yellow-200 p-2 text-xs z-50 text-black">
+          Debug: {debugInfo}
+        </div>
+      )}
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-4 sm:mb-6">
