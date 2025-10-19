@@ -82,7 +82,7 @@ export default function CalendarPage() {
       const allTodayElements = document.querySelectorAll(`[data-date="${today}"]`);
       
       // Find the visible one
-      let visibleCard: HTMLElement | null = null;
+      let visibleCard: HTMLElement | undefined;
       allTodayElements.forEach((element) => {
         const htmlElement = element as HTMLElement;
         if (htmlElement.offsetWidth > 0 && htmlElement.offsetHeight > 0) {
@@ -96,7 +96,7 @@ export default function CalendarPage() {
       }
       
       // Walk up the DOM tree to find horizontal scroll container
-      let current = visibleCard.parentElement;
+      let current: HTMLElement | null = visibleCard.parentElement;
       let level = 1;
       let scrollContainer: HTMLElement | null = null;
       
