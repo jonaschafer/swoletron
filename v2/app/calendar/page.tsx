@@ -101,10 +101,12 @@ export default function CalendarPage() {
         return;
       }
       
-      // Find the horizontal scroll container
-      const scrollContainer = todayElement.parentElement;
+      // Find the horizontal scroll container - need to go up the DOM tree
+      // Look for the container with overflow-x-auto class
+      const scrollContainer = todayElement.closest('.overflow-x-auto') as HTMLElement;
       
       console.log('Scroll container:', scrollContainer);
+      console.log('Scroll container classes:', scrollContainer?.className);
       
       if (scrollContainer) {
         const elementLeft = todayElement.offsetLeft;
@@ -124,6 +126,8 @@ export default function CalendarPage() {
           left: scrollPosition,
           behavior: 'smooth'
         });
+      } else {
+        console.log('Scroll container with overflow-x-auto NOT FOUND');
       }
     };
 
