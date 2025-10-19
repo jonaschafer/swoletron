@@ -71,17 +71,48 @@ export default function CalendarPage() {
   }, [currentWeek])
 
   useEffect(() => {
-    // Only scroll on mobile
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      const today = format(new Date(), 'yyyy-MM-dd')
-      const todayElement = document.querySelector(`[data-date="${today}"]`)
-      if (todayElement) {
-        setTimeout(() => {
-          todayElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
-        }, 100) // Small delay to ensure DOM is ready
+    const scrollToToday = () => {
+      // Only run on mobile
+      if (window.innerWidth >= 768) return;
+      
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const todayElement = document.querySelector(`[data-date="${today}"]`) as HTMLElement;
+      
+      console.log('Mobile scroll debug:', { 
+        today, 
+        elementFound: !!todayElement,
+        windowWidth: window.innerWidth
+      });
+      
+      if (!todayElement) return;
+      
+      // Find the horizontal scroll container (the flex container with workout cards)
+      const scrollContainer = todayElement.parentElement;
+      
+      if (scrollContainer) {
+        // Calculate position to center the current day
+        const elementLeft = todayElement.offsetLeft;
+        const containerWidth = scrollContainer.clientWidth;
+        const elementWidth = todayElement.clientWidth;
+        
+        // Center the element in the viewport
+        const scrollPosition = elementLeft - (containerWidth / 2) + (elementWidth / 2);
+        
+        console.log('Scrolling to position:', scrollPosition);
+        
+        // Smooth scroll to position
+        scrollContainer.scrollTo({
+          left: scrollPosition,
+          behavior: 'smooth'
+        });
       }
-    }
-  }, [currentWeek])
+    };
+
+    // Wait for DOM to be ready and workouts to render
+    const timer = setTimeout(scrollToToday, 500);
+    
+    return () => clearTimeout(timer);
+  }, [currentWeek, workouts]); // Re-run when week or workouts change
 
   const navigateWeek = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentWeek)
