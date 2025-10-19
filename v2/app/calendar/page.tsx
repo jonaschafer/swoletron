@@ -73,9 +73,21 @@ export default function CalendarPage() {
   useEffect(() => {
     const scrollToToday = () => {
       // Only run on mobile
-      if (window.innerWidth >= 768) return;
+      if (window.innerWidth >= 768) {
+        console.log('Desktop detected, skipping mobile scroll');
+        return;
+      }
       
       const today = format(new Date(), 'yyyy-MM-dd');
+      console.log('Looking for date:', today);
+      
+      // Debug: log all data-date attributes
+      const allCards = document.querySelectorAll('[data-date]');
+      console.log('All workout cards found:', allCards.length);
+      allCards.forEach((card, i) => {
+        console.log(`Card ${i}:`, card.getAttribute('data-date'));
+      });
+      
       const todayElement = document.querySelector(`[data-date="${today}"]`) as HTMLElement;
       
       console.log('Mobile scroll debug:', { 
@@ -84,23 +96,30 @@ export default function CalendarPage() {
         windowWidth: window.innerWidth
       });
       
-      if (!todayElement) return;
+      if (!todayElement) {
+        console.log('Today element NOT FOUND');
+        return;
+      }
       
-      // Find the horizontal scroll container (the flex container with workout cards)
+      // Find the horizontal scroll container
       const scrollContainer = todayElement.parentElement;
       
+      console.log('Scroll container:', scrollContainer);
+      
       if (scrollContainer) {
-        // Calculate position to center the current day
         const elementLeft = todayElement.offsetLeft;
         const containerWidth = scrollContainer.clientWidth;
         const elementWidth = todayElement.clientWidth;
         
-        // Center the element in the viewport
         const scrollPosition = elementLeft - (containerWidth / 2) + (elementWidth / 2);
         
-        console.log('Scrolling to position:', scrollPosition);
+        console.log('Scroll calculation:', {
+          elementLeft,
+          containerWidth,
+          elementWidth,
+          scrollPosition
+        });
         
-        // Smooth scroll to position
         scrollContainer.scrollTo({
           left: scrollPosition,
           behavior: 'smooth'
@@ -108,11 +127,10 @@ export default function CalendarPage() {
       }
     };
 
-    // Wait for DOM to be ready and workouts to render
     const timer = setTimeout(scrollToToday, 500);
     
     return () => clearTimeout(timer);
-  }, [currentWeek, workouts]); // Re-run when week or workouts change
+  }, [currentWeek, workouts]);
 
   const navigateWeek = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentWeek)
