@@ -79,23 +79,59 @@ export default function CalendarPage() {
       }
       
       const today = format(new Date(), 'yyyy-MM-dd');
-      
-      // Find ALL elements with today's date
       const allTodayElements = document.querySelectorAll(`[data-date="${today}"]`);
       
-      let debugStr = `Found ${allTodayElements.length} cards. `;
-      
-      // Check each one for visibility
-      allTodayElements.forEach((element, index) => {
+      // Find the visible one
+      let visibleCard: HTMLElement | null = null;
+      allTodayElements.forEach((element) => {
         const htmlElement = element as HTMLElement;
-        const isVisible = htmlElement.offsetWidth > 0 && htmlElement.offsetHeight > 0;
-        const parent = htmlElement.parentElement;
-        const parentClasses = parent?.className.substring(0, 30) || 'none';
-        
-        debugStr += `C${index}:${isVisible ? 'VIS' : 'HID'} parent:${parentClasses}... | `;
+        if (htmlElement.offsetWidth > 0 && htmlElement.offsetHeight > 0) {
+          visibleCard = htmlElement;
+        }
       });
       
-      setDebugInfo(debugStr);
+      if (!visibleCard) {
+        setDebugInfo('No visible card found');
+        return;
+      }
+      
+      // Walk up the DOM tree to find horizontal scroll container
+      let current = visibleCard.parentElement;
+      let level = 1;
+      let scrollContainer: HTMLElement | null = null;
+      
+      while (current && level <= 5) {
+        const classes = current.className || '';
+        
+        // Look for horizontal scroll indicators
+        if (classes.includes('overflow-x') || 
+            (classes.includes('flex') && classes.includes('gap') && !classes.includes('space-y'))) {
+          scrollContainer = current;
+          setDebugInfo(`Found scroll at L${level}: ${classes.substring(0, 50)}`);
+          break;
+        }
+        
+        current = current.parentElement;
+        level++;
+      }
+      
+      if (!scrollContainer) {
+        setDebugInfo('No scroll container found in 5 levels');
+        return;
+      }
+      
+      // Now scroll!
+      const elementLeft = visibleCard.offsetLeft;
+      const containerWidth = scrollContainer.clientWidth;
+      const elementWidth = visibleCard.clientWidth;
+      const scrollPosition = elementLeft - (containerWidth / 2) + (elementWidth / 2);
+      
+      scrollContainer.scrollTo({
+        left: scrollPosition,
+        behavior: 'smooth'
+      });
+      
+      setDebugInfo(`Scrolled to position ${scrollPosition}`);
     };
 
     const timer = setTimeout(scrollToToday, 500);
