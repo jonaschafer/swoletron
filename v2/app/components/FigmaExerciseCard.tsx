@@ -10,14 +10,14 @@ interface Exercise {
 
 interface ExistingLog {
   sets: number;
-  reps: number;
+  reps: string;
   weight: number;
 }
 
 interface FigmaExerciseCardProps {
   exercise: Exercise;
   existingLog: ExistingLog | null;
-  onSave: (sets: number, reps: number, weight: number) => void;
+  onSave: (sets: number, reps: string, weight: number) => void;
   onDelete: () => void;
 }
 
@@ -28,7 +28,7 @@ export default function FigmaExerciseCard({
   onDelete
 }: FigmaExerciseCardProps) {
   const [sets, setSets] = useState(existingLog?.sets || exercise.planned_sets);
-  const [reps, setReps] = useState(existingLog?.reps || exercise.planned_reps);
+  const [reps, setReps] = useState(existingLog?.reps || String(exercise.planned_reps));
   const [weight, setWeight] = useState(existingLog?.weight || exercise.planned_weight);
   const [isLoading, setIsLoading] = useState(false);
   
@@ -113,7 +113,7 @@ export default function FigmaExerciseCard({
                 type="number"
                 inputMode="numeric"
                 value={reps}
-                onChange={(e) => setReps(parseInt(e.target.value) || 0)}
+                 onChange={(e) => setReps(e.target.value)}
                 className="w-full text-center text-xl font-semibold text-black bg-transparent border-none outline-none"
                 style={{
                   MozAppearance: 'textfield',

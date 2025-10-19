@@ -230,7 +230,7 @@ export async function getWorkoutsForMonth(monthDate: Date) {
 export async function logExercise(
   workoutExerciseId: number,
   setsCompleted: number,
-  repsCompleted?: number | number[],
+  repsCompleted?: string[],
   weightUsed?: number,
   weightUnit?: string,
   notes?: string
@@ -361,7 +361,7 @@ export async function getLatestExerciseLog(workoutExerciseId: number) {
 export async function updateExerciseLog(
   logId: string,
   setsCompleted?: number,
-  repsCompleted?: number | number[],
+  repsCompleted?: string[],
   weightUsed?: number,
   weightUnit?: string,
   notes?: string

@@ -26,9 +26,9 @@ const mockExercises = [
 ]
 
 export default function TestFigmaExercisePage() {
-  const [exerciseLogs, setExerciseLogs] = useState<Record<string, { sets: number; reps: number; weight: number }>>({})
+  const [exerciseLogs, setExerciseLogs] = useState<Record<string, { sets: number; reps: string; weight: number }>>({})
 
-  const handleSave = (exerciseName: string, sets: number, reps: number, weight: number) => {
+  const handleSave = (exerciseName: string, sets: number, reps: string, weight: number) => {
     console.log(`Saving ${exerciseName}: ${sets} sets, ${reps} reps, ${weight} lbs`)
     setExerciseLogs(prev => ({
       ...prev,

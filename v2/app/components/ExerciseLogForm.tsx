@@ -25,7 +25,7 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
   // Form data for each exercise
   const [formData, setFormData] = useState<Record<number, {
     sets: number | null
-    reps: number[]
+    reps: string[]
     weight: number
     unit: string
     notes: string
@@ -88,7 +88,7 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
         ...prev,
         [exercise.id]: {
           sets: exercise.sets || null,
-          reps: exercise.reps ? [exercise.reps] : [],
+          reps: exercise.reps ? [String(exercise.reps)] : [],
           weight: exercise.weight || 0,
           unit: exercise.weight_unit || 'lb',
           notes: ''
@@ -111,12 +111,10 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
       if (!data) return
 
       // Keep reps as strings - supports both numbers and time (30sec, 1min, etc.)
-const repsValue = String(data.reps[0] || '');
-const repsArray = new Array(data.sets || 1).fill(repsValue);
+      const repsArray = data.reps || [];
 
 console.log('Reps data being saved:', {
   original: data.reps,
-  repsValue: repsValue,
   sets: data.sets,
   finalArray: repsArray
 });
@@ -305,11 +303,12 @@ console.log('Reps data being saved:', {
                       type="text"
                       value={Array.isArray(data.reps) ? data.reps.join(', ') : data.reps}
                       onChange={(e) => {
-                        // Convert comma-separated string to array of numbers
-                        const repsArray = e.target.value.split(',').map(r => parseInt(r.trim()) || 0).filter(n => n > 0)
+                        // Convert comma-separated string to array of strings
+                        const repsArray = e.target.value.split(',').map(r => r.trim()).filter(r => r.length > 0)
                         updateFormData(exercise.id, 'reps', repsArray)
                       }}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="e.g., 10, 12, 15 or 30sec, 1min, AMRAP"
                     />
                   </div>
                 </div>

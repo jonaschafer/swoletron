@@ -64,14 +64,14 @@ interface Exercise {
 
 interface ExistingLog {
   sets: number;
-  reps: number;
+  reps: string;
   weight: number;
 }
 
 interface InlineExerciseCardProps {
   exercise: Exercise;
   existingLog: ExistingLog | null;
-  onSave: (sets: number, reps: number, weight: number) => void;
+  onSave: (sets: number, reps: string, weight: number) => void;
   onDelete: () => void;
 }
 
@@ -92,9 +92,9 @@ export default function InlineExerciseCard({
   const initialReps = existingLog?.reps || 
     (exercise.reps 
       ? (typeof exercise.reps === 'string' && (exercise.reps.includes('sec') || exercise.reps.includes('min'))
-          ? parseTime(exercise.reps)  // Convert "30sec" to 30
-          : parseTime(exercise.reps)) // Parse ranges or plain numbers
-      : exercise.planned_reps || 0);
+          ? exercise.reps  // Keep time-based reps as strings
+          : String(exercise.reps)) // Convert numbers to strings
+      : String(exercise.planned_reps || 0));
 
   const [sets, setSets] = useState(existingLog?.sets || exercise.planned_sets);
   const [reps, setReps] = useState(initialReps);
@@ -104,7 +104,7 @@ export default function InlineExerciseCard({
   // For ranges, we need to track both the display value and the internal numeric value
   const isRange = typeof exercise.reps === 'string' && exercise.reps.includes('-');
   const [displayReps, setDisplayReps] = useState(
-    isRange ? exercise.reps : (isTimeBased ? formatTime(reps) : String(reps))
+    isRange ? exercise.reps : (isTimeBased ? formatTime(parseTime(reps)) : reps)
   );
 
   // Debug logging to see what data we're getting
@@ -198,11 +198,11 @@ export default function InlineExerciseCard({
                 <input
                   type="text"
                   inputMode="numeric"
-                  value={formatTime(reps)}
+                  value={formatTime(parseTime(reps))}
                   onChange={(e) => {
                     // Parse input like "30s" or "1min" back to seconds
                     const value = e.target.value.replace(/[^\d]/g, '');
-                    setReps(parseInt(value) || 0);
+                    setReps(value);
                   }}
                   onFocus={(e) => e.target.select()}
                   placeholder="30s"
@@ -218,9 +218,9 @@ export default function InlineExerciseCard({
                       // For ranges, allow editing the range format
                       const newValue = e.target.value;
                       setDisplayReps(newValue);
-                      setReps(parseTime(newValue)); // Store the first number for internal use
+                      setReps(newValue); // Store the first number for internal use
                     } else {
-                      setReps(parseInt(e.target.value) || 0);
+                      setReps(e.target.value);
                     }
                   }}
                   onFocus={(e) => e.target.select()}

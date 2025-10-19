@@ -131,7 +131,7 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
     1000 // Wait 1 second after user stops typing
   )
 
-  const handleSaveLog = async (workoutExerciseId: number, sets: number, reps: number, weight: number) => {
+  const handleSaveLog = async (workoutExerciseId: number, sets: number, reps: string, weight: number) => {
     try {
       // Convert single reps number to array format for database storage
       const repsArray = repsToArray(reps, sets)
@@ -169,8 +169,8 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
   }
 
   // Helper functions for reps array conversion
-  const repsToArray = (reps: number, sets: number) => new Array(sets).fill(reps);
-  const arrayToReps = (repsArray: number[]) => repsArray[0] || 0;
+  const repsToArray = (reps: string, sets: number) => new Array(sets).fill(reps);
+  const arrayToReps = (repsArray: string[]) => repsArray[0] || '';
 
   const getLogForExercise = (workoutExerciseId: number) => {
     const log = exerciseLogs.get(workoutExerciseId)
