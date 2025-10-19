@@ -97,18 +97,33 @@ export default function CalendarPage() {
       let scrollContainer = todayElement.closest('.overflow-x-auto') as HTMLElement;
 
       if (!scrollContainer) {
-        // Try finding by flex container
-        scrollContainer = todayElement.closest('.flex') as HTMLElement;
+        // Look for a flex container that's NOT space-y-2 (which is vertical)
+        let candidate = todayElement.closest('.flex') as HTMLElement;
+        
+        // If we found space-y-2, go up one more level
+        if (candidate && candidate.className.includes('space-y')) {
+          candidate = candidate.parentElement?.closest('.flex') as HTMLElement;
+        }
+        
+        scrollContainer = candidate;
       }
 
       if (!scrollContainer) {
-        // Try going up 2 levels (card -> space-y-2 -> flex container)
-        scrollContainer = todayElement.parentElement?.parentElement as HTMLElement;
+        // Last resort: go up levels until we find something with overflow or flex without space-y
+        let current = todayElement.parentElement;
+        while (current && !scrollContainer) {
+          const classes = current.className || '';
+          if (classes.includes('overflow-x') || (classes.includes('flex') && classes.includes('gap'))) {
+            scrollContainer = current as HTMLElement;
+            break;
+          }
+          current = current.parentElement;
+        }
       }
 
       // Debug: show what we found
       if (scrollContainer) {
-        setDebugInfo(`Found! Classes: ${scrollContainer.className.substring(0, 50)}`);
+        setDebugInfo(`Found! ${scrollContainer.className.substring(0, 60)}`);
         
         const elementLeft = todayElement.offsetLeft;
         const containerWidth = scrollContainer.clientWidth;
@@ -121,7 +136,7 @@ export default function CalendarPage() {
           behavior: 'smooth'
         });
       } else {
-        setDebugInfo('All methods failed to find container');
+        setDebugInfo('All methods failed');
         return;
       }
     };
