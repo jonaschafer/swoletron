@@ -110,25 +110,16 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
       const data = formData[exercise.id]
       if (!data) return
 
-      // Parse reps - extract number from strings like "30sec", "45s", "1min"
-      const parseReps = (repsInput: string | number): number => {
-        if (typeof repsInput === 'number') return repsInput;
-        
-        const str = String(repsInput);
-        const match = str.match(/\d+/); // Extract first number
-        return match ? parseInt(match[0]) : 0;
-      };
+      // Keep reps as strings - supports both numbers and time (30sec, 1min, etc.)
+const repsValue = String(data.reps[0] || '');
+const repsArray = new Array(data.sets || 1).fill(repsValue);
 
-      // Convert reps to integer array based on number of sets
-      const parsedReps = parseReps(data.reps[0] || 0);
-      const repsArray = new Array(data.sets || 1).fill(parsedReps);
-
-      console.log('Parsed reps data:', {
-        original: data.reps,
-        parsed: parsedReps,
-        sets: data.sets,
-        finalArray: repsArray
-      });
+console.log('Reps data being saved:', {
+  original: data.reps,
+  repsValue: repsValue,
+  sets: data.sets,
+  finalArray: repsArray
+});
 
       const existingLog = getExerciseLog(exercise.id)
       

@@ -63,7 +63,7 @@ export interface ExerciseLog {
   exercise_id: string | null
   workout_id: string | null
   sets_completed: number | null
-  reps_completed: number[] | null
+  reps_completed: string[]; 
   weight_used: number | null
   weight_unit: string | null
   notes: string | null
