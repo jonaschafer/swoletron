@@ -83,6 +83,7 @@ export function WorkoutCard({ workout, onClick, onCompletionChange }: WorkoutCar
 
   return (
     <div 
+      data-date={workout.date}
       className={`workout-card rounded-lg border-2 ${getWorkoutTypeColor(workout.workout_type)} cursor-pointer transition-all hover:shadow-md touch-manipulation w-full`}
       onClick={onClick || (() => setIsExpanded(!isExpanded))}
     >

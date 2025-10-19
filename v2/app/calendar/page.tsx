@@ -10,11 +10,26 @@ import { getWeekDates, getWeekDays, formatDate } from '@/lib/utils/date'
 import { Calendar as CalendarIcon, FileText, Calendar, LayoutGrid } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { format } from 'date-fns'
+import { format, differenceInDays } from 'date-fns'
+
+function getCurrentWeekDate(startDate: Date): Date {
+  const today = new Date();
+  const diffInDays = differenceInDays(today, startDate);
+  const weekNumber = Math.floor(diffInDays / 7);
+  
+  // Calculate the date for the current week (clamp between 0-11 for the 12-week plan)
+  const clampedWeek = Math.max(0, Math.min(11, weekNumber));
+  const currentWeekDate = new Date(startDate);
+  currentWeekDate.setDate(startDate.getDate() + (clampedWeek * 7));
+  
+  return currentWeekDate;
+}
 
 export default function CalendarPage() {
   const pathname = usePathname()
-  const [currentWeek, setCurrentWeek] = useState(new Date(2025, 9, 13))
+  const [currentWeek, setCurrentWeek] = useState(
+    getCurrentWeekDate(new Date(2025, 9, 13))
+  )
   const [workouts, setWorkouts] = useState<Workout[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -53,6 +68,19 @@ export default function CalendarPage() {
       }
     }
     fetchWorkouts()
+  }, [currentWeek])
+
+  useEffect(() => {
+    // Only scroll on mobile
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      const today = format(new Date(), 'yyyy-MM-dd')
+      const todayElement = document.querySelector(`[data-date="${today}"]`)
+      if (todayElement) {
+        setTimeout(() => {
+          todayElement.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
+        }, 100) // Small delay to ensure DOM is ready
+      }
+    }
   }, [currentWeek])
 
   const navigateWeek = (direction: 'prev' | 'next') => {
