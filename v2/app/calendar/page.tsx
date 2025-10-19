@@ -83,14 +83,19 @@ export default function CalendarPage() {
       // Find ALL elements with today's date
       const allTodayElements = document.querySelectorAll(`[data-date="${today}"]`);
       
-      setDebugInfo(`Found ${allTodayElements.length} cards with date ${today}`);
+      let debugStr = `Found ${allTodayElements.length} cards. `;
       
-      // Check each one
+      // Check each one for visibility
       allTodayElements.forEach((element, index) => {
-        const parent = element.parentElement;
-        const isVisible = element.clientWidth > 0 && element.clientHeight > 0;
-        console.log(`Card ${index}: visible=${isVisible}, parent=${parent?.className.substring(0, 40)}`);
+        const htmlElement = element as HTMLElement;
+        const isVisible = htmlElement.offsetWidth > 0 && htmlElement.offsetHeight > 0;
+        const parent = htmlElement.parentElement;
+        const parentClasses = parent?.className.substring(0, 30) || 'none';
+        
+        debugStr += `C${index}:${isVisible ? 'VIS' : 'HID'} parent:${parentClasses}... | `;
       });
+      
+      setDebugInfo(debugStr);
     };
 
     const timer = setTimeout(scrollToToday, 500);
