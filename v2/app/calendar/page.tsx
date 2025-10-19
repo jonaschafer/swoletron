@@ -93,25 +93,36 @@ export default function CalendarPage() {
         return;
       }
       
-      // Find the horizontal scroll container - need to go up the DOM tree
-      // Look for the container with overflow-x-auto class
-      const scrollContainer = todayElement.closest('.overflow-x-auto') as HTMLElement;
-      
+      // Try multiple methods to find the scroll container
+      let scrollContainer = todayElement.closest('.overflow-x-auto') as HTMLElement;
+
+      if (!scrollContainer) {
+        // Try finding by flex container
+        scrollContainer = todayElement.closest('.flex') as HTMLElement;
+      }
+
+      if (!scrollContainer) {
+        // Try going up 2 levels (card -> space-y-2 -> flex container)
+        scrollContainer = todayElement.parentElement?.parentElement as HTMLElement;
+      }
+
+      // Debug: show what we found
       if (scrollContainer) {
+        setDebugInfo(`Found! Classes: ${scrollContainer.className.substring(0, 50)}`);
+        
         const elementLeft = todayElement.offsetLeft;
         const containerWidth = scrollContainer.clientWidth;
         const elementWidth = todayElement.clientWidth;
         
         const scrollPosition = elementLeft - (containerWidth / 2) + (elementWidth / 2);
         
-        setDebugInfo(`Width: ${window.innerWidth}, Found: ${!!todayElement}, Container: ${!!scrollContainer}`);
-        
         scrollContainer.scrollTo({
           left: scrollPosition,
           behavior: 'smooth'
         });
       } else {
-        setDebugInfo('Container NOT FOUND');
+        setDebugInfo('All methods failed to find container');
+        return;
       }
     };
 
