@@ -35,7 +35,6 @@ export default function CalendarPage() {
   const [error, setError] = useState<string | null>(null)
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [debugInfo, setDebugInfo] = useState('')
   
   // Determine active view
   const isWeekly = pathname === '/calendar' || pathname === '/'
@@ -74,7 +73,6 @@ export default function CalendarPage() {
   useEffect(() => {
     const scrollToToday = () => {
       if (window.innerWidth >= 768) {
-        setDebugInfo('Desktop - no scroll');
         return;
       }
       
@@ -91,7 +89,6 @@ export default function CalendarPage() {
       });
       
       if (!visibleCard) {
-        setDebugInfo('No visible card found');
         return;
       }
       
@@ -107,7 +104,6 @@ export default function CalendarPage() {
         if (classes.includes('overflow-x') || 
             (classes.includes('flex') && classes.includes('gap') && !classes.includes('space-y'))) {
           scrollContainer = current;
-          setDebugInfo(`Found scroll at L${level}: ${classes.substring(0, 50)}`);
           break;
         }
         
@@ -116,7 +112,6 @@ export default function CalendarPage() {
       }
       
       if (!scrollContainer) {
-        setDebugInfo('No scroll container found in 5 levels');
         return;
       }
       
@@ -131,7 +126,6 @@ export default function CalendarPage() {
         behavior: 'smooth'
       });
       
-      setDebugInfo(`Scrolled to position ${scrollPosition}`);
     };
 
     const timer = setTimeout(scrollToToday, 500);
@@ -204,11 +198,6 @@ export default function CalendarPage() {
 
   return (
     <div className="min-h-screen bg-white px-5 py-3 sm:p-6">
-      {debugInfo && (
-        <div className="fixed top-0 left-0 right-0 bg-yellow-200 p-2 text-xs z-50 text-black">
-          Debug: {debugInfo}
-        </div>
-      )}
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-4 sm:mb-6">
