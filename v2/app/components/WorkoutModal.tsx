@@ -131,11 +131,17 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
     1000 // Wait 1 second after user stops typing
   )
 
-  const handleSaveLog = async (workoutExerciseId: number, sets: number, reps: string, weight: number) => {
+  const handleSaveLog = async (workoutExerciseId: number, setsData: Array<{ reps: string; weight: number; completed: boolean }>, weightUnit: string) => {
     try {
-      // Convert single reps number to array format for database storage
-      const repsArray = repsToArray(reps, sets)
-      const newLog = await logExercise(workoutExerciseId, sets, repsArray, weight)
+      // Filter only completed sets and extract their reps
+      const completedSets = setsData.filter(set => set.completed)
+      const setsCompleted = completedSets.length
+      const repsArray = completedSets.map(set => set.reps)
+      
+      // Use weight from first completed set (or average if needed, but first is simpler)
+      const weightUsed = completedSets.length > 0 ? completedSets[0].weight : 0
+      
+      const newLog = await logExercise(workoutExerciseId, setsCompleted, repsArray, weightUsed, weightUnit)
       
       // Update the logs map with the new log
       setExerciseLogs(prev => {
@@ -168,18 +174,15 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
     }
   }
 
-  // Helper functions for reps array conversion
-  const repsToArray = (reps: string, sets: number) => new Array(sets).fill(reps);
-  const arrayToReps = (repsArray: string[]) => repsArray[0] || '';
-
   const getLogForExercise = (workoutExerciseId: number) => {
     const log = exerciseLogs.get(workoutExerciseId)
     if (!log) return null
     
     return {
       sets: log.sets_completed || 0,
-      reps: Array.isArray(log.reps_completed) ? arrayToReps(log.reps_completed) : log.reps_completed || 0,
-      weight: log.weight_used || 0
+      reps: Array.isArray(log.reps_completed) ? log.reps_completed : (log.reps_completed ? [String(log.reps_completed)] : []),
+      weight: log.weight_used || 0,
+      weight_unit: log.weight_unit || 'lb'
     }
   }
 
@@ -327,24 +330,23 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
           {/* Description OR Exercise Logging - not both */}
           {(workout.workout_type === 'strength' || workout.workout_type === 'micro') ? (
             /* Show Exercise Logging for Strength/Micro Workouts */
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Exercises</h3>
-              <div className="space-y-3">
-                {exercises.map(exercise => (
-                  <InlineExerciseCard
-                    key={exercise.id}
-                    exercise={{
-                      name: exercise.exercises?.name || 'Unknown Exercise',
-                      planned_sets: exercise.sets || 0,
-                      planned_reps: exercise.reps || 0,
-                      planned_weight: exercise.weight || 0
-                    }}
-                    existingLog={getLogForExercise(exercise.id)}
-                    onSave={(sets, reps, weight) => handleSaveLog(exercise.id, sets, reps, weight)}
-                    onDelete={() => handleDeleteLog(exercise.id)}
-                  />
-                ))}
-              </div>
+            <div className="space-y-3">
+              {exercises.map(exercise => (
+                <InlineExerciseCard
+                  key={exercise.id}
+                  exercise={{
+                    name: exercise.exercises?.name || 'Unknown Exercise',
+                    planned_sets: exercise.sets || 0,
+                    planned_reps: exercise.reps || 0,
+                    planned_weight: exercise.weight || 0,
+                    reps: exercise.reps ? (typeof exercise.reps === 'number' ? String(exercise.reps) : exercise.reps.toString()) : undefined,
+                    weight_unit: exercise.weight_unit || 'lb'
+                  }}
+                  existingLog={getLogForExercise(exercise.id)}
+                  onSave={(setsData, weightUnit) => handleSaveLog(exercise.id, setsData, weightUnit)}
+                  onDelete={() => handleDeleteLog(exercise.id)}
+                />
+              ))}
             </div>
           ) : workout.description ? (
             /* Show Description for workouts without structured exercises */
