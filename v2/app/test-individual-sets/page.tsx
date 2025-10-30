@@ -16,8 +16,8 @@ export default function TestIndividualSetsPage() {
   const loadExercises = async () => {
     try {
       setLoading(true)
-      // Using a workout ID that has exercises
-      const workoutExercises = await getWorkoutExercises('08e90c9d-8004-421c-8fef-910b4fff48c5')
+      // Using workout ID 1 which should have exercises
+      const workoutExercises = await getWorkoutExercises(1)
       setExercises(workoutExercises)
     } catch (error) {
       console.error('Error loading exercises:', error)
