@@ -339,7 +339,7 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
                     planned_sets: exercise.sets || 0,
                     planned_reps: exercise.reps || 0,
                     planned_weight: exercise.weight || 0,
-                    reps: exercise.reps ? (typeof exercise.reps === 'number' ? String(exercise.reps) : exercise.reps.toString()) : undefined,
+                    reps: exercise.reps !== null ? String(exercise.reps) : undefined,
                     weight_unit: exercise.weight_unit || 'lb'
                   }}
                   existingLog={getLogForExercise(exercise.id)}
