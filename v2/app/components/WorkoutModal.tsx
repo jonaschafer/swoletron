@@ -14,6 +14,47 @@ interface WorkoutModalProps {
 }
 
 function formatWorkoutTitle(workout: Workout): string {
+  // Prefer description as title if it exists and is meaningful
+  if (workout.description && workout.description.trim()) {
+    let desc = workout.description.trim()
+    
+    // Take first part if pipe-separated
+    desc = desc.split('|')[0].trim()
+    
+    // Smart parsing: Extract meaningful title from generic descriptions
+    // Handle patterns like "Group Run (6-8mi, 1500-2000ft)" -> "Group Run"
+    const parentheticalMatch = desc.match(/^(.+?)\s*\([^)]*\)\s*$/)
+    if (parentheticalMatch) {
+      const beforeParens = parentheticalMatch[1].trim()
+      const inParens = desc.match(/\(([^)]+)\)/)?.[1] || ''
+      
+      // Check if parentheses contain only metrics (numbers with units like mi, ft, min, etc.)
+      const isOnlyMetrics = /^[\d\s\-,]+(mi|mile|ft|feet|min|minutes?|sec|seconds?|lb|lbs?|kg|%|\/)/i.test(inParens)
+      
+      if (isOnlyMetrics && beforeParens.length > 0) {
+        desc = beforeParens
+      }
+    }
+    
+    // Remove common generic prefixes/suffixes that are redundant with workout type
+    desc = desc.replace(/^(Run|Group Run|Easy Run|Long Run|Tempo Run|Interval Run)\s+/i, '')
+    
+    // Remove time/duration patterns that are redundant (since we removed duration display)
+    desc = desc.replace(/\d+\s*-\s*\d+\s*(min|minutes?|hour|hours?)/gi, '')
+    desc = desc.replace(/\d+\s*(min|minutes?|hour|hours?)/gi, '')
+    
+    // Clean up extra whitespace
+    desc = desc.replace(/\s+/g, ' ').trim()
+    
+    // If we still have meaningful content after cleaning, use it
+    if (desc.length > 0 && desc.length < 60) { // Reasonable length check
+      // Capitalize first letter
+      desc = desc.charAt(0).toUpperCase() + desc.slice(1)
+      return desc
+    }
+  }
+  
+  // Fallback to formatted title if description doesn't exist or isn't useful
   let title = workout.title
   
   // Remove " - Week X" pattern
@@ -27,13 +68,10 @@ function formatWorkoutTitle(workout: Workout): string {
     title = title.replace(/^Upper Body Strength\s*-?\s*/i, 'Upper Body')
   }
   
-  // For run workouts, add miles where week number was
-  if (workout.workout_type === 'run' && workout.distance_miles) {
-    const miles = Math.round(workout.distance_miles)
-    // If title doesn't already have miles, add them
-    if (!title.toLowerCase().includes('mi') && !title.toLowerCase().includes('mile')) {
-      title = `${title} - ${miles}mi`
-    }
+  // Remove distance from title (it's shown in the badge)
+  if (workout.workout_type === 'run') {
+    title = title.replace(/\s*-\s*\d+mi/i, '')
+    title = title.replace(/\s*\d+mi\s*/i, '')
   }
   
   return title.trim()
