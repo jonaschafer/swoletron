@@ -2,12 +2,38 @@
 
 import { useState, useEffect } from 'react'
 import { Workout, WorkoutCompletion, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion } from '@/lib/supabase'
-import { Clock, MapPin, Check, CheckCircle } from 'lucide-react'
+import { MapPin, Check, CheckCircle } from 'lucide-react'
 
 interface WorkoutCardProps {
   workout: Workout
   onClick?: () => void
   onCompletionChange?: (workoutId: number, completed: boolean) => void
+}
+
+function formatWorkoutTitle(workout: Workout): string {
+  let title = workout.title
+  
+  // Remove " - Week X" pattern
+  title = title.replace(/\s*-\s*Week\s+\d+/i, '')
+  
+  // Remove "Strength" from the beginning if it's a strength workout
+  if (workout.workout_type === 'strength') {
+    title = title.replace(/^Strength\s*-?\s*/i, '')
+    title = title.replace(/^Lower Body Strength\s*-?\s*/i, 'Lower Body')
+    title = title.replace(/^Core Strength\s*-?\s*/i, 'Core')
+    title = title.replace(/^Upper Body Strength\s*-?\s*/i, 'Upper Body')
+  }
+  
+  // For run workouts, add miles where week number was
+  if (workout.workout_type === 'run' && workout.distance_miles) {
+    const miles = Math.round(workout.distance_miles)
+    // If title doesn't already have miles, add them
+    if (!title.toLowerCase().includes('mi') && !title.toLowerCase().includes('mile')) {
+      title = `${title} - ${miles}mi`
+    }
+  }
+  
+  return title.trim()
 }
 
 export function WorkoutCard({ workout, onClick, onCompletionChange }: WorkoutCardProps) {
@@ -115,18 +141,8 @@ export function WorkoutCard({ workout, onClick, onCompletionChange }: WorkoutCar
         
         {/* Title */}
         <h3 className="font-bold text-sm sm:text-sm mb-1 break-words">
-          {workout.title}
+          {formatWorkoutTitle(workout)}
         </h3>
-        
-        {/* Duration */}
-        {workout.duration_minutes && (
-          <div className="flex items-center gap-1 mb-2">
-            <Clock className="w-3 h-3 flex-shrink-0" />
-            <span className="text-sm opacity-80">
-              {workout.duration_minutes} minutes
-            </span>
-          </div>
-        )}
         
         {/* Description */}
         {workout.description && (

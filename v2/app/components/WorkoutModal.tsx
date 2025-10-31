@@ -13,6 +13,32 @@ interface WorkoutModalProps {
   onCompletionChange?: (workoutId: number, completed: boolean) => void
 }
 
+function formatWorkoutTitle(workout: Workout): string {
+  let title = workout.title
+  
+  // Remove " - Week X" pattern
+  title = title.replace(/\s*-\s*Week\s+\d+/i, '')
+  
+  // Remove "Strength" from the beginning if it's a strength workout
+  if (workout.workout_type === 'strength') {
+    title = title.replace(/^Strength\s*-?\s*/i, '')
+    title = title.replace(/^Lower Body Strength\s*-?\s*/i, 'Lower Body')
+    title = title.replace(/^Core Strength\s*-?\s*/i, 'Core')
+    title = title.replace(/^Upper Body Strength\s*-?\s*/i, 'Upper Body')
+  }
+  
+  // For run workouts, add miles where week number was
+  if (workout.workout_type === 'run' && workout.distance_miles) {
+    const miles = Math.round(workout.distance_miles)
+    // If title doesn't already have miles, add them
+    if (!title.toLowerCase().includes('mi') && !title.toLowerCase().includes('mile')) {
+      title = `${title} - ${miles}mi`
+    }
+  }
+  
+  return title.trim()
+}
+
 export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: WorkoutModalProps) {
   const [isCompleted, setIsCompleted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -235,7 +261,7 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                {workout.title}
+                {formatWorkoutTitle(workout)}
               </h2>
               <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                 <span className="capitalize">{workout.workout_type}</span>
@@ -289,15 +315,6 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {/* Workout Details */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            {workout.duration_minutes && (
-              <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">{workout.duration_minutes}min</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Duration</p>
-                </div>
-              </div>
-            )}
             {workout.distance_miles && (
               <div className="flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-gray-500 dark:text-gray-400" />

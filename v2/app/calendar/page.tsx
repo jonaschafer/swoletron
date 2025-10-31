@@ -40,6 +40,14 @@ export default function CalendarPage() {
   const isWeekly = pathname === '/calendar' || pathname === '/'
   const isMonthly = pathname === '/monthly'
 
+  // Calculate current week number (1-12)
+  const getWeekNumber = () => {
+    const startDate = new Date(2025, 9, 13) // October 13, 2025
+    const diffInDays = differenceInDays(currentWeek, startDate)
+    const weekNumber = Math.floor(diffInDays / 7) + 1
+    return Math.max(1, Math.min(12, weekNumber)) // Clamp between 1-12
+  }
+
   // Calculate weekly mileage
   const getWeeklyMileage = () => {
     const weekWorkouts = workouts.filter(w => {
@@ -237,14 +245,19 @@ export default function CalendarPage() {
               </Link>
             </div>
             
-            {/* Plan Button */}
-            <Link
-              href="/training-plan"
-              className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-green-600 dark:bg-green-500 text-white hover:bg-green-700 dark:hover:bg-green-600 transition-colors text-xs sm:text-sm font-medium w-full sm:w-auto"
-            >
-              <FileText className="w-4 h-4 flex-shrink-0" />
-              <span className="truncate">Plan</span>
-            </Link>
+            {/* Week Indicator and Plan Button */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap">
+                Week {getWeekNumber()} of 12
+              </span>
+              <Link
+                href="/training-plan"
+                className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-green-600 dark:bg-green-500 text-white hover:bg-green-700 dark:hover:bg-green-600 transition-colors text-xs sm:text-sm font-medium"
+              >
+                <FileText className="w-4 h-4 flex-shrink-0" />
+                <span className="truncate">Plan</span>
+              </Link>
+            </div>
           </div>
           
           {/* Week Navigation */}
