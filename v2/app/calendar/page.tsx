@@ -179,16 +179,16 @@ export default function CalendarPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-500"></div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-red-600 text-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-red-600 dark:text-red-400 text-center">
           <p className="text-lg font-semibold mb-2">Error</p>
           <p>{error}</p>
         </div>
@@ -197,27 +197,27 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white px-5 py-3 sm:p-6">
+    <div className="min-h-screen bg-white dark:bg-gray-900 px-5 py-3 sm:p-6 transition-colors duration-200">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-4 sm:mb-6">
           {/* Title */}
           <div className="flex items-center gap-2 mb-4">
-            <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Post LNF Block</h1>
+            <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-500" />
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Post LNF Block</h1>
           </div>
           
           {/* Controls Row 1: Combined Button Group */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
             {/* Combined Button Group */}
-            <div className="flex rounded-lg overflow-hidden border border-gray-200 w-full sm:w-auto">
+            <div className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 w-full sm:w-auto">
               {/* First Week Button */}
               <button
                 onClick={goToCurrentWeek}
                 className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors flex-1 sm:flex-none ${
                   isCurrentWeek()
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    ? 'bg-blue-600 dark:bg-blue-500 text-white'
+                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                 }`}
               >
                 <CalendarIcon className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
@@ -225,13 +225,13 @@ export default function CalendarPage() {
               </button>
               
               {/* Weekly Button */}
-              <Link href="/calendar" className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-l border-gray-200 flex-1 sm:flex-none ${isWeekly ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>
+              <Link href="/calendar" className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-l border-gray-200 dark:border-gray-700 flex-1 sm:flex-none ${isWeekly ? 'bg-blue-600 dark:bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>
                 <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                 <span className="truncate">Week</span>
               </Link>
               
               {/* Monthly Button */}
-              <Link href="/monthly" className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-l border-gray-200 flex-1 sm:flex-none ${isMonthly ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}>
+              <Link href="/monthly" className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-l border-gray-200 dark:border-gray-700 flex-1 sm:flex-none ${isMonthly ? 'bg-blue-600 dark:bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>
                 <LayoutGrid className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                 <span className="truncate">Month</span>
               </Link>
@@ -240,7 +240,7 @@ export default function CalendarPage() {
             {/* Plan Button */}
             <Link
               href="/training-plan"
-              className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-colors text-xs sm:text-sm font-medium w-full sm:w-auto"
+              className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-green-600 dark:bg-green-500 text-white hover:bg-green-700 dark:hover:bg-green-600 transition-colors text-xs sm:text-sm font-medium w-full sm:w-auto"
             >
               <FileText className="w-4 h-4 flex-shrink-0" />
               <span className="truncate">Plan</span>
@@ -258,12 +258,12 @@ export default function CalendarPage() {
         {/* Desktop Calendar Grid */}
         <div className="hidden md:grid md:grid-cols-7 gap-4 mb-6">
           {weekDays.map((day) => (
-                <div key={day.date} className="space-y-2 border-r border-gray-200 pr-4 last:border-r-0 last:pr-0">
+                <div key={day.date} className="space-y-2 border-r border-gray-200 dark:border-gray-700 pr-4 last:border-r-0 last:pr-0">
               <div className="mb-3">
-                <h3 className="text-sm font-medium text-gray-600 uppercase tracking-wide">
+                <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
                   {day.dayName}
                 </h3>
-                <p className="text-2xl font-bold text-gray-900">{day.dayNumber}</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">{day.dayNumber}</p>
               </div>
               <div className="space-y-2 w-full">
                 {getWorkoutsForDay(day.date).map((workout) => (
@@ -284,12 +284,12 @@ export default function CalendarPage() {
           <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory">
             {weekDays.map((day) => (
               <div key={day.date} className="flex-shrink-0 w-80 snap-center">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3">
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3">
                   <div className="mb-3">
-                    <h3 className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+                    <h3 className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
                       {day.dayName}
                     </h3>
-                    <p className="text-xl font-bold text-gray-900">{day.dayNumber}</p>
+                    <p className="text-xl font-bold text-gray-900 dark:text-white">{day.dayNumber}</p>
                   </div>
                   <div className="space-y-2 w-full">
                     {getWorkoutsForDay(day.date).map((workout) => (

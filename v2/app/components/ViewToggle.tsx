@@ -10,11 +10,11 @@ export function ViewToggle() {
   const isWeekly = pathname === '/calendar' || pathname === '/'
   const isMonthly = pathname === '/monthly'
 
-  const activeClasses = 'bg-blue-600 text-white shadow-md'
-  const inactiveClasses = 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+  const activeClasses = 'bg-blue-600 dark:bg-blue-500 text-white shadow-md'
+  const inactiveClasses = 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
 
   return (
-    <div className="flex rounded-lg overflow-hidden border border-gray-200">
+    <div className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
       <Link href="/calendar" className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 text-sm font-medium transition-colors ${isWeekly ? activeClasses : inactiveClasses}`}>
         <Calendar className="w-4 h-4" />
         <span className="hidden sm:inline">Weekly</span>

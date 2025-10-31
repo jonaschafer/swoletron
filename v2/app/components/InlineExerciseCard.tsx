@@ -283,7 +283,7 @@ export default function InlineExerciseCard({
     <div className="flex flex-col gap-3 w-full">
         {/* Header Section */}
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-black leading-7">
+          <h3 className="text-lg font-semibold text-black dark:text-white leading-7">
             {exercise.name}
           </h3>
         </div>
@@ -295,15 +295,15 @@ export default function InlineExerciseCard({
               key={index} 
               className={`
                 flex items-center gap-2 p-2 rounded-lg transition-colors
-                ${set.completed ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'}
+                ${set.completed ? 'bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700' : 'bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700'}
               `}
             >
               {/* Set Number */}
               <div className={`
                 flex items-center justify-center w-10 h-10 rounded-full font-semibold text-sm shrink-0
                 ${set.completed 
-                  ? 'bg-green-500 text-white' 
-                  : 'bg-gray-200 text-gray-700'
+                  ? 'bg-green-500 dark:bg-green-600 text-white' 
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                 }
               `}>
                 {index + 1}
@@ -324,10 +324,10 @@ export default function InlineExerciseCard({
                   className={`
                     w-full px-3 py-2 rounded-lg border-2 text-center text-base font-semibold
                     ${set.completed 
-                      ? 'bg-white border-green-300 text-black' 
-                      : 'bg-white border-gray-300 text-black'
+                      ? 'bg-white dark:bg-gray-700 border-green-300 dark:border-green-600 text-black dark:text-white' 
+                      : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-black dark:text-white'
                     }
-                    focus:outline-none focus:ring-2 focus:ring-blue-500
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
                   `}
                 />
               </div>
@@ -343,10 +343,10 @@ export default function InlineExerciseCard({
                   className={`
                     w-full px-3 py-2 rounded-lg border-2 text-center text-base font-semibold
                     ${set.completed 
-                      ? 'bg-white border-green-300 text-black' 
-                      : 'bg-white border-gray-300 text-black'
+                      ? 'bg-white dark:bg-gray-700 border-green-300 dark:border-green-600 text-black dark:text-white' 
+                      : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-black dark:text-white'
                     }
-                    focus:outline-none focus:ring-2 focus:ring-blue-500
+                    focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
                   `}
                   min="0"
                   step="0.5"
@@ -359,10 +359,10 @@ export default function InlineExerciseCard({
                 className={`
                   flex items-center justify-center w-10 h-10 rounded-full border-2 shrink-0 transition-colors
                   ${set.completed 
-                    ? 'bg-green-500 border-green-600' 
-                    : 'bg-white border-gray-300'
+                    ? 'bg-green-500 dark:bg-green-600 border-green-600 dark:border-green-700' 
+                    : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600'
                   }
-                  hover:border-blue-400
+                  hover:border-blue-400 dark:hover:border-blue-500
                 `}
                 aria-label={set.completed ? 'Mark set incomplete' : 'Mark set complete'}
               >
@@ -377,13 +377,13 @@ export default function InlineExerciseCard({
         {/* Save Status */}
         <div className="flex items-center pt-2">
           {saveStatus === 'saving' && (
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400 dark:border-gray-500"></div>
               <span>Saving...</span>
             </div>
           )}
           {saveStatus === 'saved' && (
-            <div className="flex items-center gap-2 text-sm text-green-600">
+            <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
               <CheckCircle className="w-4 h-4" />
               <span>Saved</span>
             </div>

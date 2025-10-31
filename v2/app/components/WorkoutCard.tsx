@@ -54,29 +54,29 @@ export function WorkoutCard({ workout, onClick, onCompletionChange }: WorkoutCar
       // When completed, fill the entire block with the workout type color
       switch (type) {
         case 'run':
-          return 'bg-blue-500 text-white border-blue-500'
+          return 'bg-blue-500 dark:bg-blue-600 text-white border-blue-500 dark:border-blue-600'
         case 'strength':
-          return 'bg-red-500 text-white border-red-500'
+          return 'bg-red-500 dark:bg-red-600 text-white border-red-500 dark:border-red-600'
         case 'micro':
-          return 'bg-green-500 text-white border-green-500'
+          return 'bg-green-500 dark:bg-green-600 text-white border-green-500 dark:border-green-600'
         case 'rest':
-          return 'bg-gray-100 text-gray-800 border-gray-200'
+          return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-600'
         default:
-          return 'bg-gray-100 text-gray-800 border-gray-200'
+          return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-600'
       }
     } else {
-      // When not completed, use the original light colors with borders
+      // When not completed, use light colors with borders
       switch (type) {
         case 'run':
-          return 'bg-blue-100 text-blue-800 border-blue-200'
+          return 'bg-blue-50 dark:bg-blue-900 border-blue-200 dark:border-blue-700 text-blue-900 dark:text-blue-100'
         case 'strength':
-          return 'bg-red-100 text-red-800 border-red-200'
+          return 'bg-red-50 dark:bg-red-900 border-red-200 dark:border-red-700 text-red-900 dark:text-red-100'
         case 'micro':
-          return 'bg-green-100 text-green-800 border-green-200'
+          return 'bg-green-50 dark:bg-green-900 border-green-200 dark:border-green-700 text-green-900 dark:text-green-100'
         case 'rest':
-          return 'bg-gray-100 text-gray-800 border-gray-200'
+          return 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300'
         default:
-          return 'bg-gray-100 text-gray-800 border-gray-200'
+          return 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300'
       }
     }
   }
@@ -99,8 +99,8 @@ export function WorkoutCard({ workout, onClick, onCompletionChange }: WorkoutCar
               disabled={isLoading}
               className={`p-1 rounded-full transition-colors flex-shrink-0 ${
                 isCompleted
-                  ? 'text-white bg-white/20 hover:bg-white/30'
-                  : 'text-gray-400 hover:text-green-600 hover:bg-green-50'
+                  ? 'text-white bg-white/20 dark:bg-white/20 hover:bg-white/30 dark:hover:bg-white/30'
+                  : 'text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30'
               } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               title={isCompleted ? 'Mark as incomplete' : 'Mark as complete'}
             >

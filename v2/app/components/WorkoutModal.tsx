@@ -204,15 +204,15 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
   const getWorkoutTypeColor = (type: string) => {
     switch (type) {
       case 'run':
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100'
       case 'strength':
-        return 'bg-red-100 text-red-800'
+        return 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100'
       case 'micro':
-        return 'bg-green-100 text-green-800'
+        return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100'
       case 'rest':
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
       default:
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
     }
   }
 
@@ -224,20 +224,20 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
         onClick={onClose}
       >
         <div 
-          className="relative bg-white rounded-lg shadow-xl w-full max-w-3xl h-full max-h-[90vh] flex flex-col"
+          className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl h-full max-h-[90vh] flex flex-col transition-colors duration-200"
           onClick={(e) => e.stopPropagation()}
         >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-lg ${getWorkoutTypeColor(workout.workout_type)}`}>
               {getWorkoutTypeIcon(workout.workout_type)}
             </div>
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                 {workout.title}
               </h2>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                 <span className="capitalize">{workout.workout_type}</span>
                 {workout.phase && (
                   <>
@@ -250,23 +250,23 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
-            <X className="w-6 h-6 text-gray-500" />
+            <X className="w-6 h-6 text-gray-500 dark:text-gray-400" />
           </button>
         </div>
 
         {/* Completion Button */}
         {workout.workout_type !== 'rest' && (
-          <div className="p-4 sm:p-6 border-b border-gray-200">
+          <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex justify-center sm:justify-center">
               <button
                 onClick={handleCompletionToggle}
                 disabled={isLoading}
                 className={`flex items-center justify-center gap-2 w-full sm:w-auto px-4 py-2 rounded-lg font-medium transition-colors ${
                   isCompleted
-                    ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 hover:bg-green-200 dark:hover:bg-green-800'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {isCompleted ? (
@@ -291,37 +291,37 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {workout.duration_minutes && (
               <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-gray-500" />
+                <Clock className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{workout.duration_minutes}min</p>
-                  <p className="text-xs text-gray-600">Duration</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">{workout.duration_minutes}min</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Duration</p>
                 </div>
               </div>
             )}
             {workout.distance_miles && (
               <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-gray-500" />
+                <MapPin className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{workout.distance_miles}mi</p>
-                  <p className="text-xs text-gray-600">Distance</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">{workout.distance_miles}mi</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Distance</p>
                 </div>
               </div>
             )}
             {workout.elevation_gain_feet && (
               <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-gray-500" />
+                <TrendingUp className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{workout.elevation_gain_feet}ft</p>
-                  <p className="text-xs text-gray-600">Elevation</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">{workout.elevation_gain_feet}ft</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Elevation</p>
                 </div>
               </div>
             )}
             {workout.intensity && (
               <div className="flex items-center gap-2">
-                <Activity className="w-5 h-5 text-gray-500" />
+                <Activity className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{workout.intensity}</p>
-                  <p className="text-xs text-gray-600">Intensity</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-white">{workout.intensity}</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Intensity</p>
                 </div>
               </div>
             )}
@@ -351,8 +351,8 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
           ) : workout.description ? (
             /* Show Description for workouts without structured exercises */
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Description</h3>
-              <div className="text-gray-700 leading-relaxed">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Description</h3>
+              <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 {workout.description.split(/[|]/).map((line, index) => {
                   const trimmedLine = line.trim();
                   if (!trimmedLine) return null;
@@ -370,12 +370,12 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
           <div className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-lg font-semibold text-gray-900">Notes</h3>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Notes</h3>
                 {saveStatus === 'saving' && (
-                  <span className="text-sm text-gray-500">Saving...</span>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">Saving...</span>
                 )}
                 {saveStatus === 'saved' && (
-                  <span className="text-sm text-green-600">✓ Saved</span>
+                  <span className="text-sm text-green-600 dark:text-green-400">✓ Saved</span>
                 )}
               </div>
               <textarea
@@ -386,7 +386,7 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
                   debouncedSaveNotes(newValue)
                 }}
                 placeholder="Add notes about your workout..."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                className="w-full p-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent resize-none"
                 rows={3}
               />
             </div>

@@ -179,14 +179,14 @@ console.log('Reps data being saved:', {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-500"></div>
       </div>
     )
   }
 
   if (exercises.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
         <p>No exercises found for this workout.</p>
       </div>
     )
@@ -194,7 +194,7 @@ console.log('Reps data being saved:', {
 
   return (
     <div className="space-y-4">
-      <h4 className="text-lg font-semibold text-gray-900 mb-4">Exercise Logging</h4>
+      <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Exercise Logging</h4>
       
       {exercises.map((exercise) => {
         const existingLog = getExerciseLog(exercise.id)
@@ -202,21 +202,21 @@ console.log('Reps data being saved:', {
         const data = formData[exercise.id]
         
         return (
-          <div key={exercise.id} className="border border-gray-200 rounded-lg p-4">
+          <div key={exercise.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800 transition-colors duration-200">
             {/* Exercise Header */}
             <div className="flex items-center justify-between mb-3">
               <div className="flex-1">
-                <h5 className="font-semibold text-gray-900">
+                <h5 className="font-semibold text-gray-900 dark:text-white">
                   {exercise.exercises?.name || 'Unknown Exercise'}
                 </h5>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Planned: {exercise.sets}×{exercise.reps} {exercise.weight && exercise.weight > 0 ? `@ ${exercise.weight}${exercise.weight_unit}` : exercise.weight_unit}
                 </p>
               </div>
               
               <div className="flex items-center gap-2">
                 {existingLog && (
-                  <div className="flex items-center gap-2 text-green-600">
+                  <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
                     <CheckCircle className="w-5 h-5" />
                     <span className="text-sm font-medium">Logged</span>
                   </div>
@@ -226,7 +226,7 @@ console.log('Reps data being saved:', {
                   {existingLog && (
                     <button
                       onClick={() => handleDeleteLog(exercise.id)}
-                      className="p-1 text-red-500 hover:text-red-700 transition-colors"
+                      className="p-1 text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
                       title="Delete log"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -238,8 +238,8 @@ console.log('Reps data being saved:', {
                     disabled={isExpanded}
                     className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                       existingLog
-                        ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 hover:bg-blue-200 dark:hover:bg-blue-800'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     } ${isExpanded ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {existingLog ? (
@@ -260,29 +260,29 @@ console.log('Reps data being saved:', {
 
             {/* Existing Log Display */}
             {existingLog && !isExpanded && (
-              <div className="bg-green-50 border border-green-200 rounded p-3">
-                <p className="text-sm font-medium text-green-800">
+              <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded p-3">
+                <p className="text-sm font-medium text-green-800 dark:text-green-200">
                   Completed: {existingLog.sets_completed} sets
                 </p>
-                <p className="text-sm text-green-700">
+                <p className="text-sm text-green-700 dark:text-green-300">
                   Reps: {existingLog.reps_completed}
                   {existingLog.weight_used && existingLog.weight_used > 0 && 
                     ` @ ${existingLog.weight_used}${existingLog.weight_unit}`
                   }
                 </p>
                 {existingLog.notes && (
-                  <p className="text-sm text-green-700 mt-1">Notes: {existingLog.notes}</p>
+                  <p className="text-sm text-green-700 dark:text-green-300 mt-1">Notes: {existingLog.notes}</p>
                 )}
               </div>
             )}
 
             {/* Logging Form */}
             {isExpanded && data && (
-              <div className="bg-gray-50 border border-gray-200 rounded p-4 space-y-4">
+              <div className="bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded p-4 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   {/* Sets */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Sets Completed
                     </label>
                     <input
@@ -290,13 +290,13 @@ console.log('Reps data being saved:', {
                       min="0"
                       value={data.sets || ''}
                       onChange={(e) => updateFormData(exercise.id, 'sets', parseInt(e.target.value) || null)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
                     />
                   </div>
 
                   {/* Reps */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Reps Completed
                     </label>
                     <input
@@ -307,7 +307,7 @@ console.log('Reps data being saved:', {
                         const repsArray = e.target.value.split(',').map(r => r.trim()).filter(r => r.length > 0)
                         updateFormData(exercise.id, 'reps', repsArray)
                       }}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
                       placeholder="e.g., 10, 12, 15 or 30sec, 1min, AMRAP"
                     />
                   </div>
@@ -316,7 +316,7 @@ console.log('Reps data being saved:', {
                 <div className="grid grid-cols-2 gap-4">
                   {/* Weight */}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Weight
                     </label>
                     <div className="flex gap-2">
@@ -326,12 +326,12 @@ console.log('Reps data being saved:', {
                         step="0.5"
                         value={data.weight}
                         onChange={(e) => updateFormData(exercise.id, 'weight', parseFloat(e.target.value) || 0)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
                       />
                       <select
                         value={data.unit}
                         onChange={(e) => updateFormData(exercise.id, 'unit', e.target.value)}
-                        className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
                       >
                         <option value="lb">lb</option>
                         <option value="kg">kg</option>
@@ -344,14 +344,14 @@ console.log('Reps data being saved:', {
 
                 {/* Notes */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Notes (Optional)
                   </label>
                   <textarea
                     value={data.notes}
                     onChange={(e) => updateFormData(exercise.id, 'notes', e.target.value)}
                     placeholder="How did it feel? Any modifications?"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
                     rows={2}
                   />
                 </div>
@@ -361,7 +361,7 @@ console.log('Reps data being saved:', {
                   <button
                     onClick={() => handleSaveLog(exercise)}
                     disabled={saving || data.sets === 0}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                   >
                     {saving ? (
                       <>
@@ -374,7 +374,7 @@ console.log('Reps data being saved:', {
                   </button>
                   <button
                     onClick={handleCancelLogging}
-                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                    className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-400 dark:hover:bg-gray-500"
                   >
                     Cancel
                   </button>
