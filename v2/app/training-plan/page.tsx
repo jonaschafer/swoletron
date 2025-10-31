@@ -38,11 +38,11 @@ export default function TrainingPlanPage() {
       .replace(/^### (.*$)/gim, '<h3 id="$1" class="text-xl font-medium text-gray-700 dark:text-gray-300 mt-4 mb-2">$1</h3>')
       
       // Bold text
-      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold">$1</strong>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900 dark:text-white">$1</strong>')
       
       // Lists
-      .replace(/^\- (.*$)/gim, '<li class="ml-4 mb-1 list-disc">$1</li>')
-      .replace(/^(\d+)\. (.*$)/gim, '<li class="ml-4 mb-1 list-disc">$2</li>')
+      .replace(/^\- (.*$)/gim, '<li class="ml-4 mb-1 list-disc text-gray-700 dark:text-gray-300">$1</li>')
+      .replace(/^(\d+)\. (.*$)/gim, '<li class="ml-4 mb-1 list-disc text-gray-700 dark:text-gray-300">$2</li>')
       
       // Horizontal rules
       .replace(/^---$/gim, '<hr class="my-6 border-gray-300 dark:border-gray-700">')
@@ -181,7 +181,7 @@ export default function TrainingPlanPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8 transition-colors duration-200">
           <div 
-            className="prose prose-gray max-w-none"
+            className="max-w-none text-gray-700 dark:text-gray-300"
             dangerouslySetInnerHTML={{ __html: formatMarkdown(markdownContent) }}
           />
         </div>

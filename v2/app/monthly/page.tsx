@@ -120,38 +120,85 @@ export default function MonthlyPage() {
   const calendarGrid = getMonthCalendarGrid(currentMonth)
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
-  const getWorkoutColor = (type: string) => {
-    switch (type) {
-      case 'run':
-        return {
-          indicator: '#0089d0',
-          bg: 'rgba(228,244,226,0.5)',
-          border: 'rgba(0,137,208,0.2)'
-        }
-      case 'strength':
-        return {
-          indicator: '#c53637',
-          bg: 'rgba(228,244,226,0.5)',
-          border: 'rgba(197,54,55,0.2)'
-        }
-      case 'micro':
-        return {
-          indicator: '#00aa6f',
-          bg: 'rgba(228,244,226,0.5)',
-          border: 'rgba(0,170,111,0.2)'
-        }
-      case 'rest':
-        return {
-          indicator: '#989fab',
-          bg: 'white',
-          border: 'rgba(152,159,171,0.2)'
-        }
-      default:
-        return {
-          indicator: '#989fab',
-          bg: 'white',
-          border: 'rgba(152,159,171,0.2)'
-        }
+  const getWorkoutColor = (type: string, isCompleted: boolean = false) => {
+    if (isCompleted) {
+      // Completed: bright/solid colors (matching weekly view completed state)
+      switch (type) {
+        case 'run':
+          return {
+            indicator: '#3b82f6', // blue-500
+            bg: '#3b82f6', // blue-500
+            border: '#3b82f6', // blue-500
+            text: 'white'
+          }
+        case 'strength':
+          return {
+            indicator: '#ef4444', // red-500
+            bg: '#ef4444', // red-500
+            border: '#ef4444', // red-500
+            text: 'white'
+          }
+        case 'micro':
+          return {
+            indicator: '#22c55e', // green-500
+            bg: '#22c55e', // green-500
+            border: '#22c55e', // green-500
+            text: 'white'
+          }
+        case 'rest':
+          return {
+            indicator: '#9ca3af', // gray-400
+            bg: '#f3f4f6', // gray-100
+            border: '#e5e7eb', // gray-200
+            text: '#1f2937' // gray-800
+          }
+        default:
+          return {
+            indicator: '#9ca3af',
+            bg: '#f3f4f6',
+            border: '#e5e7eb',
+            text: '#1f2937'
+          }
+      }
+    } else {
+      // Incomplete: light colors (matching weekly view incomplete state)
+      switch (type) {
+        case 'run':
+          return {
+            indicator: '#3b82f6', // blue-500
+            bg: '#eff6ff', // blue-50
+            border: '#bfdbfe', // blue-200
+            text: '#1e3a8a' // blue-900
+          }
+        case 'strength':
+          return {
+            indicator: '#ef4444', // red-500
+            bg: '#fef2f2', // red-50
+            border: '#fecaca', // red-200
+            text: '#991b1b' // red-900
+          }
+        case 'micro':
+          return {
+            indicator: '#22c55e', // green-500
+            bg: '#f0fdf4', // green-50
+            border: '#bbf7d0', // green-200
+            text: '#166534' // green-900
+          }
+        case 'rest':
+          return {
+            indicator: '#9ca3af', // gray-400
+            bg: '#f9fafb', // gray-50
+            border: '#e5e7eb', // gray-200
+            text: '#4b5563' // gray-600
+          }
+        default:
+          return {
+            indicator: '#9ca3af',
+            bg: '#f9fafb',
+            border: '#e5e7eb',
+            text: '#4b5563'
+          }
+      }
     }
   }
 
@@ -319,47 +366,35 @@ export default function MonthlyPage() {
                               onClick={() => handleWorkoutClick(workout)}
                               className="cursor-pointer"
                             >
-                              {isWorkoutCompleted ? (
-                                <div 
-                                  className="rounded px-1.5 py-0.5 flex items-center gap-1.5 min-w-0"
-                                  style={{
-                                    backgroundColor: getWorkoutColor(workout.workout_type).bg,
-                                    border: `0.725px solid ${getWorkoutColor(workout.workout_type).border}`
-                                  }}
-                                >
+                              {(() => {
+                                const colors = getWorkoutColor(workout.workout_type, isWorkoutCompleted)
+                                return (
                                   <div 
-                                    className="w-0.5 rounded-full flex-shrink-0"
-                                    style={{ 
-                                      backgroundColor: getWorkoutColor(workout.workout_type).indicator,
-                                      height: '8px'
+                                    className="rounded px-1.5 py-0.5 flex items-center gap-1.5 min-w-0"
+                                    style={{
+                                      backgroundColor: colors.bg,
+                                      border: `0.725px solid ${colors.border}`,
+                                      color: colors.text
                                     }}
-                                  />
-                                  <span className="text-xs text-gray-800 dark:text-gray-200 capitalize truncate min-w-0 flex-1">
-                                    {workout.workout_type}
-                                  </span>
-                                  <svg className="w-3 h-3 flex-shrink-0 text-gray-800 dark:text-gray-200" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                  </svg>
-                                </div>
-                              ) : (
-                                <div 
-                                  className="rounded px-1.5 py-0.5 flex items-center gap-1.5 min-w-0 bg-white dark:bg-gray-800"
-                                  style={{
-                                    border: `0.725px solid ${getWorkoutColor(workout.workout_type).border}`
-                                  }}
-                                >
-                                  <div 
-                                    className="w-0.5 rounded-full flex-shrink-0"
-                                    style={{ 
-                                      backgroundColor: getWorkoutColor(workout.workout_type).indicator,
-                                      height: '8px'
-                                    }}
-                                  />
-                                  <span className="text-xs text-gray-800 dark:text-gray-200 capitalize truncate min-w-0 flex-1">
-                                    {workout.workout_type}
-                                  </span>
-                                </div>
-                              )}
+                                  >
+                                    <div 
+                                      className="w-0.5 rounded-full flex-shrink-0"
+                                      style={{ 
+                                        backgroundColor: colors.indicator,
+                                        height: '8px'
+                                      }}
+                                    />
+                                    <span className="text-xs capitalize truncate min-w-0 flex-1" style={{ color: colors.text }}>
+                                      {workout.workout_type}
+                                    </span>
+                                    {isWorkoutCompleted && (
+                                      <svg className="w-3 h-3 flex-shrink-0" style={{ color: colors.text }} fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                      </svg>
+                                    )}
+                                  </div>
+                                )
+                              })()}
                             </div>
                           )
                         })}
