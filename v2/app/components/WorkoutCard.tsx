@@ -178,7 +178,7 @@ export function WorkoutCard({ workout, onClick, onCompletionChange }: WorkoutCar
         </div>
         
         {/* Title */}
-        <h3 className="font-bold text-sm sm:text-sm mb-1 break-words">
+        <h3 className="font-bold text-sm sm:text-sm mb-5 break-words">
           {formatWorkoutTitle(workout)}
         </h3>
         

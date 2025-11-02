@@ -313,7 +313,7 @@ export default function InlineExerciseCard({
               <div className="flex-1 min-w-0">
                 <input
                   type="text"
-                  inputMode="text"
+                  inputMode="numeric"
                   value={set.reps}
                   onChange={(e) => {
                     const value = normalizeRepsInput(e.target.value);
