@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
 import { Workout, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion, getWorkoutExercises, logExercise, getLatestExerciseLog, deleteExerciseLog, WorkoutExercise, ExerciseLog, updateWorkoutCompletionNotes, createWorkoutCompletionWithNotes } from '@/lib/supabase'
 import InlineExerciseCard from '@/app/components/InlineExerciseCard'
-import { X, Clock, MapPin, TrendingUp, Activity, Check, CheckCircle, Dumbbell, Play } from 'lucide-react'
+import { ExerciseHistoryModal } from '@/app/components/ExerciseHistoryModal'
+import { X, Clock, MapPin, TrendingUp, Activity, Check, CheckCircle, Dumbbell, Play, Calendar } from 'lucide-react'
+import { format } from 'date-fns'
 
 interface WorkoutModalProps {
   workout: Workout | null
@@ -84,6 +86,11 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
   const [exercises, setExercises] = useState<WorkoutExercise[]>([])
   const [exerciseLogs, setExerciseLogs] = useState<Map<number, ExerciseLog>>(new Map())
+  const [historyModal, setHistoryModal] = useState<{
+    isOpen: boolean
+    exerciseId: number
+    exerciseName: string
+  }>({ isOpen: false, exerciseId: 0, exerciseName: '' })
 
   useEffect(() => {
     if (workout && isOpen) {
@@ -250,6 +257,14 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
     }
   }
 
+  const handleExerciseClick = (exerciseId: number, exerciseName: string) => {
+    setHistoryModal({
+      isOpen: true,
+      exerciseId,
+      exerciseName
+    })
+  }
+
   const getWorkoutTypeIcon = (type: string) => {
     switch (type) {
       case 'run':
@@ -352,34 +367,52 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {/* Workout Details */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <div className="flex justify-between md:justify-start md:gap-4 mb-6 flex-wrap">
             {workout.distance_miles && (
-              <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">{workout.distance_miles}mi</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Distance</p>
+              <div className="flex items-center gap-2 md:w-[168px] shrink-0 h-[30px]">
+                <div className="bg-[#e1ebff] rounded-[4.8px] md:rounded-[6px] size-[24px] md:size-[30px] flex items-center justify-center shrink-0">
+                  <MapPin className="w-4 h-4 md:w-5 md:h-5 text-gray-900 dark:text-gray-800" />
+                </div>
+                <div className="flex flex-col gap-[1px]">
+                  <p className="text-xs md:text-sm font-medium text-gray-900 dark:text-white leading-5">{workout.distance_miles}mi</p>
+                  <p className="text-[10px] md:text-xs font-normal text-gray-600 dark:text-gray-400 leading-4">Distance</p>
                 </div>
               </div>
             )}
             {workout.elevation_gain_feet && (
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">{workout.elevation_gain_feet}ft</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Elevation</p>
+              <div className="flex items-center gap-2 md:w-[168px] shrink-0 h-[30px]">
+                <div className="bg-[#ffe1f1] rounded-[4.8px] md:rounded-[6px] size-[24px] md:size-[30px] flex items-center justify-center shrink-0">
+                  <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-gray-900 dark:text-gray-800" />
+                </div>
+                <div className="flex flex-col gap-[1px]">
+                  <p className="text-xs md:text-sm font-medium text-gray-900 dark:text-white leading-5">{workout.elevation_gain_feet}ft</p>
+                  <p className="text-[10px] md:text-xs font-normal text-gray-600 dark:text-gray-400 leading-4">Elevation</p>
                 </div>
               </div>
             )}
             {workout.intensity && (
-              <div className="flex items-center gap-2">
-                <Activity className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-                <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-white">{workout.intensity}</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Intensity</p>
+              <div className="flex items-center gap-2 md:w-[168px] shrink-0 h-[30px]">
+                <div className="bg-[#feffe1] rounded-[4.8px] md:rounded-[6px] size-[24px] md:size-[30px] flex items-center justify-center shrink-0">
+                  <Activity className="w-4 h-4 md:w-5 md:h-5 text-gray-900 dark:text-gray-800" />
+                </div>
+                <div className="flex flex-col gap-[1px]">
+                  <p className="text-xs md:text-sm font-medium text-gray-900 dark:text-white leading-5">{workout.intensity}</p>
+                  <p className="text-[10px] md:text-xs font-normal text-gray-600 dark:text-gray-400 leading-4">Intensity</p>
                 </div>
               </div>
             )}
+            <div className="flex items-center gap-2 md:w-[168px] shrink-0 h-[30px]">
+              <div className="bg-[#e1fff1] rounded-[4.8px] md:rounded-[6px] size-[24px] md:size-[30px] flex items-center justify-center shrink-0">
+                <Calendar className="w-4 h-4 md:w-5 md:h-5 text-gray-900 dark:text-gray-800" />
+              </div>
+              <div className="flex flex-col gap-[1px]">
+                <p className="text-xs md:text-sm font-medium text-gray-900 dark:text-white leading-5">
+                  <span className="md:hidden">{format(new Date(workout.date), 'MMM d, yyyy')}</span>
+                  <span className="hidden md:inline">{format(new Date(workout.date), 'MMMM d, yyyy')}</span>
+                </p>
+                <p className="text-[10px] md:text-xs font-normal text-gray-600 dark:text-gray-400 leading-4">Date</p>
+              </div>
+            </div>
           </div>
 
           {/* Description OR Exercise Logging - not both */}
@@ -397,9 +430,11 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
                     reps: exercise.reps !== null ? String(exercise.reps) : undefined,
                     weight_unit: exercise.weight_unit || 'lb'
                   }}
+                  exerciseId={exercise.exercise_id}
                   existingLog={getLogForExercise(exercise.id)}
                   onSave={(setsData, weightUnit) => handleSaveLog(exercise.id, setsData, weightUnit)}
                   onDelete={() => handleDeleteLog(exercise.id)}
+                  onExerciseClick={handleExerciseClick}
                 />
               ))}
             </div>
@@ -448,6 +483,14 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
           </div>
         </div>
       </div>
+      
+      {/* Exercise History Modal */}
+      <ExerciseHistoryModal
+        exerciseId={historyModal.exerciseId}
+        exerciseName={historyModal.exerciseName}
+        isOpen={historyModal.isOpen}
+        onClose={() => setHistoryModal({ isOpen: false, exerciseId: 0, exerciseName: '' })}
+      />
     </div>
   )
 }
