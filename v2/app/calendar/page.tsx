@@ -1,15 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { WorkoutCard } from '@/app/components/WorkoutCard'
 import { WorkoutModal } from '@/app/components/WorkoutModal'
-import { ViewToggle } from '@/app/components/ViewToggle'
-import { WeeklyNavigationCard } from '@/app/components/WeeklyNavigationCard'
+import { TopNavigationBar } from '@/app/components/TopNavigationBar'
+import { DateNavigationPanel } from '@/app/components/DateNavigationPanel'
+import { ContentTabs } from '@/app/components/ContentTabs'
 import { getWorkoutsForWeek, Workout } from '@/lib/supabase'
-import { getWeekDates, getWeekDays, formatDate } from '@/lib/utils/date'
-import { Calendar as CalendarIcon, FileText, Calendar, LayoutGrid, TrendingUp } from 'lucide-react'
-import Link from 'next/link'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { getWeekDates, getWeekDays } from '@/lib/utils/date'
+import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 import { format, differenceInDays } from 'date-fns'
 
 function getCurrentWeekDate(startDate: Date): Date {
@@ -25,9 +24,10 @@ function getCurrentWeekDate(startDate: Date): Date {
   return currentWeekDate;
 }
 
-export default function CalendarPage() {
+function CalendarPageContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const router = useRouter()
   const [currentWeek, setCurrentWeek] = useState(
     getCurrentWeekDate(new Date(2025, 9, 13))
   )
@@ -36,19 +36,6 @@ export default function CalendarPage() {
   const [error, setError] = useState<string | null>(null)
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  
-  // Determine active view
-  const isWeekly = pathname === '/calendar' || pathname === '/'
-  const isMonthly = pathname === '/monthly'
-  const isProgress = pathname === '/progress'
-
-  // Calculate current week number (1-12)
-  const getWeekNumber = () => {
-    const startDate = new Date(2025, 9, 13) // October 13, 2025
-    const diffInDays = differenceInDays(currentWeek, startDate)
-    const weekNumber = Math.floor(diffInDays / 7) + 1
-    return Math.max(1, Math.min(12, weekNumber)) // Clamp between 1-12
-  }
 
   // Calculate weekly mileage
   const getWeeklyMileage = () => {
@@ -60,6 +47,17 @@ export default function CalendarPage() {
     const runWorkouts = weekWorkouts.filter(w => w.workout_type === 'run')
     const totalMiles = runWorkouts.reduce((sum, w) => sum + (w.distance_miles || 0), 0)
     return Math.round(totalMiles) // Round to nearest whole number
+  }
+
+  const weeklyMileage = getWeeklyMileage()
+  const milesDisplay = `${weeklyMileage} miles`
+
+  // Handle view change (week/month)
+  const handleViewChange = (view: 'week' | 'month') => {
+    if (view === 'month') {
+      router.push('/monthly')
+    }
+    // If already on week view, stay here
   }
 
   useEffect(() => {
@@ -173,14 +171,16 @@ export default function CalendarPage() {
     setCurrentWeek(newDate)
   }
 
-  const goToCurrentWeek = () => {
+  const goToStart = () => {
     setCurrentWeek(new Date(2025, 9, 13))
   }
 
-  const isCurrentWeek = () => {
-    const { startDate, endDate } = getWeekDates(currentWeek)
-    const today = new Date().toISOString().split('T')[0]
-    return today >= startDate && today <= endDate
+  const goToEnd = () => {
+    // Go to week 12 (11 weeks after start)
+    const startDate = new Date(2025, 9, 13)
+    const endWeek = new Date(startDate)
+    endWeek.setDate(startDate.getDate() + (11 * 7))
+    setCurrentWeek(endWeek)
   }
 
   const getWorkoutsForDay = (date: string) => {
@@ -230,71 +230,32 @@ export default function CalendarPage() {
     )
   }
 
+  const { startDate, endDate } = getWeekDates(currentWeek)
+  const weekStartDate = new Date(startDate)
+  const weekEndDate = new Date(endDate)
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 px-5 py-3 sm:p-6 transition-colors duration-200">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-4 sm:mb-6">
-          {/* Title */}
-          <div className="flex items-center gap-2 mb-4">
-            <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-500" />
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Post LNF Block</h1>
-          </div>
-          
-          {/* Controls Row 1: Combined Button Group */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
-            {/* Combined Button Group */}
-            <div className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 w-full sm:w-auto">
-              {/* First Week Button */}
-              <button
-                onClick={goToCurrentWeek}
-                className="flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors flex-1 sm:flex-none bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
-              >
-                <CalendarIcon className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span className="truncate">First Week</span>
-              </button>
-              
-              {/* Weekly Button */}
-              <Link href="/calendar" className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-l border-gray-200 dark:border-gray-700 flex-1 sm:flex-none ${isWeekly ? 'bg-blue-600 dark:bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>
-                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span className="truncate">Week</span>
-              </Link>
-              
-              {/* Monthly Button */}
-              <Link href="/monthly" className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-l border-gray-200 dark:border-gray-700 flex-1 sm:flex-none ${isMonthly ? 'bg-blue-600 dark:bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>
-                <LayoutGrid className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span className="truncate">Month</span>
-              </Link>
-              
-              {/* Progress Button */}
-              <Link href="/progress" className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-l border-gray-200 dark:border-gray-700 flex-1 sm:flex-none ${isProgress ? 'bg-blue-600 dark:bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>
-                <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span className="truncate">Progress</span>
-              </Link>
-            </div>
-            
-            {/* Week Indicator and Plan Button */}
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap">
-                Week {getWeekNumber()} of 12
-              </span>
-              <Link
-                href="/training-plan"
-                className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-green-600 dark:bg-green-500 text-white hover:bg-green-700 dark:hover:bg-green-600 transition-colors text-xs sm:text-sm font-medium"
-              >
-                <FileText className="w-4 h-4 flex-shrink-0" />
-                <span className="truncate">Plan</span>
-              </Link>
-            </div>
-          </div>
-          
-          {/* Week Navigation */}
-          <WeeklyNavigationCard
-            currentWeek={currentWeek}
-            weeklyMileage={getWeeklyMileage()}
-            onNavigateWeek={navigateWeek}
-          />
-        </div>
+        {/* Top Navigation Bar */}
+        <TopNavigationBar
+          currentView="week"
+          miles={milesDisplay}
+          onViewChange={handleViewChange}
+        />
+
+        {/* Date Navigation Panel */}
+        <DateNavigationPanel
+          startDate={weekStartDate}
+          endDate={weekEndDate}
+          onNavigate={navigateWeek}
+          onGoToStart={goToStart}
+          onGoToEnd={goToEnd}
+          viewType="week"
+        />
+
+        {/* Content Tabs */}
+        <ContentTabs />
 
         {/* Desktop Calendar Grid */}
         <div className="hidden md:grid md:grid-cols-7 gap-4 mb-6">
@@ -357,5 +318,17 @@ export default function CalendarPage() {
         onCompletionChange={handleCompletionChange}
       />
     </div>
+  )
+}
+
+export default function CalendarPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-500"></div>
+      </div>
+    }>
+      <CalendarPageContent />
+    </Suspense>
   )
 }
