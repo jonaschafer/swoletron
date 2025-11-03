@@ -8,9 +8,12 @@ import { ChartFilters } from '@/app/components/ChartFilters'
 import { WeightProgressionChart } from '@/app/components/WeightProgressionChart'
 import { VolumeChart } from '@/app/components/VolumeChart'
 import { PRsChart } from '@/app/components/PRsChart'
-import { BarChart3 } from 'lucide-react'
+import { TopNavigationBar } from '@/app/components/TopNavigationBar'
+import { ContentTabs } from '@/app/components/ContentTabs'
+import { useRouter } from 'next/navigation'
 
 export default function ProgressPage() {
+  const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [stats, setStats] = useState<{
@@ -119,10 +122,30 @@ export default function ProgressPage() {
     updateWeightProgression()
   }, [selectedExercises, dateRange])
 
+  const handleViewChange = (view: 'week' | 'month') => {
+    if (view === 'week') {
+      router.push('/calendar')
+    } else {
+      router.push('/monthly')
+    }
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-white dark:bg-gray-900 px-5 py-3 sm:p-6 transition-colors duration-200">
         <div className="max-w-7xl mx-auto">
+          {/* Top Navigation Bar */}
+          <TopNavigationBar
+            currentView="week"
+            miles="0 miles"
+            onViewChange={handleViewChange}
+            hideMiles={true}
+            hideDropdown={true}
+          />
+
+          {/* Content Tabs */}
+          <ContentTabs />
+
           <div className="flex items-center justify-center min-h-[400px]">
             <p className="text-gray-600 dark:text-gray-400">Loading progress data...</p>
           </div>
@@ -135,6 +158,18 @@ export default function ProgressPage() {
     return (
       <div className="min-h-screen bg-white dark:bg-gray-900 px-5 py-3 sm:p-6 transition-colors duration-200">
         <div className="max-w-7xl mx-auto">
+          {/* Top Navigation Bar */}
+          <TopNavigationBar
+            currentView="week"
+            miles="0 miles"
+            onViewChange={handleViewChange}
+            hideMiles={true}
+            hideDropdown={true}
+          />
+
+          {/* Content Tabs */}
+          <ContentTabs />
+
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
             <p className="text-red-800 dark:text-red-200">{error}</p>
           </div>
@@ -145,14 +180,20 @@ export default function ProgressPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 px-5 py-3 sm:p-6 transition-colors duration-200">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-2 mb-4">
-          <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-500" />
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-            Progress Dashboard
-          </h1>
-        </div>
+      <div className="max-w-7xl mx-auto">
+        {/* Top Navigation Bar */}
+        <TopNavigationBar
+          currentView="week"
+          miles="0 miles"
+          onViewChange={handleViewChange}
+          hideMiles={true}
+          hideDropdown={true}
+        />
+
+        {/* Content Tabs */}
+        <ContentTabs />
+
+        <div className="space-y-6 mt-4">
 
         {/* Stats Cards */}
         {stats && (
@@ -198,6 +239,7 @@ export default function ProgressPage() {
             Personal Records
           </h2>
           <PRsChart data={prs} />
+        </div>
         </div>
       </div>
     </div>

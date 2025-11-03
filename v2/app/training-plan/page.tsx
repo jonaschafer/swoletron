@@ -1,8 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { ArrowLeft, Calendar, List, ChevronDown } from 'lucide-react'
-import Link from 'next/link'
+import { useState, useEffect, useRef } from 'react'
+import { ChevronDown } from 'lucide-react'
+import { TopNavigationBar } from '@/app/components/TopNavigationBar'
+import { ContentTabs } from '@/app/components/ContentTabs'
+import { useRouter } from 'next/navigation'
 
 interface TableOfContentsItem {
   id: string
@@ -11,10 +13,12 @@ interface TableOfContentsItem {
 }
 
 export default function TrainingPlanPage() {
+  const router = useRouter()
   const [markdownContent, setMarkdownContent] = useState('')
   const [loading, setLoading] = useState(true)
   const [tableOfContents, setTableOfContents] = useState<TableOfContentsItem[]>([])
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     fetch('/training-plan.md')
@@ -85,29 +89,66 @@ export default function TrainingPlanPage() {
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element
-      if (!target.closest('.toc-dropdown')) {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false)
       }
     }
 
     if (isDropdownOpen) {
       document.addEventListener('mousedown', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [isDropdownOpen])
 
   // Scroll to section
-  const scrollToSection = (id: string) => {
+  const scrollToSection = (text: string) => {
+    const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
     const element = document.getElementById(id)
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }
+
+  const handleViewChange = (view: 'week' | 'month') => {
+    if (view === 'week') {
+      router.push('/calendar')
+    } else {
+      router.push('/monthly')
+    }
+  }
+
+  // Create custom dropdown for Table of Contents
+  const tocDropdown = (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+        className="flex items-center gap-2 h-8 px-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 transition-colors"
+      >
+        <span>Table of Contents</span>
+        <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+      </button>
+      
+      {isDropdownOpen && (
+        <div className="absolute top-full right-0 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-10 min-w-[200px] max-w-[300px]">
+          <div className="max-h-64 overflow-y-auto">
+            {tableOfContents.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  scrollToSection(item.text)
+                  setIsDropdownOpen(false)
+                }}
+                className="w-full text-left px-4 py-2 text-sm text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+              >
+                {item.text}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
 
   if (loading) {
     return (
@@ -118,72 +159,28 @@ export default function TrainingPlanPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
-        <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-3">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-500" />
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Post LNF Block</h1>
-            </div>
-            <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-              <Link 
-                href="/calendar"
-                className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Calendar</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-white dark:bg-gray-900 px-5 py-3 sm:p-6 transition-colors duration-200">
+      <div className="max-w-7xl mx-auto">
+        {/* Top Navigation Bar */}
+        <TopNavigationBar
+          currentView="week"
+          miles="0 miles"
+          onViewChange={handleViewChange}
+          customDropdown={tableOfContents.length > 0 ? tocDropdown : undefined}
+          hideMiles={true}
+        />
 
-      {/* Sticky Table of Contents */}
-      {tableOfContents.length > 0 && (
-        <div className="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm transition-colors duration-200">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="relative py-3 toc-dropdown">
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-              >
-                <List className="w-4 h-4" />
-                <span>Table of Contents</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
-              
-              {isDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-20 transition-colors duration-200">
-                  <div className="max-h-64 overflow-y-auto">
-                    {tableOfContents.map((item) => (
-                      <button
-                        key={item.id}
-                        onClick={() => {
-                          scrollToSection(item.text)
-                          setIsDropdownOpen(false)
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-                      >
-                        {item.text}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+        {/* Content Tabs */}
+        <ContentTabs />
 
-      {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8 transition-colors duration-200">
-          <div 
-            className="max-w-none text-gray-700 dark:text-gray-300"
-            dangerouslySetInnerHTML={{ __html: formatMarkdown(markdownContent) }}
-          />
+        {/* Content */}
+        <div className="mt-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8 transition-colors duration-200">
+            <div 
+              className="max-w-4xl mx-auto text-gray-700 dark:text-gray-300"
+              dangerouslySetInnerHTML={{ __html: formatMarkdown(markdownContent) }}
+            />
+          </div>
         </div>
       </div>
     </div>

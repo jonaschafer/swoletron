@@ -244,6 +244,9 @@ function CalendarPageContent() {
           onViewChange={handleViewChange}
         />
 
+        {/* Content Tabs */}
+        <ContentTabs />
+
         {/* Date Navigation Panel */}
         <DateNavigationPanel
           startDate={weekStartDate}
@@ -253,9 +256,6 @@ function CalendarPageContent() {
           onGoToEnd={goToEnd}
           viewType="week"
         />
-
-        {/* Content Tabs */}
-        <ContentTabs />
 
         {/* Desktop Calendar Grid */}
         <div className="hidden md:grid md:grid-cols-7 gap-4 mb-6">

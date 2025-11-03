@@ -3,16 +3,17 @@
 import { useState, useEffect } from 'react'
 import { WorkoutCard } from '@/app/components/WorkoutCard'
 import { WorkoutModal } from '@/app/components/WorkoutModal'
-import { ViewToggle } from '@/app/components/ViewToggle'
+import { TopNavigationBar } from '@/app/components/TopNavigationBar'
+import { DateNavigationPanel } from '@/app/components/DateNavigationPanel'
+import { ContentTabs } from '@/app/components/ContentTabs'
 import { getWorkoutsForMonth, Workout, getWorkoutCompletion } from '@/lib/supabase'
 import { getMonthCalendarGrid, getMonthDates, getMonthNameAndYear } from '@/lib/utils/date'
-import { Calendar as CalendarIcon, FileText, LayoutGrid, ChevronLeft, ChevronRight } from 'lucide-react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { format, addMonths, isSameDay, differenceInDays } from 'date-fns'
+import { usePathname, useRouter } from 'next/navigation'
+import { format, addMonths, isSameDay, startOfMonth, endOfMonth } from 'date-fns'
 
 export default function MonthlyPage() {
   const pathname = usePathname()
+  const router = useRouter()
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [workouts, setWorkouts] = useState<Workout[]>([])
   const [completedWorkouts, setCompletedWorkouts] = useState<Set<number>>(new Set())
@@ -20,25 +21,23 @@ export default function MonthlyPage() {
   const [error, setError] = useState<string | null>(null)
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  
-  // Determine active view
-  const isWeekly = pathname === '/calendar' || pathname === '/'
-  const isMonthly = pathname === '/monthly'
-
-  // Calculate current week number (1-12)
-  const getWeekNumber = () => {
-    const startDate = new Date(2025, 9, 13) // October 13, 2025
-    const today = new Date()
-    const diffInDays = differenceInDays(today, startDate)
-    const weekNumber = Math.floor(diffInDays / 7) + 1
-    return Math.max(1, Math.min(12, weekNumber)) // Clamp between 1-12
-  }
 
   // Calculate monthly mileage
   const getMonthlyMileage = () => {
     const runWorkouts = workouts.filter(w => w.workout_type === 'run')
     const totalMiles = runWorkouts.reduce((sum, w) => sum + (w.distance_miles || 0), 0)
     return Math.round(totalMiles)
+  }
+
+  const monthlyMileage = getMonthlyMileage()
+  const milesDisplay = `${monthlyMileage} miles`
+
+  // Handle view change (week/month)
+  const handleViewChange = (view: 'week' | 'month') => {
+    if (view === 'week') {
+      router.push('/calendar')
+    }
+    // If already on month view, stay here
   }
 
   useEffect(() => {
@@ -76,13 +75,14 @@ export default function MonthlyPage() {
     setCurrentMonth(addMonths(currentMonth, direction === 'next' ? 1 : -1))
   }
 
-  const goToCurrentMonth = () => {
-    setCurrentMonth(new Date())
+  const goToStart = () => {
+    // Go to October 2025 (start of the plan)
+    setCurrentMonth(new Date(2025, 9, 1))
   }
 
-  const isCurrentMonth = () => {
-    const today = new Date()
-    return format(today, 'yyyy-MM') === format(currentMonth, 'yyyy-MM')
+  const goToEnd = () => {
+    // Go to January 2026 (end of the plan)
+    setCurrentMonth(new Date(2026, 0, 1))
   }
 
   const isToday = (date: string) => {
@@ -221,100 +221,31 @@ export default function MonthlyPage() {
     )
   }
 
+  const monthStartDate = startOfMonth(currentMonth)
+  const monthEndDate = endOfMonth(currentMonth)
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 px-5 py-3 sm:p-6 transition-colors duration-200">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-4 sm:mb-6">
-          {/* Title */}
-          <div className="flex items-center gap-2 mb-4">
-            <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 dark:text-blue-500" />
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Post LNF Block</h1>
-          </div>
-          
-          {/* Controls Row 1: Combined Button Group */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
-            {/* Combined Button Group */}
-            <div className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 w-full sm:w-auto">
-              {/* Current Month Button */}
-              <button
-                onClick={goToCurrentMonth}
-                className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors flex-1 sm:flex-none ${
-                  isCurrentMonth()
-                    ? 'bg-blue-600 dark:bg-blue-500 text-white'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
-                }`}
-              >
-                <CalendarIcon className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span className="truncate">Today</span>
-              </button>
-              
-              {/* Weekly Button */}
-              <Link href="/calendar" className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-l border-gray-200 dark:border-gray-700 flex-1 sm:flex-none ${isWeekly ? 'bg-blue-600 dark:bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>
-                <CalendarIcon className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span className="truncate">Week</span>
-              </Link>
-              
-              {/* Monthly Button */}
-              <Link href="/monthly" className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-l border-gray-200 dark:border-gray-700 flex-1 sm:flex-none ${isMonthly ? 'bg-blue-600 dark:bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>
-                <LayoutGrid className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-                <span className="truncate">Month</span>
-              </Link>
-            </div>
-            
-            {/* Week Indicator and Plan Button */}
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 font-medium whitespace-nowrap">
-                Week {getWeekNumber()} of 12
-              </span>
-              <Link
-                href="/training-plan"
-                className="flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-green-600 dark:bg-green-500 text-white hover:bg-green-700 dark:hover:bg-green-600 transition-colors text-xs sm:text-sm font-medium"
-              >
-                <FileText className="w-4 h-4 flex-shrink-0" />
-                <span className="truncate">Plan</span>
-              </Link>
-            </div>
-          </div>
-          
-          {/* Month Navigation */}
-          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 flex flex-col gap-2 transition-colors duration-200">
-            {/* Navigation Row */}
-            <div className="flex items-center w-full">
-              {/* Previous Button */}
-              <button
-                onClick={() => navigateMonth('prev')}
-                className="bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg px-3 py-2 flex items-center justify-center transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4 text-gray-700 dark:text-gray-300" />
-              </button>
-              
-              {/* Month Title */}
-              <div className="flex-1 flex items-center justify-center px-2">
-                <h2 className="text-sm font-semibold text-gray-900 dark:text-white text-center">
-                  {getMonthNameAndYear(currentMonth)}
-                </h2>
-              </div>
-              
-              {/* Next Button */}
-              <button
-                onClick={() => navigateMonth('next')}
-                className="bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg px-3 py-2 flex items-center justify-center transition-colors"
-              >
-                <ChevronRight className="w-4 h-4 text-gray-700 dark:text-gray-300" />
-              </button>
-            </div>
-            
-            {/* Monthly Mileage Display */}
-            <div className="w-full">
-              <div className="bg-blue-100 dark:bg-blue-900 rounded-full px-4 py-2 w-full flex justify-center">
-                <span className="text-blue-800 dark:text-blue-100 font-bold text-sm">
-                  {getMonthlyMileage()} miles
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Top Navigation Bar */}
+        <TopNavigationBar
+          currentView="month"
+          miles={milesDisplay}
+          onViewChange={handleViewChange}
+        />
+
+        {/* Date Navigation Panel */}
+        <DateNavigationPanel
+          startDate={monthStartDate}
+          endDate={monthEndDate}
+          onNavigate={navigateMonth}
+          onGoToStart={goToStart}
+          onGoToEnd={goToEnd}
+          viewType="month"
+        />
+
+        {/* Content Tabs */}
+        <ContentTabs />
 
         {/* Calendar Grid */}
         <div className="bg-white dark:bg-gray-800 border-[0.725px] border-gray-200 dark:border-gray-700 rounded-[10px] overflow-hidden transition-colors duration-200">
