@@ -44,17 +44,19 @@ export default function ProgressPage() {
         }
 
         // Fetch all data in parallel, but handle errors individually
-        const [summaryData, allExercises, volumeData, prsData] = await Promise.allSettled([
+        const results = await Promise.allSettled([
           getProgressSummary(),
           getAllLoggedExercises(),
           getWeeklyVolume(startDate),
           getAllPRs()
-        ]).then(results => [
-          results[0].status === 'fulfilled' ? results[0].value : { totalExerciseLogs: 0, completedWorkouts: 0, totalPRs: 0, currentWeek: 1 },
-          results[1].status === 'fulfilled' ? results[1].value : [],
-          results[2].status === 'fulfilled' ? results[2].value : [],
-          results[3].status === 'fulfilled' ? results[3].value : []
         ])
+        
+        const summaryData = results[0].status === 'fulfilled' 
+          ? results[0].value 
+          : { totalExerciseLogs: 0, completedWorkouts: 0, totalPRs: 0, currentWeek: 1 }
+        const allExercises = results[1].status === 'fulfilled' ? results[1].value : []
+        const volumeData = results[2].status === 'fulfilled' ? results[2].value : []
+        const prsData = results[3].status === 'fulfilled' ? results[3].value : []
 
         setStats(summaryData)
         setAvailableExercises(allExercises.map(e => e.name))
