@@ -9,6 +9,7 @@ import {
   deleteExerciseLog,
   getLatestExerciseLog
 } from '@/lib/supabase'
+import { ExerciseHistoryModal } from '@/app/components/ExerciseHistoryModal'
 import { CheckCircle, Edit3, Trash2, Plus, X } from 'lucide-react'
 
 interface ExerciseLogFormProps {
@@ -21,6 +22,11 @@ export function ExerciseLogForm({ workout }: ExerciseLogFormProps) {
   const [loading, setLoading] = useState(true)
   const [expandedExercise, setExpandedExercise] = useState<number | null>(null)
   const [saving, setSaving] = useState(false)
+  const [historyModal, setHistoryModal] = useState<{
+    isOpen: boolean
+    exerciseId: number
+    exerciseName: string
+  }>({ isOpen: false, exerciseId: 0, exerciseName: '' })
 
   // Form data for each exercise
   const [formData, setFormData] = useState<Record<number, {
@@ -206,7 +212,20 @@ console.log('Reps data being saved:', {
             {/* Exercise Header */}
             <div className="flex items-center justify-between mb-3">
               <div className="flex-1">
-                <h5 className="font-semibold text-gray-900 dark:text-white">
+                <h5
+                  onClick={() => {
+                    if (exercise.exercise_id && exercise.exercises?.name) {
+                      setHistoryModal({
+                        isOpen: true,
+                        exerciseId: exercise.exercise_id,
+                        exerciseName: exercise.exercises.name
+                      })
+                    }
+                  }}
+                  className={`font-semibold text-gray-900 dark:text-white ${
+                    exercise.exercise_id ? 'cursor-pointer hover:underline text-blue-600 dark:text-blue-400 transition-colors' : ''
+                  }`}
+                >
                   {exercise.exercises?.name || 'Unknown Exercise'}
                 </h5>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -384,6 +403,14 @@ console.log('Reps data being saved:', {
           </div>
         )
       })}
+      
+      {/* Exercise History Modal */}
+      <ExerciseHistoryModal
+        exerciseId={historyModal.exerciseId}
+        exerciseName={historyModal.exerciseName}
+        isOpen={historyModal.isOpen}
+        onClose={() => setHistoryModal({ isOpen: false, exerciseId: 0, exerciseName: '' })}
+      />
     </div>
   )
 }

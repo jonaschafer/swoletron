@@ -93,16 +93,20 @@ interface SetData {
 
 interface InlineExerciseCardProps {
   exercise: Exercise;
+  exerciseId?: number; // Exercise ID for history modal
   existingLog: ExistingLog | null;
   onSave: (setsData: SetData[], weightUnit: string) => void;
   onDelete: () => void;
+  onExerciseClick?: (exerciseId: number, exerciseName: string) => void;
 }
 
 export default function InlineExerciseCard({
   exercise,
+  exerciseId,
   existingLog,
   onSave,
-  onDelete
+  onDelete,
+  onExerciseClick
 }: InlineExerciseCardProps) {
   // Detect if this is a time-based exercise by checking exercise.reps
   const isTimeBased = exercise.reps && 
@@ -283,9 +287,18 @@ export default function InlineExerciseCard({
     <div className="flex flex-col gap-3 w-full">
         {/* Header Section */}
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-black dark:text-white leading-7">
-            {exercise.name}
-          </h3>
+          {exerciseId && onExerciseClick ? (
+            <h3
+              onClick={() => onExerciseClick(exerciseId, exercise.name)}
+              className="text-lg font-semibold text-black dark:text-white leading-7 cursor-pointer hover:underline text-blue-600 dark:text-blue-400 transition-colors"
+            >
+              {exercise.name}
+            </h3>
+          ) : (
+            <h3 className="text-lg font-semibold text-black dark:text-white leading-7">
+              {exercise.name}
+            </h3>
+          )}
         </div>
         
         {/* Per-Set Rows */}

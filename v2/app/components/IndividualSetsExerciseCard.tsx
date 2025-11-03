@@ -8,6 +8,7 @@ import {
   deleteExerciseLog,
   getLatestExerciseLog
 } from '@/lib/supabase'
+import { ExerciseHistoryModal } from '@/app/components/ExerciseHistoryModal'
 import { CheckCircle } from 'lucide-react'
 
 interface IndividualSetsExerciseCardProps {
@@ -26,6 +27,11 @@ export function IndividualSetsExerciseCard({ exercise, onLogUpdate }: Individual
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [historyModal, setHistoryModal] = useState<{
+    isOpen: boolean
+    exerciseId: number
+    exerciseName: string
+  }>({ isOpen: false, exerciseId: 0, exerciseName: '' })
   
   // Form data for individual sets
   const [setsData, setSetsData] = useState<SetData[]>([])
@@ -207,7 +213,20 @@ export function IndividualSetsExerciseCard({ exercise, onLogUpdate }: Individual
           <div className="flex flex-row items-center size-full">
             <div className="box-border content-stretch flex items-center justify-between px-[16px] py-0 relative w-full">
               <div className="basis-0 content-stretch flex flex-col font-medium gap-[9px] grow items-start justify-center leading-[0] min-h-px min-w-px relative shrink-0">
-                <div className="flex flex-col font-['Inter_Tight:Medium',_sans-serif] justify-center relative shrink-0 text-[#1e1e1e] text-[14px] w-full">
+                <div 
+                  onClick={() => {
+                    if (exercise.exercise_id && exercise.exercises?.name) {
+                      setHistoryModal({
+                        isOpen: true,
+                        exerciseId: exercise.exercise_id,
+                        exerciseName: exercise.exercises.name
+                      })
+                    }
+                  }}
+                  className={`flex flex-col font-['Inter_Tight:Medium',_sans-serif] justify-center relative shrink-0 text-[14px] w-full ${
+                    exercise.exercise_id ? 'cursor-pointer hover:underline text-blue-600 dark:text-blue-400' : 'text-[#1e1e1e]'
+                  } transition-colors`}
+                >
                   <p className="leading-[20px]">{exercise.exercises?.name || 'Unknown Exercise'}</p>
                 </div>
                 {exerciseLog && (
@@ -416,6 +435,14 @@ export function IndividualSetsExerciseCard({ exercise, onLogUpdate }: Individual
         )}
       </div>
       <div aria-hidden="true" className="absolute border border-[rgba(0,0,0,0.1)] border-solid inset-0 pointer-events-none rounded-[10px]" />
+      
+      {/* Exercise History Modal */}
+      <ExerciseHistoryModal
+        exerciseId={historyModal.exerciseId}
+        exerciseName={historyModal.exerciseName}
+        isOpen={historyModal.isOpen}
+        onClose={() => setHistoryModal({ isOpen: false, exerciseId: 0, exerciseName: '' })}
+      />
     </div>
   )
 }

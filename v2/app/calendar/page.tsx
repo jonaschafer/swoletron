@@ -7,9 +7,9 @@ import { ViewToggle } from '@/app/components/ViewToggle'
 import { WeeklyNavigationCard } from '@/app/components/WeeklyNavigationCard'
 import { getWorkoutsForWeek, Workout } from '@/lib/supabase'
 import { getWeekDates, getWeekDays, formatDate } from '@/lib/utils/date'
-import { Calendar as CalendarIcon, FileText, Calendar, LayoutGrid } from 'lucide-react'
+import { Calendar as CalendarIcon, FileText, Calendar, LayoutGrid, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { format, differenceInDays } from 'date-fns'
 
 function getCurrentWeekDate(startDate: Date): Date {
@@ -27,6 +27,7 @@ function getCurrentWeekDate(startDate: Date): Date {
 
 export default function CalendarPage() {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [currentWeek, setCurrentWeek] = useState(
     getCurrentWeekDate(new Date(2025, 9, 13))
   )
@@ -39,6 +40,7 @@ export default function CalendarPage() {
   // Determine active view
   const isWeekly = pathname === '/calendar' || pathname === '/'
   const isMonthly = pathname === '/monthly'
+  const isProgress = pathname === '/progress'
 
   // Calculate current week number (1-12)
   const getWeekNumber = () => {
@@ -77,6 +79,30 @@ export default function CalendarPage() {
     }
     fetchWorkouts()
   }, [currentWeek])
+
+  // Handle workout query parameter
+  useEffect(() => {
+    const workoutIdParam = searchParams.get('workout')
+    if (workoutIdParam && workouts.length > 0) {
+      const workoutId = parseInt(workoutIdParam, 10)
+      if (!isNaN(workoutId)) {
+        // Try to find workout in current week's workouts
+        const workout = workouts.find(w => w.id === workoutId)
+        
+        if (workout) {
+          // Found in current week, open modal
+          setSelectedWorkout(workout)
+          setIsModalOpen(true)
+        } else {
+          // Not in current week, need to fetch it and navigate to its week
+          // For now, we'll try to load a broader range or fetch the specific workout
+          // This is a simplified approach - could be enhanced to fetch just that workout
+          // and navigate to its week
+          console.log(`Workout ${workoutId} not found in current week`)
+        }
+      }
+    }
+  }, [searchParams, workouts])
 
   useEffect(() => {
     const scrollToToday = () => {
@@ -238,6 +264,12 @@ export default function CalendarPage() {
               <Link href="/monthly" className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-l border-gray-200 dark:border-gray-700 flex-1 sm:flex-none ${isMonthly ? 'bg-blue-600 dark:bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>
                 <LayoutGrid className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
                 <span className="truncate">Month</span>
+              </Link>
+              
+              {/* Progress Button */}
+              <Link href="/progress" className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-colors border-l border-gray-200 dark:border-gray-700 flex-1 sm:flex-none ${isProgress ? 'bg-blue-600 dark:bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>
+                <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span className="truncate">Progress</span>
               </Link>
             </div>
             
