@@ -47,6 +47,21 @@ export interface Exercise {
   video_url: string | null
 }
 
+export interface ExerciseLibraryEntry {
+  id: string
+  name: string
+  description: string | null
+  injury_areas: string[] | null
+  body_parts: string[] | null
+  equipment: string[] | null
+  demo_file_path: string | null
+  external_video_url: string | null
+  thumbnail_path: string | null
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | null
+  notes: string | null
+  created_at: string
+}
+
 export interface WorkoutExercise {
   id: number
   workout_id: number
@@ -930,5 +945,36 @@ export async function getProgressSummary(): Promise<{
     totalPRs: uniqueExercises.size,
     currentWeek
   }
+}
+
+// =============================================
+// EXERCISE LIBRARY
+// =============================================
+
+/**
+ * Predefined body region groupings for filtering
+ */
+export const BODY_REGION_GROUPS = {
+  'Lower Leg & Ankle': ['ankles', 'calves', 'feet', 'achilles'],
+  'Knee & Hip': ['glutes', 'quads', 'hip flexors', 'hamstrings'],
+  'Core & Balance': ['core', 'abs', 'lower back']
+} as const
+
+/**
+ * Fetch all exercises from the exercise library
+ * Returns all exercises ordered by name (client-side filtering will be used)
+ */
+export async function getExerciseLibrary(): Promise<ExerciseLibraryEntry[]> {
+  const { data, error } = await supabase
+    .from('exercise_library')
+    .select('*')
+    .order('name')
+  
+  if (error) {
+    console.error('Error fetching exercise library:', error)
+    throw error
+  }
+  
+  return data || []
 }
 
