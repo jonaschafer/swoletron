@@ -45,6 +45,7 @@ export interface Exercise {
   category: string
   description: string | null
   video_url: string | null
+  library_exercise_id: string | null
 }
 
 export interface ExerciseLibraryEntry {
@@ -235,7 +236,7 @@ export async function getWorkoutExercises(workoutId: number) {
     .from('workout_exercises')
     .select(`
       *,
-      exercises(*)
+      exercises(library_exercise_id, *)
     `)
     .eq('workout_id', workoutId)
     .order('order_index')
@@ -976,5 +977,24 @@ export async function getExerciseLibrary(): Promise<ExerciseLibraryEntry[]> {
   }
   
   return data || []
+}
+
+/**
+ * Fetch a single exercise library entry by UUID
+ * Returns null if not found
+ */
+export async function getExerciseLibraryEntry(libraryExerciseId: string): Promise<ExerciseLibraryEntry | null> {
+  const { data, error } = await supabase
+    .from('exercise_library')
+    .select('*')
+    .eq('id', libraryExerciseId)
+    .maybeSingle()
+  
+  if (error) {
+    console.error('Error fetching exercise library entry:', error)
+    return null
+  }
+  
+  return data as ExerciseLibraryEntry | null
 }
 

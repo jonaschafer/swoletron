@@ -100,6 +100,44 @@ export default function ExercisesPage() {
     setSelectedEquipment(null)
   }
 
+  // Reverse lookup: find which body region group contains a body part
+  const getBodyRegionForBodyPart = (bodyPart: string): string | null => {
+    for (const [region, parts] of Object.entries(BODY_REGION_GROUPS)) {
+      if (parts.includes(bodyPart.toLowerCase())) {
+        return region
+      }
+    }
+    return null
+  }
+
+  // Filter handler functions for tag clicks
+  const handleInjuryAreaClick = (area: string) => {
+    setSearchQuery('') // Clear search to show filtered results
+    setActiveFilterType('injury')
+    setSelectedInjuryArea(area)
+    setSelectedBodyRegion(null)
+    setSelectedEquipment(null)
+  }
+
+  const handleBodyPartClick = (bodyPart: string) => {
+    const region = getBodyRegionForBodyPart(bodyPart)
+    if (region) {
+      setSearchQuery('') // Clear search to show filtered results
+      setActiveFilterType('body')
+      setSelectedBodyRegion(region)
+      setSelectedInjuryArea(null)
+      setSelectedEquipment(null)
+    }
+  }
+
+  const handleEquipmentClick = (equipment: string) => {
+    setSearchQuery('') // Clear search to show filtered results
+    setActiveFilterType('equipment')
+    setSelectedEquipment(equipment)
+    setSelectedInjuryArea(null)
+    setSelectedBodyRegion(null)
+  }
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 px-5 py-3 sm:p-6 transition-colors duration-200">
       <div className="max-w-7xl mx-auto">
@@ -275,7 +313,13 @@ export default function ExercisesPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredExercises.map((exercise) => (
-                <ExerciseLibraryCard key={exercise.id} exercise={exercise} />
+                <ExerciseLibraryCard
+                  key={exercise.id}
+                  exercise={exercise}
+                  onInjuryAreaClick={handleInjuryAreaClick}
+                  onBodyPartClick={handleBodyPartClick}
+                  onEquipmentClick={handleEquipmentClick}
+                />
               ))}
             </div>
           </>

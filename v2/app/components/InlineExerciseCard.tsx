@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Check, CheckCircle } from 'lucide-react';
+import { Check, CheckCircle, Book, TrendingUp } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
 
 // Helper function to format time
@@ -98,6 +98,8 @@ interface InlineExerciseCardProps {
   onSave: (setsData: SetData[], weightUnit: string) => void;
   onDelete: () => void;
   onExerciseClick?: (exerciseId: number, exerciseName: string) => void;
+  libraryExerciseId?: string | null;
+  onLibraryClick?: (libraryExerciseId: string) => void;
 }
 
 export default function InlineExerciseCard({
@@ -106,7 +108,9 @@ export default function InlineExerciseCard({
   existingLog,
   onSave,
   onDelete,
-  onExerciseClick
+  onExerciseClick,
+  libraryExerciseId,
+  onLibraryClick
 }: InlineExerciseCardProps) {
   // Detect if this is a time-based exercise by checking exercise.reps
   const isTimeBased = exercise.reps && 
@@ -287,18 +291,46 @@ export default function InlineExerciseCard({
     <div className="flex flex-col gap-3 w-full">
         {/* Header Section */}
         <div className="flex items-center justify-between">
-          {exerciseId && onExerciseClick ? (
-            <h3
-              onClick={() => onExerciseClick(exerciseId, exercise.name)}
-              className="text-lg font-semibold text-black dark:text-white leading-7 cursor-pointer hover:underline text-blue-600 dark:text-blue-400 transition-colors"
-            >
-              {exercise.name}
-            </h3>
-          ) : (
-            <h3 className="text-lg font-semibold text-black dark:text-white leading-7">
-              {exercise.name}
-            </h3>
-          )}
+          <div className="flex items-center gap-2">
+            {exerciseId && onExerciseClick ? (
+              <h3
+                onClick={() => onExerciseClick(exerciseId, exercise.name)}
+                className="text-lg font-semibold text-black dark:text-white leading-7 cursor-pointer hover:underline text-blue-600 dark:text-blue-400 transition-colors"
+              >
+                {exercise.name}
+              </h3>
+            ) : (
+              <h3 className="text-lg font-semibold text-black dark:text-white leading-7">
+                {exercise.name}
+              </h3>
+            )}
+            {libraryExerciseId && onLibraryClick && (
+              <div className="flex items-center gap-1">
+                {/* Exercise Details Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onLibraryClick(libraryExerciseId);
+                  }}
+                  className="flex items-center justify-center h-6 px-2 bg-blue-100 dark:bg-blue-900/30 rounded hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                  title="View demonstration video"
+                >
+                  <Book className="w-3.5 h-3.5 text-blue-700 dark:text-blue-300" />
+                </button>
+                {/* Progress Button (placeholder for future feature) */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Placeholder for future feature
+                  }}
+                  className="flex items-center justify-center h-6 px-2 bg-green-100 dark:bg-green-900/30 rounded hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
+                  title="View exercise history"
+                >
+                  <TrendingUp className="w-3.5 h-3.5 text-green-700 dark:text-green-300" />
+                </button>
+              </div>
+            )}
+          </div>
         </div>
         
         {/* Per-Set Rows */}

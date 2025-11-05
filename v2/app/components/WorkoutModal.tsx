@@ -5,6 +5,7 @@ import { useDebouncedCallback } from 'use-debounce'
 import { Workout, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion, getWorkoutExercises, logExercise, getLatestExerciseLog, deleteExerciseLog, WorkoutExercise, ExerciseLog, updateWorkoutCompletionNotes, createWorkoutCompletionWithNotes } from '@/lib/supabase'
 import InlineExerciseCard from '@/app/components/InlineExerciseCard'
 import { ExerciseHistoryModal } from '@/app/components/ExerciseHistoryModal'
+import { ExerciseLibraryModal } from '@/app/components/ExerciseLibraryModal'
 import { X, Clock, MapPin, TrendingUp, Activity, Check, CheckCircle, Dumbbell, Play, Calendar } from 'lucide-react'
 import { format } from 'date-fns'
 
@@ -91,6 +92,10 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
     exerciseId: number
     exerciseName: string
   }>({ isOpen: false, exerciseId: 0, exerciseName: '' })
+  const [libraryModal, setLibraryModal] = useState<{
+    isOpen: boolean
+    libraryExerciseId: string | null
+  }>({ isOpen: false, libraryExerciseId: null })
 
   useEffect(() => {
     if (workout && isOpen) {
@@ -265,6 +270,13 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
     })
   }
 
+  const handleLibraryClick = (libraryExerciseId: string) => {
+    setLibraryModal({
+      isOpen: true,
+      libraryExerciseId
+    })
+  }
+
   const getWorkoutTypeIcon = (type: string) => {
     switch (type) {
       case 'run':
@@ -435,6 +447,8 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
                   onSave={(setsData, weightUnit) => handleSaveLog(exercise.id, setsData, weightUnit)}
                   onDelete={() => handleDeleteLog(exercise.id)}
                   onExerciseClick={handleExerciseClick}
+                  libraryExerciseId={exercise.exercises?.library_exercise_id || null}
+                  onLibraryClick={handleLibraryClick}
                 />
               ))}
             </div>
@@ -490,6 +504,13 @@ export function WorkoutModal({ workout, isOpen, onClose, onCompletionChange }: W
         exerciseName={historyModal.exerciseName}
         isOpen={historyModal.isOpen}
         onClose={() => setHistoryModal({ isOpen: false, exerciseId: 0, exerciseName: '' })}
+      />
+      
+      {/* Exercise Library Modal */}
+      <ExerciseLibraryModal
+        libraryExerciseId={libraryModal.libraryExerciseId}
+        isOpen={libraryModal.isOpen}
+        onClose={() => setLibraryModal({ isOpen: false, libraryExerciseId: null })}
       />
     </div>
   )
