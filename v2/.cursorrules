@@ -1,0 +1,48 @@
+# Code Quality and Type Safety Rules
+
+## Before suggesting any code changes:
+
+1. **Verify TypeScript compatibility**: Always verify that any code changes won't introduce TypeScript errors. Check that:
+   - All types are properly defined
+   - No implicit `any` types are introduced
+   - Function signatures match their usage
+   - Import/export statements are correct
+
+2. **Add null checks**: For any nullable properties or values that might be `null` or `undefined`:
+   - Add explicit null checks before accessing properties
+   - Use optional chaining (`?.`) where appropriate
+   - Provide sensible fallback values when needed
+   - Use nullish coalescing (`??`) for default values
+
+3. **Include all required properties**: When creating object literals:
+   - Ensure all required properties from the interface/type are included
+   - Verify property names match exactly (case-sensitive)
+   - Don't omit required properties even if they seem optional
+
+4. **Build verification reminder**: After making code changes:
+   - Always remind the user to run `npm run build` before pushing to verify the changes compile correctly
+   - If build errors occur, fix them before proceeding
+
+5. **Type uncertainty**: If uncertain about types or interfaces:
+   - Ask the user to share the interface/type definition first
+   - Don't make assumptions about type structures
+   - Verify type compatibility before implementing changes
+
+## Additional Best Practices:
+
+- Maintain consistency with existing code patterns
+- Follow TypeScript strict mode requirements
+- Ensure all async/await patterns are properly handled
+- Check for potential runtime errors, not just compile-time errors
+
+## Never Do:
+- Never use `as any` or `@ts-ignore` unless absolutely necessary and documented
+- Never skip type checking in favor of "just making it work"
+- Never commit code that fails `npm run build`
+
+## Pre-Commit Checklist:
+Before any git commit, verify:
+- [ ] Code compiles: `npm run build` passes
+- [ ] No TypeScript errors in editor
+- [ ] All null checks are in place
+- [ ] Required properties are present in object literals
