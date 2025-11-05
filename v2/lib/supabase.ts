@@ -955,11 +955,11 @@ export async function getProgressSummary(): Promise<{
 /**
  * Predefined body region groupings for filtering
  */
-export const BODY_REGION_GROUPS = {
+export const BODY_REGION_GROUPS: Record<string, string[]> = {
   'Lower Leg & Ankle': ['ankles', 'calves', 'feet', 'achilles'],
   'Knee & Hip': ['glutes', 'quads', 'hip flexors', 'hamstrings'],
   'Core & Balance': ['core', 'abs', 'lower back']
-} as const
+}
 
 /**
  * Fetch all exercises from the exercise library
