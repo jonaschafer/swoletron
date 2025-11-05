@@ -622,7 +622,8 @@ export async function getAllLoggedExercises(): Promise<Exercise[]> {
         name: exercise.name,
         category: '',
         description: null,
-        video_url: null
+        video_url: null,
+        library_exercise_id: null
       })
     }
   }

@@ -105,7 +105,7 @@ export function ExerciseLibraryModal({
 
     const hasSupabaseVideo = exercise.demo_file_path && supabaseUrl
     const hasExternalVideo = exercise.external_video_url
-    const isExternalYouTube = hasExternalVideo && 
+    const isExternalYouTube = hasExternalVideo !== null && hasExternalVideo !== undefined && 
       (hasExternalVideo.includes('youtube.com') || hasExternalVideo.includes('youtu.be'))
 
     // Priority: Supabase Storage > YouTube embed > External link

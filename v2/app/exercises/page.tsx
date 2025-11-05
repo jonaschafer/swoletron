@@ -80,7 +80,7 @@ export default function ExercisesPage() {
       } else if (activeFilterType === 'body' && selectedBodyRegion) {
         const bodyParts = BODY_REGION_GROUPS[selectedBodyRegion as keyof typeof BODY_REGION_GROUPS]
         filtered = filtered.filter(ex =>
-          ex.body_parts?.some(part => bodyParts.includes(part))
+          ex.body_parts?.some(part => bodyParts.includes(part as string))
         )
       } else if (activeFilterType === 'equipment' && selectedEquipment) {
         filtered = filtered.filter(ex =>
