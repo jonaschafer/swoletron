@@ -44,7 +44,7 @@ function formatWorkoutTitle(workout: Workout): string {
     
     // Remove time/duration patterns that are redundant (since we removed duration display)
     desc = desc.replace(/\d+\s*-\s*\d+\s*(min|minutes?|hour|hours?)/gi, '')
-    desc = desc.replace(/\d+\s*(min|minutes?|hour|hours?)/gi, '')
+    desc = desc.replace(/(?<!×\s*)\b\d+\s*(min|minutes?|hour|hours?)\b/gi, '')
     
     // Clean up extra whitespace
     desc = desc.replace(/\s+/g, ' ').trim()
