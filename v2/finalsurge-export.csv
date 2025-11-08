@@ -35,7 +35,7 @@ Date,Workout Type,Workout Name,Description,Duration,Distance,Distance Unit,Inten
 2025-11-05,Strength,Lower Body - Progressive Load,"WARM-UP (5min): Monster walks 2×10 | Clamshells 2×15 each | MAIN: Bulgarian Split Squat 3×8 each @25lb DBs | SL RDL 3×10 each @35lb KB | Eccentric Calf Raises (SL, deficit) 3×10 each BW | Step-ups (20in box) 3×12 each @10lb DBs | FINISHER: Pallof Press 3×10 each w/green band | Suitcase Carry 2×45sec @44lb KB",30,0,miles,Moderate,Adding weight from Week 3
 2025-11-06,Run,Easy Recovery,Easy conversational pace.,55,6,miles,Easy,Recovery day
 2025-11-06,Strength,Core Endurance,"Plank w/shoulder taps: 3×30sec | Dead bugs: 3×12 | Russian twists: 3×20 @20lb ball | Side plank w/leg lift: 2×20sec each",15,0,miles,Easy,Micro-dose
-2025-11-07,Run,Tempo Intervals,"2×12min @ half-marathon effort (~8:30-8:50 pace). 4min jog recovery between.",60,7,miles,Hard,First tempo work. Stay controlled.
+2025-11-07,Run,Belmont Hill Repeats,"2 mi warm-up, then 4-6×90sec uphill @ RPE 7 (146-160 bpm). Jog down until HR ≤140. Finish with 2 mi cool-down.",60,7,miles,Hard,Comfortably hard reintroduction session.
 2025-11-07,Strength,Upper Body - Progressive Load,"WARM-UP (5min): Band pull-aparts, scapular pull-ups | MAIN: Bench Press 3×8 @100lbs | Assisted Pull-ups (thick band) 3×6 | DB Row (single-arm) 3×10 each @45lbs | Landmine Press 3×8 each @25lb plate | FINISHER: Negative Pull-ups 3×4 (5sec lower) | Face Pulls 2×15",30,0,miles,Moderate,Progressing pull-ups
 2025-11-08,Run,Easy Recovery,Easy conversational pace.,50,5,miles,Easy,Recovery day
 2025-11-09,Rest,Complete Rest,Recovery day.,0,0,miles,Rest,Full rest
@@ -45,7 +45,7 @@ Date,Workout Type,Workout Name,Description,Duration,Distance,Distance Unit,Inten
 2025-11-12,Strength,Lower Body - Peak General Prep,"WARM-UP (5min): Monster walks 2×10 | Clamshells 2×15 each | MAIN: Bulgarian Split Squat 3×8 each @30lb DBs | SL RDL 3×10 each @44lb KB | Eccentric Calf Raises (SL, deficit) 3×10 each BW | Step-ups (20in box) 3×12 each @15lb DBs | FINISHER: Pallof Press 3×10 each w/green band | Suitcase Carry 2×45sec @44lb KB",30,0,miles,Moderate,Peak of General Prep phase
 2025-11-13,Run,Easy Recovery,Easy conversational pace.,55,6,miles,Easy,Recovery day
 2025-11-13,Strength,Core Endurance,"Plank w/shoulder taps: 3×30sec | Dead bugs: 3×12 | Russian twists: 3×20 @20lb ball | Side plank w/leg lift: 2×20sec each",15,0,miles,Easy,Micro-dose
-2025-11-14,Run,VO2 Max Hills,"6×3min @ hard effort (~8:00-8:15 pace). 3min jog recovery.",70,8,miles,Very Hard,Hardest Thursday yet. You've got this.
+2025-11-14,Run,Belmont Hill Repeats,"2 mi warm-up, then 6×90sec uphill @ RPE 7 (146-160 bpm). Jog down until HR ≤140. Finish with 2 mi cool-down.",65,7,miles,Hard,Add reps while keeping effort steady.
 2025-11-14,Strength,Upper Body - Peak General Prep,"WARM-UP (5min): Band pull-aparts, scapular pull-ups | MAIN: Bench Press 3×8 @105lbs | Assisted Pull-ups (thick band) 3×6-7 | DB Row (single-arm) 3×10 each @50lbs | Landmine Press 3×8 each @25lb plate | FINISHER: Negative Pull-ups 3×5 (5sec lower) | Face Pulls 2×15",30,0,miles,Moderate,Almost ready for unassisted pull-ups
 2025-11-15,Run,Easy Recovery,Easy conversational pace.,50,5,miles,Easy,Recovery day
 2025-11-15,Strength,Dessert Day - Optional,"KB Swings: 3×15 @44lb | Box Jumps (step down): 3×8 @20in | Turkish Get-up: 2×2 each @35lb KB",20,0,miles,Moderate,Optional fun day
@@ -66,7 +66,7 @@ Date,Workout Type,Workout Name,Description,Duration,Distance,Distance Unit,Inten
 2025-11-26,Strength,Lower Body - Max Strength Intro,"WARM-UP (5min): Glute bridges w/band 2×15 | Monster walks 2×10 | MAIN: Hex Bar Deadlift 4×6 @135lbs | Bulgarian Split Squat 3×6 each @35lb DBs | SL Calf Raise (deficit) 3×12 each @20lb DB | Glute-Ham Curl 3×8 | FINISHER: Farmers Carry (heavy) 2×1min @55lb DBs | Plank (weighted) 3×30sec w/25lb plate",30,0,miles,Hard,Max strength phase - time to get STRONG
 2025-11-27,Run,Easy Recovery,Easy conversational pace.,55,6,miles,Easy,Recovery day
 2025-11-27,Strength,Core Strength,"Weighted plank: 3×45sec @25lb plate | Pallof press: 3×12 each | Hanging knee raises: 3×8-10 | Bird dogs: 3×12 each",15,0,miles,Moderate,Micro-dose - core strength focus
-2025-11-28,Run,Threshold Work,"3×10min @ tempo pace (8:30-8:50). 3min jog recovery.",65,7,miles,Hard,Threshold Thursday
+2025-11-28,Run,Belmont Hill Repeats,"2 mi warm-up, then 6×2min uphill @ RPE 7 (146-160 bpm). Jog down until HR ≤140. Finish with 2 mi cool-down.",70,7,miles,Hard,Introduce longer intervals without increasing intensity.
 2025-11-28,Strength,Upper Body - Max Strength Intro,"WARM-UP (5min): Dead hangs, scapular pull-ups | MAIN: Bench Press 4×6 @115lbs | Assisted Pull-ups (light band) 4×5-6 | Bent-over Barbell Row 4×6 @95lbs | OH Press (standing) 3×6 @65lbs | FINISHER: Negative Pull-ups 3×5 (6-8sec lower) | Inverted Rows 3×10",30,0,miles,Hard,Heavy upper body work
 2025-11-29,Run,Easy Recovery,Easy conversational pace.,50,5,miles,Easy,Recovery day
 2025-11-29,Strength,Power Day - Optional,"KB Swings (heavy): 4×12 @44lb | Box Jumps: 4×6 @24in | Med Ball Slams: 3×10 | Broad Jumps: 3×5",25,0,miles,Moderate,Optional Friday power work
@@ -77,7 +77,7 @@ Date,Workout Type,Workout Name,Description,Duration,Distance,Distance Unit,Inten
 2025-12-03,Strength,Lower Body - Max Strength Build,"WARM-UP (5min): Glute bridges w/band 2×15 | Monster walks 2×10 | MAIN: Hex Bar Deadlift 4×5 @155lbs | Bulgarian Split Squat 3×6 each @35lb DBs | SL Calf Raise (deficit) 3×12 each @20lb DB | Glute-Ham Curl 3×8 | FINISHER: Farmers Carry 2×1min @55lb DBs | Plank (weighted) 3×30sec",30,0,miles,Hard,Increasing weight - stay tight on form
 2025-12-04,Run,Easy Recovery,Easy conversational pace.,55,6,miles,Easy,Recovery day
 2025-12-04,Strength,Core Strength,"Weighted plank: 3×45sec @25lb plate | Pallof press: 3×12 each | Hanging knee raises: 3×8-10 | Bird dogs: 3×12 each",15,0,miles,Moderate,Micro-dose
-2025-12-05,Run,Hill Power,"5×3min uphill @ VO2 effort. Focus on FORM: quick feet, pump arms. Jog down.",70,8,miles,Very Hard,Hill power day
+2025-12-05,Run,Belmont Hill Repeats,"2 mi warm-up, then 6×2min uphill @ RPE 7 (146-160 bpm). Jog down until HR ≤140. Finish with 2 mi cool-down.",70,7,miles,Hard,Hold duration steady to reinforce quality.
 2025-12-05,Strength,Upper Body - Max Strength Build,"WARM-UP (5min): Dead hangs, scapular pull-ups | MAIN: Bench Press 4×5 @125lbs | Assisted Pull-ups (light band) 4×5-6 | Bent-over Barbell Row 4×6 @105lbs | OH Press (standing) 3×6 @70lbs | FINISHER: Negative Pull-ups 3×5 (6-8sec) | Inverted Rows 3×10",30,0,miles,Hard,Heavy week
 2025-12-06,Run,Easy Recovery,Easy conversational pace.,50,5,miles,Easy,Recovery day
 2025-12-07,Rest,Complete Rest,Recovery.,0,0,miles,Rest,Rest day
@@ -87,7 +87,7 @@ Date,Workout Type,Workout Name,Description,Duration,Distance,Distance Unit,Inten
 2025-12-10,Strength,Lower Body - Max Strength Peak,"WARM-UP (5min): Glute bridges w/band 2×15 | Monster walks 2×10 | MAIN: Hex Bar Deadlift 3×3 @175lbs (go for 185-195 if feeling good) | Bulgarian Split Squat 3×6 each @35lb DBs | SL Calf Raise (deficit) 3×12 each @20lb DB | Glute-Ham Curl 3×8 | FINISHER: Farmers Carry 2×1min @55lb DBs | Plank (weighted) 3×30sec",30,0,miles,Very Hard,PEAK STRENGTH WEEK - test your max
 2025-12-11,Run,Easy Recovery,Easy conversational pace.,55,6,miles,Easy,Recovery day
 2025-12-11,Strength,Core Strength,"Weighted plank: 3×45sec @25lb plate | Pallof press: 3×12 each | Hanging knee raises: 3×8-10 | Bird dogs: 3×12 each",15,0,miles,Moderate,Micro-dose
-2025-12-12,Run,Mixed Workout,"2×12min tempo @ 8:30-8:50 + 4×90sec VO2 hills. 4min recovery after tempo, 2min after hills.",75,8,miles,Hard,Mixed intensity Thursday
+2025-12-12,Run,Belmont Hill Repeats,"2 mi warm-up, then 6×2min uphill @ RPE 8 (159-172 bpm). Jog down until HR ≤140. Finish with 2 mi cool-down.",75,7,miles,Very Hard,Add intensity while keeping recoveries generous.
 2025-12-12,Strength,Upper Body - Max Strength Peak,"WARM-UP (5min): Dead hangs, scapular pull-ups | MAIN: Bench Press 3×3 @135lbs | Assisted Pull-ups (lightest band) 4×5-6 | Bent-over Barbell Row 4×6 @115lbs | OH Press (standing) 3×6 @75lbs | FINISHER: Negative Pull-ups 3×5 (8sec) | Inverted Rows 3×10",30,0,miles,Very Hard,Peak upper body - almost ready for unassisted pulls
 2025-12-13,Run,Easy Recovery,Easy conversational pace.,50,5,miles,Easy,Recovery day
 2025-12-14,Rest,Complete Rest,Recovery.,0,0,miles,Rest,Rest day
@@ -97,7 +97,7 @@ Date,Workout Type,Workout Name,Description,Duration,Distance,Distance Unit,Inten
 2025-12-17,Strength,Lower Body - Power & Eccentric,"WARM-UP (5min): Jump rope 2min | Lateral bounds 2×10 each | MAIN: Box Jumps (step down controlled) 4×8 @24in | Bulgarian Split Squat (tempo) 3×8 each @30lb DBs (3sec down, explosive up) | SL Hops (forward/lateral) 3×10 each | Eccentric Step-downs (from box) 3×10 each (5sec descent) | FINISHER: Lateral Skaters 3×20 | SL Balance (eyes closed, unstable) 3×30sec each",30,0,miles,Hard,POWER PHASE - explosive movement
 2025-12-18,Run,Easy Recovery,Easy conversational pace.,55,6,miles,Easy,Recovery day
 2025-12-18,Strength,Anti-rotation Core,"Pallof press (explosive): 3×10 each | Suitcase carry (heavy): 3×1min @55lb DB | Wood choppers: 3×12 each | Dead bugs: 3×15",15,0,miles,Moderate,Micro-dose
-2025-12-19,Run,Downhill Intervals - KEY WORKOUT,"Find 2-3min moderate downhill. 5×DOWN @ controlled fast pace (9:00-9:30). Walk/jog up recovery.",65,7,miles,Hard,CRITICAL for downhill confidence. Focus: light feet, quick cadence.
+2025-12-19,Run,Belmont Hill Repeats,"2 mi warm-up, then 6×2min uphill @ RPE 8 (159-172 bpm). 1:1 work:rest with 2 min jog down. Finish with 2 mi cool-down.",75,7,miles,Very Hard,Match work and recovery to sharpen repeat quality.
 2025-12-19,Strength,Upper Body - Pull-up Test Week,"WARM-UP (5min): Band pull-aparts, dead hangs, scapular pulls | MAIN: Pull-up Attempt (band-assisted) 5 attempts | Plyometric Push-ups 4×6 | Barbell Row (explosive) 4×6 @95lbs | Med Ball Chest Pass 3×10 @20lb | FINISHER: Negative Pull-ups 3×5 | KB Swings 3×15",30,0,miles,Hard,Testing pull-up strength
 2025-12-20,Run,Easy Recovery,Easy conversational pace.,50,5,miles,Easy,Recovery day
 2025-12-20,Strength,Downhill Confidence Builder,"Eccentric Step-downs 4×12 each | Lateral Step-downs 3×10 each | SL Deadlift (unstable) 3×8 each @35lb KB | Bosu Squats 3×10",25,0,miles,Moderate,KEY SESSION for mud/downhill fear
@@ -108,7 +108,7 @@ Date,Workout Type,Workout Name,Description,Duration,Distance,Distance Unit,Inten
 2025-12-24,Strength,Lower Body - Taper Volume,"WARM-UP: Light movement | MAIN: Box Jumps 3×6 @24in | Bulgarian Split Squat 2×8 each @25lb DBs | SL Hops 2×8 each | Eccentric Step-downs 2×10 each | FINISHER: Lateral Skaters 2×15 | SL Balance 2×30sec each",25,0,miles,Moderate,Reduced volume - staying sharp
 2025-12-25,Run,Easy Recovery,Easy conversational pace. Merry Christmas!,50,5,miles,Easy,Recovery day - enjoy the day
 2025-12-25,Strength,Core - Light,"Pallof press: 2×10 each | Suitcase carry: 2×45sec | Dead bugs: 2×12",12,0,miles,Easy,Light core
-2025-12-26,Run,VO2 Max - Final Quality,"5×3min @ hard effort (8:00-8:15). 3min jog recovery.",70,8,miles,Very Hard,Final hard Thursday before taper
+2025-12-26,Run,Belmont Hill Repeats,"2 mi warm-up, then 6×2min uphill @ RPE 8 (159-172 bpm). 1:1 work:rest with 2 min jog down. Finish with 2 mi cool-down.",70,7,miles,Hard,Hold intensity but keep volume manageable during holiday week.
 2025-12-26,Strength,Upper Body - PULL-UP TEST,"WARM-UP: Dead hangs, scapular pulls | TEST: Pull-up Max Attempt - GO FOR 1-3 UNASSISTED! | Plyometric Push-ups 3×6 | Barbell Row (explosive) 3×6 @95lbs | Med Ball Chest Pass 3×10 | FINISHER: Negative Pull-ups 3×5",30,0,miles,Hard,THE BIG TEST - can you do a pull-up?
 2025-12-27,Run,Easy Recovery,Easy conversational pace.,45,5,miles,Easy,Recovery day
 2025-12-28,Rest,Complete Rest,Full rest.,0,0,miles,Rest,Rest day
