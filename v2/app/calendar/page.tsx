@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense, useMemo, useCallback } from 'react'
 import { WorkoutCard } from '@/app/components/WorkoutCard'
 import { WorkoutModal } from '@/app/components/WorkoutModal'
 import { TopNavigationBar } from '@/app/components/TopNavigationBar'
@@ -36,6 +36,23 @@ function CalendarPageContent() {
   const [error, setError] = useState<string | null>(null)
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [pendingWorkoutSelection, setPendingWorkoutSelection] = useState<{
+    weekStart: string
+    position: 'first' | 'last'
+  } | null>(null)
+
+  const sortedWorkouts = useMemo(() => {
+    if (workouts.length === 0) {
+      return []
+    }
+
+    return [...workouts].sort((a, b) => {
+      if (a.date === b.date) {
+        return a.id - b.id
+      }
+      return a.date.localeCompare(b.date)
+    })
+  }, [workouts])
 
   // Calculate weekly mileage
   const getWeeklyMileage = () => {
@@ -165,13 +182,30 @@ function CalendarPageContent() {
     return () => clearTimeout(timer);
   }, [currentWeek, workouts]);
 
-  const navigateWeek = (direction: 'prev' | 'next') => {
-    const newDate = new Date(currentWeek)
-    newDate.setDate(newDate.getDate() + (direction === 'next' ? 7 : -7))
-    setCurrentWeek(newDate)
-  }
+  const navigateWeek = useCallback(
+    (direction: 'prev' | 'next', options?: { pendingSelection?: 'first' | 'last' }) => {
+      setCurrentWeek(prevWeek => {
+        const newDate = new Date(prevWeek)
+        newDate.setDate(prevWeek.getDate() + (direction === 'next' ? 7 : -7))
+
+        if (options?.pendingSelection) {
+          const { startDate: newWeekStart } = getWeekDates(newDate)
+          setPendingWorkoutSelection({
+            weekStart: newWeekStart,
+            position: options.pendingSelection
+          })
+        } else {
+          setPendingWorkoutSelection(null)
+        }
+
+        return newDate
+      })
+    },
+    []
+  )
 
   const goToStart = () => {
+    setPendingWorkoutSelection(null)
     setCurrentWeek(new Date(2025, 9, 13))
   }
 
@@ -180,8 +214,127 @@ function CalendarPageContent() {
     const startDate = new Date(2025, 9, 13)
     const endWeek = new Date(startDate)
     endWeek.setDate(startDate.getDate() + (11 * 7))
+    setPendingWorkoutSelection(null)
     setCurrentWeek(endWeek)
   }
+
+  const moveWithinWeek = useCallback(
+    (direction: 1 | -1) => {
+      if (!selectedWorkout || sortedWorkouts.length === 0 || pendingWorkoutSelection) {
+        return
+      }
+
+      const currentIndex = sortedWorkouts.findIndex(w => w.id === selectedWorkout.id)
+      const fallbackIndex = direction > 0 ? 0 : sortedWorkouts.length - 1
+
+      if (currentIndex === -1) {
+        const fallbackWorkout = sortedWorkouts[fallbackIndex]
+        if (fallbackWorkout) {
+          setSelectedWorkout(fallbackWorkout)
+          if (!isModalOpen) {
+            setIsModalOpen(true)
+          }
+        }
+        return
+      }
+
+      const nextIndex = currentIndex + direction
+
+      if (nextIndex >= 0 && nextIndex < sortedWorkouts.length) {
+        const nextWorkout = sortedWorkouts[nextIndex]
+        setSelectedWorkout(nextWorkout)
+        if (!isModalOpen) {
+          setIsModalOpen(true)
+        }
+        return
+      }
+
+      navigateWeek(direction > 0 ? 'next' : 'prev', {
+        pendingSelection: direction > 0 ? 'first' : 'last'
+      })
+    },
+    [selectedWorkout, sortedWorkouts, pendingWorkoutSelection, isModalOpen, navigateWeek]
+  )
+
+  useEffect(() => {
+    if (!pendingWorkoutSelection) {
+      return
+    }
+
+    const { startDate: currentWeekStart } = getWeekDates(currentWeek)
+
+    if (currentWeekStart !== pendingWorkoutSelection.weekStart) {
+      return
+    }
+
+    if (sortedWorkouts.length === 0) {
+      setPendingWorkoutSelection(null)
+      setSelectedWorkout(null)
+      setIsModalOpen(false)
+      return
+    }
+
+    const nextWorkout =
+      pendingWorkoutSelection.position === 'first'
+        ? sortedWorkouts[0]
+        : sortedWorkouts[sortedWorkouts.length - 1]
+
+    if (nextWorkout) {
+      setSelectedWorkout(nextWorkout)
+      setIsModalOpen(true)
+    } else {
+      setSelectedWorkout(null)
+      setIsModalOpen(false)
+    }
+
+    setPendingWorkoutSelection(null)
+  }, [pendingWorkoutSelection, currentWeek, sortedWorkouts])
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) {
+        return
+      }
+
+      const target = event.target as HTMLElement | null
+      if (target) {
+        const tagName = target.tagName.toLowerCase()
+        const isInteractiveElement =
+          tagName === 'input' ||
+          tagName === 'textarea' ||
+          tagName === 'select' ||
+          target.isContentEditable
+
+        if (isInteractiveElement) {
+          return
+        }
+      }
+
+      if (event.key === 'ArrowRight') {
+        if (selectedWorkout) {
+          event.preventDefault()
+          moveWithinWeek(1)
+        } else if (!pendingWorkoutSelection) {
+          event.preventDefault()
+          navigateWeek('next')
+        }
+      } else if (event.key === 'ArrowLeft') {
+        if (selectedWorkout) {
+          event.preventDefault()
+          moveWithinWeek(-1)
+        } else if (!pendingWorkoutSelection) {
+          event.preventDefault()
+          navigateWeek('prev')
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [selectedWorkout, moveWithinWeek, pendingWorkoutSelection, navigateWeek])
 
   const getWorkoutsForDay = (date: string) => {
     return workouts.filter(workout => workout.date === date)
