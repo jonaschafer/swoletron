@@ -1,0 +1,205 @@
+// Desktop Week View Component
+function DesktopWeekView() {
+  const [workouts, setWorkouts] = useState({
+    mon: { micro: false, rest: false },
+    tue: { run: false, strength: false },
+    wed: { run: false, micro: false },
+    thu: { run: false, strength: false },
+    fri: { run: false },
+    sat: { rest: false },
+    sun: { run: false }
+  });
+  const [modalOpen, setModalOpen] = useState<{type: 'run' | 'micro' | 'strength', day: string, title: string, date: string, distance?: string} | null>(null);
+
+  return (
+    <>
+      <div className="w-full overflow-x-auto">
+        <div className="min-w-max flex gap-0 bg-gray-900 p-8">
+          {/* Monday - Column 1 */}
+          <div className="bg-gray-900 h-[462px] relative shrink-0 w-[165px]">
+            <div className="absolute content-stretch flex gap-[12px] items-center justify-center leading-[1.3] left-[4px] text-nowrap text-white top-0 w-[157px] whitespace-pre">
+              <p className="font-['Geist:Regular',sans-serif] font-normal opacity-50 relative shrink-0 text-[13px] uppercase">Mon</p>
+              <p className="font-['Geist:Bold',sans-serif] font-bold relative shrink-0 text-[17px] text-right">3</p>
+            </div>
+            <div className="absolute content-stretch flex flex-col gap-[20px] items-start left-[5px] top-[66px] w-[155px]">
+              <MicroDesktopCard
+                checked={workouts.mon.micro}
+                onCheckClick={() => setWorkouts({...workouts, mon: {...workouts.mon, micro: !workouts.mon.micro}})}
+                onCardClick={() => setModalOpen({type: 'micro', day: 'mon', title: 'Ankle, core, ITBS', date: 'Mon, Nov 3'})}
+                title="Ankle, core, ITBS"
+                date="Mon, Nov 3"
+              />
+              <RestDesktopCard date="Mon, Nov 3" />
+            </div>
+          </div>
+
+          {/* Tuesday - Column 2 */}
+          <div className="bg-gray-900 h-[462px] relative shrink-0 w-[165px]">
+            <div className="absolute content-stretch flex gap-[12px] items-center justify-center leading-[1.3] left-[4px] text-nowrap text-white top-0 w-[157px] whitespace-pre">
+              <p className="font-['Geist:Regular',sans-serif] font-normal opacity-50 relative shrink-0 text-[13px] uppercase">tue</p>
+              <p className="font-['Geist:Bold',sans-serif] font-bold relative shrink-0 text-[17px] text-right">4</p>
+            </div>
+            <div className="absolute content-stretch flex flex-col gap-[20px] items-start left-[5px] top-[66px] w-[155px]">
+              <RunDesktopCardDynamic
+                checked={workouts.tue.run}
+                onCheckClick={() => setWorkouts({...workouts, tue: {...workouts.tue, run: !workouts.tue.run}})}
+                onCardClick={() => setModalOpen({type: 'run', day: 'tue', title: 'Hills', date: 'Tue, Nov 4', distance: '9 miles'})}
+                title="Hills"
+                date="Tue, Nov 4"
+                distance="9 miles"
+              />
+              <StrengthDesktopCard
+                checked={workouts.tue.strength}
+                onCheckClick={() => setWorkouts({...workouts, tue: {...workouts.tue, strength: !workouts.tue.strength}})}
+                onCardClick={() => setModalOpen({type: 'strength', day: 'tue', title: 'Lower body', date: 'Tue, Nov 4'})}
+                title="Lower body"
+                date="Tue, Nov 4"
+              />
+            </div>
+          </div>
+
+          {/* Wednesday - Column 3 */}
+          <div className="bg-gray-900 h-[462px] relative shrink-0 w-[165px]">
+            <div className="absolute content-stretch flex gap-[12px] items-center justify-center leading-[1.3] left-[4px] text-nowrap text-white top-0 w-[157px] whitespace-pre">
+              <p className="font-['Geist:Regular',sans-serif] font-normal opacity-50 relative shrink-0 text-[13px] uppercase">wed</p>
+              <p className="font-['Geist:Bold',sans-serif] font-bold relative shrink-0 text-[17px] text-right">5</p>
+            </div>
+            <div className="absolute content-stretch flex flex-col gap-[20px] items-start left-[5px] top-[66px] w-[155px]">
+              <RunDesktopCardDynamic
+                checked={workouts.wed.run}
+                onCheckClick={() => setWorkouts({...workouts, wed: {...workouts.wed, run: !workouts.wed.run}})}
+                onCardClick={() => setModalOpen({type: 'run', day: 'wed', title: 'Easy', date: 'Wed, Nov 5', distance: '6 miles'})}
+                title="Easy"
+                date="Wed, Nov 5"
+                distance="6 miles"
+              />
+              <MicroDesktopCard
+                checked={workouts.wed.micro}
+                onCheckClick={() => setWorkouts({...workouts, wed: {...workouts.wed, micro: !workouts.wed.micro}})}
+                onCardClick={() => setModalOpen({type: 'micro', day: 'wed', title: 'ITBS, Hip Flexors', date: 'Wed, Nov 5'})}
+                title="ITBS, Hip Flexors"
+                date="Wed, Nov 5"
+              />
+            </div>
+          </div>
+
+          {/* Thursday - Column 4 */}
+          <div className="bg-gray-900 h-[462px] relative shrink-0 w-[165px]">
+            <div className="absolute content-stretch flex gap-[12px] items-center justify-center leading-[1.3] left-[4px] text-nowrap text-white top-0 w-[157px] whitespace-pre">
+              <p className="font-['Geist:Regular',sans-serif] font-normal opacity-50 relative shrink-0 text-[13px] uppercase">thu</p>
+              <p className="font-['Geist:Bold',sans-serif] font-bold relative shrink-0 text-[17px] text-right">6</p>
+            </div>
+            <div className="absolute content-stretch flex flex-col gap-[20px] items-start left-[5px] top-[66px] w-[155px]">
+              <RunDesktopCardDynamic
+                checked={workouts.thu.run}
+                onCheckClick={() => setWorkouts({...workouts, thu: {...workouts.thu, run: !workouts.thu.run}})}
+                onCardClick={() => setModalOpen({type: 'run', day: 'thu', title: 'Intervals', date: 'Thu, Nov 6', distance: '7 miles'})}
+                title="Intervals"
+                date="Thu, Nov 6"
+                distance="7 miles"
+              />
+              <StrengthDesktopCard
+                checked={workouts.thu.strength}
+                onCheckClick={() => setWorkouts({...workouts, thu: {...workouts.thu, strength: !workouts.thu.strength}})}
+                onCardClick={() => setModalOpen({type: 'strength', day: 'thu', title: 'Upper body', date: 'Thu, Nov 6'})}
+                title="Upper body"
+                date="Thu, Nov 6"
+              />
+            </div>
+          </div>
+
+          {/* Friday - Column 5 */}
+          <div className="bg-gray-900 h-[462px] relative shrink-0 w-[165px]">
+            <div className="absolute content-stretch flex gap-[12px] items-center justify-center leading-[1.3] left-[4px] text-nowrap text-white top-0 w-[157px] whitespace-pre">
+              <p className="font-['Geist:Regular',sans-serif] font-normal opacity-50 relative shrink-0 text-[13px] uppercase">fri</p>
+              <p className="font-['Geist:Bold',sans-serif] font-bold relative shrink-0 text-[17px] text-right">7</p>
+            </div>
+            <div className="absolute content-stretch flex flex-col gap-[20px] items-start left-1/2 top-[66px] translate-x-[-50%] w-[155px]">
+              <RunDesktopCardDynamic
+                checked={workouts.fri.run}
+                onCheckClick={() => setWorkouts({...workouts, fri: {...workouts.fri, run: !workouts.fri.run}})}
+                onCardClick={() => setModalOpen({type: 'run', day: 'fri', title: 'Easy', date: 'Fri, Nov 7', distance: '4 miles'})}
+                title="Easy"
+                date="Fri, Nov 7"
+                distance="4 miles"
+              />
+            </div>
+          </div>
+
+          {/* Saturday - Column 6 */}
+          <div className="bg-gray-900 h-[462px] relative shrink-0 w-[165px]">
+            <div className="absolute content-stretch flex gap-[12px] items-center justify-center leading-[1.3] left-1/2 text-nowrap text-white top-0 translate-x-[-50%] w-[157px] whitespace-pre">
+              <p className="font-['Geist:Regular',sans-serif] font-normal opacity-50 relative shrink-0 text-[13px] uppercase">sat</p>
+              <p className="font-['Geist:Bold',sans-serif] font-bold relative shrink-0 text-[17px] text-right">8</p>
+            </div>
+            <div className="absolute content-stretch flex flex-col gap-[20px] items-start left-[5px] top-[66px] w-[155px]">
+              <RestDesktopCard date="Sat, Nov 8" />
+            </div>
+          </div>
+
+          {/* Sunday - Column 7 */}
+          <div className="bg-gray-900 h-[462px] relative shrink-0 w-[165px]">
+            <div className="absolute content-stretch flex gap-[12px] items-center justify-center leading-[1.3] left-1/2 text-nowrap text-white top-0 translate-x-[-50%] w-[157px] whitespace-pre">
+              <p className="font-['Geist:Regular',sans-serif] font-normal opacity-50 relative shrink-0 text-[13px] uppercase">sun</p>
+              <p className="font-['Geist:Bold',sans-serif] font-bold relative shrink-0 text-[17px] text-right">9</p>
+            </div>
+            <div className="absolute content-stretch flex flex-col gap-[20px] items-start left-1/2 top-[66px] translate-x-[-50%] w-[155px]">
+              <RunDesktopCardDynamic
+                checked={workouts.sun.run}
+                onCheckClick={() => setWorkouts({...workouts, sun: {...workouts.sun, run: !workouts.sun.run}})}
+                onCardClick={() => setModalOpen({type: 'run', day: 'sun', title: 'Long', date: 'Sun, Nov 9', distance: '15 miles'})}
+                title="Long"
+                date="Sun, Nov 9"
+                distance="15 miles"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modals */}
+      {modalOpen?.type === 'run' && (
+        <WorkoutModal
+          isOpen={true}
+          onClose={() => setModalOpen(null)}
+          onMarkComplete={() => {
+            const day = modalOpen.day as keyof typeof workouts;
+            setWorkouts({...workouts, [day]: {...workouts[day], run: !workouts[day].run}});
+          }}
+          workoutType="run"
+          title={modalOpen.title}
+          date={modalOpen.date}
+          distance={modalOpen.distance}
+          description={['Belmont hill repeats', '4-6×90sec @ RPE 7', '2 mi WU/CD']}
+          isCompleted={workouts[modalOpen.day as keyof typeof workouts].run as boolean}
+        />
+      )}
+      {(modalOpen?.type === 'micro' || modalOpen?.type === 'strength') && (
+        <MicroStrengthModal
+          isOpen={true}
+          onClose={() => setModalOpen(null)}
+          onMarkComplete={() => {
+            const day = modalOpen.day as keyof typeof workouts;
+            const workoutType = modalOpen.type as 'micro' | 'strength';
+            setWorkouts({...workouts, [day]: {...workouts[day], [workoutType]: !workouts[day][workoutType]}});
+          }}
+          workoutType={modalOpen.type}
+          title={modalOpen.title}
+          date={modalOpen.date}
+          exercises={[
+            {
+              name: modalOpen.type === 'micro' ? 'Plank with shoulder taps' : 'Squats',
+              sets: [
+                { reps: '16', weight: '195', completed: false },
+                { reps: '16', weight: '195', completed: false },
+                { reps: '16', weight: '195', completed: false }
+              ]
+            }
+          ]}
+          description={modalOpen.type === 'micro' ? 'Group run with the fellas at TTT. This week see about doing hill repeats on Stairway and Hell, with stairs. Go for 3 repeats.' : 'Focus on form and controlled movements throughout each rep.'}
+          isCompleted={workouts[modalOpen.day as keyof typeof workouts][modalOpen.type] as boolean}
+        />
+      )}
+    </>
+  );
+}

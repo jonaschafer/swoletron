@@ -1,81 +1,454 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Workout, WorkoutCompletion, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion } from '@/lib/supabase'
-import { MapPin, Check, CheckCircle } from 'lucide-react'
+import { Workout, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion } from '@/lib/supabase'
+import { format } from 'date-fns'
+import svgPaths from './figma-imports/svg-da2r1zm9to'
+import checkedSvgPaths from './figma-imports/svg-checked'
 
 interface WorkoutCardProps {
   workout: Workout
   onClick?: () => void
   onCompletionChange?: (workoutId: number, completed: boolean) => void
+  variant?: 'mobile' | 'desktop'
 }
 
 function formatWorkoutTitle(workout: Workout): string {
-  // Prefer description as title if it exists and is meaningful
-  if (workout.description && workout.description.trim()) {
-    let desc = workout.description.trim()
+  // For run workouts, simplify titles to avoid cutoff
+  if (workout.workout_type === 'run') {
+    const titleLower = workout.title.toLowerCase()
+    const descLower = workout.description?.toLowerCase() || ''
     
-    // Take first part if pipe-separated
-    desc = desc.split('|')[0].trim()
+    // Check for interval/hill repeat patterns
+    if (titleLower.includes('interval') || titleLower.includes('hill') || titleLower.includes('repeat') || 
+        descLower.includes('interval') || descLower.includes('hill') || descLower.includes('repeat')) {
+      return 'Intervals'
+    }
     
-    // Smart parsing: Extract meaningful title from generic descriptions
-    // Handle patterns like "Group Run (6-8mi, 1500-2000ft)" -> "Group Run"
-    const parentheticalMatch = desc.match(/^(.+?)\s*\([^)]*\)\s*$/)
-    if (parentheticalMatch) {
-      const beforeParens = parentheticalMatch[1].trim()
-      const inParens = desc.match(/\(([^)]+)\)/)?.[1] || ''
-      
-      // Check if parentheses contain only metrics (numbers with units like mi, ft, min, etc.)
-      const isOnlyMetrics = /^[\d\s\-,]+(mi|mile|ft|feet|min|minutes?|sec|seconds?|lb|lbs?|kg|%|\/)/i.test(inParens)
-      
-      if (isOnlyMetrics && beforeParens.length > 0) {
-        desc = beforeParens
+    // Check for easy/recovery patterns
+    if (titleLower.includes('easy') || titleLower.includes('recovery') || 
+        descLower.includes('easy') || descLower.includes('recovery')) {
+      return 'Easy'
+    }
+    
+    // Check for tempo patterns
+    if (titleLower.includes('tempo') || descLower.includes('tempo')) {
+      return 'Tempo'
+    }
+    
+    // Check for long run patterns
+    if (titleLower.includes('long') || descLower.includes('long run')) {
+      return 'Long'
+    }
+    
+    // Check for track/speed patterns
+    if (titleLower.includes('track') || titleLower.includes('speed') || descLower.includes('track')) {
+      return 'Track'
+    }
+    
+    // Default: use simplified title
+    let title = workout.title
+    title = title.replace(/\s*-\s*Week\s+\d+/i, '')
+    title = title.replace(/\s*-\s*\d+mi/i, '')
+    title = title.replace(/\s*\d+mi\s*/i, '')
+    title = title.replace(/^(Run|Group Run|Easy Run|Long Run|Tempo Run|Interval Run)\s*/i, '')
+    title = title.replace(/\s*(Recovery|Pace|Run)$/i, '')
+    
+    // If still too long or complex, default to first meaningful word
+    if (title.length > 15 || title.split(' ').length > 2) {
+      const words = title.split(' ')
+      if (words.length > 0) {
+        return words[0].charAt(0).toUpperCase() + words[0].slice(1)
       }
     }
     
-    // Remove common generic prefixes/suffixes that are redundant with workout type
-    desc = desc.replace(/^(Run|Group Run|Easy Run|Long Run|Tempo Run|Interval Run)\s+/i, '')
-    
-    // Remove time/duration patterns that are redundant (since we removed duration display)
-    desc = desc.replace(/\d+\s*-\s*\d+\s*(min|minutes?|hour|hours?)/gi, '')
-    desc = desc.replace(/(?<!×\s*)\b\d+\s*(min|minutes?|hour|hours?)\b/gi, '')
-    
-    // Clean up extra whitespace
-    desc = desc.replace(/\s+/g, ' ').trim()
-    
-    // If we still have meaningful content after cleaning, use it
-    if (desc.length > 0 && desc.length < 60) { // Reasonable length check
-      // Capitalize first letter
-      desc = desc.charAt(0).toUpperCase() + desc.slice(1)
-      return desc
-    }
+    return title.trim() || 'Run'
   }
   
-  // Fallback to formatted title if description doesn't exist or isn't useful
-  let title = workout.title
+  // For micro workouts, always return "Micro"
+  if (workout.workout_type === 'micro') {
+    return 'Micro'
+  }
   
-  // Remove " - Week X" pattern
-  title = title.replace(/\s*-\s*Week\s+\d+/i, '')
-  
-  // Remove "Strength" from the beginning if it's a strength workout
+  // For strength workouts, simplify
   if (workout.workout_type === 'strength') {
+    const lower = workout.title.toLowerCase()
+
+    // Always collapse to just "Lower Body" or "Upper Body" when present
+    if (lower.includes('lower body')) {
+      return 'Lower Body'
+    }
+    if (lower.includes('upper body')) {
+      return 'Upper Body'
+    }
+
+    // Fallback for other strength variants (e.g. core), still strip noisy suffixes
+    let title = workout.title
     title = title.replace(/^Strength\s*-?\s*/i, '')
-    title = title.replace(/^Lower Body Strength\s*-?\s*/i, 'Lower Body')
     title = title.replace(/^Core Strength\s*-?\s*/i, 'Core')
-    title = title.replace(/^Upper Body Strength\s*-?\s*/i, 'Upper Body')
+    // Remove explicit "Week X" even without a dash
+    title = title.replace(/\s*-?\s*Week\s+\d+/i, '')
+    return title.trim()
   }
   
-  // Remove distance from title (it's shown in the badge)
-  if (workout.workout_type === 'run') {
-    title = title.replace(/\s*-\s*\d+mi/i, '')
-    title = title.replace(/\s*\d+mi\s*/i, '')
-  }
-  
-  return title.trim()
+  return workout.title.trim()
 }
 
-export function WorkoutCard({ workout, onClick, onCompletionChange }: WorkoutCardProps) {
-  const [isExpanded, setIsExpanded] = useState(false)
+function formatDate(dateString: string): string {
+  const date = new Date(dateString)
+  return format(date, 'EEE, MMM d')
+}
+
+// Check icon component
+function CheckIcon({ checked }: { checked: boolean }) {
+  return (
+    <div className="absolute inset-[-3.75%]">
+      <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 17 17">
+        <g id="check">
+          {checked ? (
+            <path d={checkedSvgPaths.pe1d9c80} id="check_2" stroke="var(--stroke-0, white)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.47312" />
+          ) : (
+            <path d={svgPaths.p232d3540} id="circle" opacity="0.5" stroke="var(--stroke-0, white)" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.125" />
+          )}
+        </g>
+      </svg>
+    </div>
+  )
+}
+
+// Mobile Run Card
+function RunMobileCard({ 
+  checked, 
+  title, 
+  date, 
+  distance, 
+  onCircleClick, 
+  onCardClick 
+}: { 
+  checked: boolean
+  title: string
+  date: string
+  distance?: string
+  onCircleClick: () => void
+  onCardClick: () => void
+}) {
+  return (
+    <div 
+      onClick={onCardClick}
+      className={`${checked ? 'bg-[#2563eb]' : 'bg-[#1f3a8a]'} content-stretch flex flex-col gap-[20px] items-center justify-center overflow-clip relative rounded-[10px] w-[300px] cursor-pointer`} 
+      data-name="types"
+    >
+      <div className="content-stretch flex flex-col items-start relative shrink-0 w-full">
+        {/* Title row */}
+        <div className={`${checked ? '' : 'bg-[#1f3a8a]'} relative shrink-0 w-full`}>
+          <div className="flex flex-row items-center size-full">
+            <div className="box-border content-stretch flex items-center justify-between p-[20px] relative w-full">
+              <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
+                <div className="flex flex-col font-['Geist:Regular',sans-serif] font-normal justify-center leading-[0] relative shrink-0 text-[21px] text-nowrap text-white">
+                  <p className="leading-[1.3] whitespace-pre">{title}</p>
+                </div>
+              </div>
+              <div 
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onCircleClick()
+                }}
+                className="overflow-clip relative rounded-[6px] shrink-0 size-[36px] cursor-pointer"
+              >
+                <div className="absolute right-[2px] size-[15px] top-[calc(50%-0.5px)] translate-y-[-50%]">
+                  <CheckIcon checked={checked} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Date row */}
+        <div className={`${checked ? '' : 'bg-[#1f3a8a]'} relative shrink-0 w-full`}>
+          <div className="flex flex-row items-center size-full">
+            <div className="box-border content-stretch flex gap-[20px] items-center px-[20px] py-[16px] relative w-full">
+              <div className="content-stretch flex gap-[6px] items-center relative shrink-0">
+                <p className="font-['Geist_Mono:Regular',sans-serif] font-normal leading-[1.3] relative shrink-0 text-[13px] text-nowrap text-white whitespace-pre">{date}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Distance row */}
+        {distance && (
+          <div className={`${checked ? '' : 'bg-[#2e50b4]'} relative shrink-0 w-full`}>
+            <div className="flex flex-row items-center size-full">
+              <div className="box-border content-stretch flex gap-[20px] items-center px-[20px] py-[16px] relative w-full">
+                <div className="content-stretch flex gap-[6px] items-center relative shrink-0">
+                  <p className="font-['Geist_Mono:Regular',sans-serif] font-normal leading-[1.3] relative shrink-0 text-[13px] text-nowrap text-white whitespace-pre">{distance}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// Mobile Micro/Strength Card
+function MicroStrengthMobileCard({ 
+  checked, 
+  title, 
+  date, 
+  onCircleClick, 
+  onCardClick,
+  bgColor,
+  checkedBgColor
+}: { 
+  checked: boolean
+  title: string
+  date: string
+  onCircleClick: () => void
+  onCardClick: () => void
+  bgColor: string
+  checkedBgColor: string
+}) {
+  return (
+    <div 
+      onClick={onCardClick}
+      className={`${checked ? checkedBgColor : bgColor} content-stretch flex flex-col gap-[20px] items-center justify-center overflow-clip relative rounded-[10px] w-[300px] cursor-pointer`} 
+      data-name="types"
+    >
+      <div className="content-stretch flex flex-col items-start relative shrink-0 w-full">
+        {/* Title row */}
+        <div className={`${checked ? '' : bgColor} relative shrink-0 w-full`}>
+          <div className="flex flex-row items-center size-full">
+            <div className="box-border content-stretch flex items-center justify-between p-[20px] relative w-full">
+              <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
+                <div className="flex flex-col font-['Geist:Regular',sans-serif] font-normal justify-center leading-[0] relative shrink-0 text-[21px] text-nowrap text-white">
+                  <p className="leading-[1.3] whitespace-pre">{title}</p>
+                </div>
+              </div>
+              <div 
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onCircleClick()
+                }}
+                className="overflow-clip relative rounded-[6px] shrink-0 size-[36px] cursor-pointer"
+              >
+                <div className="absolute right-[2px] size-[15px] top-[calc(50%-0.5px)] translate-y-[-50%]">
+                  <CheckIcon checked={checked} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Date row */}
+        <div className={`${checked ? '' : bgColor} relative shrink-0 w-full`}>
+          <div className="flex flex-row items-center size-full">
+            <div className="box-border content-stretch flex gap-[20px] items-center px-[20px] py-[16px] relative w-full">
+              <div className="content-stretch flex gap-[6px] items-center relative shrink-0">
+                <p className="font-['Geist_Mono:Regular',sans-serif] font-normal leading-[1.3] relative shrink-0 text-[13px] text-nowrap text-white whitespace-pre">{date}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Mobile Rest Card
+function RestMobileCard({ date }: { date: string }) {
+  return (
+    <div 
+      className="bg-gray-800 content-stretch flex flex-col gap-[20px] items-center justify-center overflow-clip relative rounded-[10px] w-[300px]" 
+      data-name="types"
+    >
+      <div className="content-stretch flex flex-col items-start relative shrink-0 w-full">
+        <div className="relative shrink-0 w-full">
+          <div className="flex flex-row items-center size-full">
+            <div className="box-border content-stretch flex items-center justify-between p-[20px] relative w-full">
+              <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
+                <div className="flex flex-col font-['Geist:Regular',sans-serif] font-normal justify-center leading-[0] relative shrink-0 text-[21px] text-nowrap text-white">
+                  <p className="leading-[1.3] whitespace-pre">Rest</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="relative shrink-0 w-full">
+          <div className="flex flex-row items-center size-full">
+            <div className="box-border content-stretch flex gap-[20px] items-center px-[20px] py-[16px] relative w-full">
+              <div className="content-stretch flex gap-[6px] items-center relative shrink-0">
+                <p className="font-['Geist_Mono:Regular',sans-serif] font-normal leading-[1.3] relative shrink-0 text-[13px] text-nowrap text-white whitespace-pre">{date}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Desktop Run Card
+function RunDesktopCard({ 
+  checked, 
+  title, 
+  date, 
+  distance, 
+  onCheckClick, 
+  onCardClick 
+}: { 
+  checked: boolean
+  title: string
+  date: string
+  distance?: string
+  onCheckClick: () => void
+  onCardClick: () => void
+}) {
+  return (
+    <div 
+      onClick={onCardClick}
+      className="bg-gray-800 content-stretch flex flex-col gap-[20px] items-center justify-center overflow-clip relative rounded-[10px] w-[155px] cursor-pointer" 
+      data-name="types"
+    >
+      <div className="content-stretch flex flex-col items-start relative shrink-0 w-full">
+        {/* Title row */}
+        <div className={`${checked ? 'bg-[#2563eb]' : 'bg-[#1f3a8a]'} relative shrink-0 w-full`}>
+          <div className="size-full">
+            <div className="box-border content-stretch flex items-start justify-between px-[14px] py-[16px] relative w-full">
+              <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
+                <div className="flex flex-col font-['Geist:Regular',sans-serif] font-normal justify-center leading-[0] relative shrink-0 text-[17px] text-nowrap text-white">
+                  <p className="leading-[1.3] whitespace-pre">{title}</p>
+                </div>
+              </div>
+              <div 
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onCheckClick()
+                }}
+                className="absolute left-[126px] size-[15px] top-[16px] cursor-pointer" 
+                data-name="check"
+              >
+                <CheckIcon checked={checked} />
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Date row */}
+        <div className={`${checked ? 'bg-[#2563eb]' : 'bg-[#1f3a8a]'} relative shrink-0 w-full`}>
+          <div className="flex flex-col justify-center size-full">
+            <div className="box-border content-stretch flex flex-col gap-[16px] items-start justify-center px-[14px] py-[16px] relative w-full">
+              <div className="content-stretch flex gap-[6px] items-center relative shrink-0">
+                <p className="font-['Geist_Mono:Regular',sans-serif] font-normal leading-[1.3] relative shrink-0 text-[13px] text-nowrap text-white whitespace-pre">{date}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Distance row */}
+        {distance && (
+          <div className={`${checked ? 'bg-[#1d4ed8]' : 'bg-[#172859]'} relative shrink-0 w-full`}>
+            <div className="flex flex-col justify-center size-full">
+              <div className="box-border content-stretch flex flex-col gap-[16px] items-start justify-center px-[14px] py-[16px] relative w-full">
+                <div className="content-stretch flex gap-[6px] items-center relative shrink-0">
+                  <p className="font-['Geist_Mono:Regular',sans-serif] font-normal leading-[1.3] relative shrink-0 text-[13px] text-nowrap text-white whitespace-pre">{distance}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// Desktop Micro/Strength Card
+function MicroStrengthDesktopCard({ 
+  checked, 
+  title, 
+  date, 
+  onCheckClick, 
+  onCardClick,
+  bgColor,
+  checkedBgColor
+}: { 
+  checked: boolean
+  title: string
+  date: string
+  onCheckClick: () => void
+  onCardClick: () => void
+  bgColor: string
+  checkedBgColor: string
+}) {
+  return (
+    <div 
+      onClick={onCardClick}
+      className={`${checked ? checkedBgColor : bgColor} content-stretch flex flex-col gap-[20px] items-center justify-center overflow-clip relative rounded-[10px] w-[155px] cursor-pointer`} 
+      data-name="types"
+    >
+      <div className="content-stretch flex flex-col items-start relative shrink-0 w-full">
+        {/* Title row */}
+        <div className="relative shrink-0 w-full">
+          <div className="size-full">
+            <div className="box-border content-stretch flex items-start justify-between px-[14px] py-[16px] relative w-full">
+              <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
+                <p className="font-['Geist:Regular',sans-serif] font-normal leading-[1.3] relative shrink-0 text-[17px] text-white w-[88px]">{title}</p>
+              </div>
+              <div 
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onCheckClick()
+                }}
+                className="absolute left-[126px] size-[15px] top-[16px] cursor-pointer" 
+                data-name="check"
+              >
+                <CheckIcon checked={checked} />
+              </div>
+            </div>
+          </div>
+        </div>
+        {/* Date row */}
+        <div className="relative shrink-0 w-full">
+          <div className="flex flex-col justify-center size-full">
+            <div className="box-border content-stretch flex flex-col gap-[16px] items-start justify-center px-[14px] py-[16px] relative w-full">
+              <div className="content-stretch flex gap-[6px] items-center relative shrink-0">
+                <p className="font-['Geist_Mono:Regular',sans-serif] font-normal leading-[1.3] relative shrink-0 text-[13px] text-nowrap text-white whitespace-pre">{date}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Desktop Rest Card
+function RestDesktopCard({ date }: { date: string }) {
+  return (
+    <div 
+      className="bg-gray-800 content-stretch flex flex-col gap-[20px] items-center justify-center overflow-clip relative rounded-[10px] w-[155px]" 
+      data-name="types"
+    >
+      <div className="content-stretch flex flex-col items-start relative shrink-0 w-full">
+        <div className="relative shrink-0 w-full">
+          <div className="size-full">
+            <div className="box-border content-stretch flex items-start justify-between px-[14px] py-[16px] relative w-full">
+              <div className="content-stretch flex gap-[8px] items-center relative shrink-0">
+                <p className="font-['Geist:Regular',sans-serif] font-normal leading-[1.3] relative shrink-0 text-[17px] text-white w-[88px]">Rest</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="relative shrink-0 w-full">
+          <div className="flex flex-col justify-center size-full">
+            <div className="box-border content-stretch flex flex-col gap-[16px] items-start justify-center px-[14px] py-[16px] relative w-full">
+              <div className="content-stretch flex gap-[6px] items-center relative shrink-0">
+                <p className="font-['Geist_Mono:Regular',sans-serif] font-normal leading-[1.3] relative shrink-0 text-[13px] text-nowrap text-white whitespace-pre">{date}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function WorkoutCard({ workout, onClick, onCompletionChange, variant = 'mobile' }: WorkoutCardProps) {
   const [isCompleted, setIsCompleted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
@@ -91,8 +464,10 @@ export function WorkoutCard({ workout, onClick, onCompletionChange }: WorkoutCar
     checkCompletion()
   }, [workout])
 
-  const handleCompletionToggle = async (e: React.MouseEvent) => {
+  const handleCompletionToggle = async (e?: React.MouseEvent) => {
+    if (e) {
     e.stopPropagation()
+    }
     if (isLoading) return
 
     setIsLoading(true)
@@ -113,113 +488,66 @@ export function WorkoutCard({ workout, onClick, onCompletionChange }: WorkoutCar
     }
   }
 
-  const getWorkoutTypeColor = (type: string) => {
-    if (isCompleted) {
-      // When completed, fill the entire block with the workout type color
-      switch (type) {
-        case 'run':
-          return 'bg-blue-500 dark:bg-blue-600 text-white border-blue-500 dark:border-blue-600'
-        case 'strength':
-          return 'bg-red-500 dark:bg-red-600 text-white border-red-500 dark:border-red-600'
-        case 'micro':
-          return 'bg-green-500 dark:bg-green-600 text-white border-green-500 dark:border-green-600'
-        case 'rest':
-          return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-600'
-        default:
-          return 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-200 dark:border-gray-600'
-      }
-    } else {
-      // When not completed, use light colors with borders
-      switch (type) {
-        case 'run':
-          return 'bg-blue-50 dark:bg-blue-900 border-blue-200 dark:border-blue-700 text-blue-900 dark:text-blue-100'
-        case 'strength':
-          return 'bg-red-50 dark:bg-red-900 border-red-200 dark:border-red-700 text-red-900 dark:text-red-100'
-        case 'micro':
-          return 'bg-green-50 dark:bg-green-900 border-green-200 dark:border-green-700 text-green-900 dark:text-green-100'
-        case 'rest':
-          return 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300'
-        default:
-          return 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300'
-      }
-    }
+  const title = formatWorkoutTitle(workout)
+  const date = formatDate(workout.date)
+  const distance = workout.distance_miles ? `${workout.distance_miles} miles` : undefined
+
+  if (workout.workout_type === 'rest') {
+    return variant === 'mobile' 
+      ? <RestMobileCard date={date} />
+      : <RestDesktopCard date={date} />
   }
 
-  return (
-    <div 
-      data-date={workout.date}
-      className={`workout-card rounded-lg border-2 ${getWorkoutTypeColor(workout.workout_type)} cursor-pointer transition-all hover:shadow-md touch-manipulation w-full`}
-      onClick={onClick || (() => setIsExpanded(!isExpanded))}
-    >
-      <div className="p-2 sm:p-3 w-full overflow-hidden">
-        {/* Header Row - Workout type and checkbox */}
-        <div className="flex items-center justify-between mb-2 gap-2">
-          <span className="font-semibold text-sm sm:text-sm capitalize">
-            {workout.workout_type}
-          </span>
-          {workout.workout_type !== 'rest' && (
-            <button
-              onClick={handleCompletionToggle}
-              disabled={isLoading}
-              className={`p-1 rounded-full transition-colors flex-shrink-0 ${
-                isCompleted
-                  ? 'text-white bg-white/20 dark:bg-white/20 hover:bg-white/30 dark:hover:bg-white/30'
-                  : 'text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30'
-              } ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-              title={isCompleted ? 'Mark as incomplete' : 'Mark as complete'}
-            >
-              {isCompleted ? (
-                <CheckCircle className="w-4 h-4" />
-              ) : (
-                <Check className="w-4 h-4" />
-              )}
-            </button>
-          )}
-        </div>
-        
-        {/* Title */}
-        <h3 className="font-bold text-sm sm:text-sm mb-5 break-words">
-          {formatWorkoutTitle(workout)}
-        </h3>
-        
-        {/* Workout Metrics */}
-        <div className="flex flex-wrap gap-1 sm:gap-2 text-sm">
-          {workout.distance_miles && (
-            <span className="flex items-center gap-1 bg-white/30 px-1 py-0.5 rounded text-sm">
-              <MapPin className="w-3 h-3" />
-              {workout.distance_miles}mi
-            </span>
-          )}
-          {workout.elevation_gain_feet && (
-            <span className="flex items-center gap-1 bg-white/30 px-1 py-0.5 rounded text-sm">
-              <span>↗</span>
-              {workout.elevation_gain_feet}ft
-            </span>
-          )}
-          {workout.intensity && (
-            <span className="px-2 py-1 bg-white/50 rounded text-sm font-medium">
-              {workout.intensity}
-            </span>
-          )}
-        </div>
-        
-        {isExpanded && (
-          <div className="mt-3 pt-3 border-t border-current/20">
-            {workout.notes && (
-              <div className="mb-2">
-                <p className="text-sm font-medium mb-1">Notes:</p>
-                <p className="text-sm opacity-80 break-words">{workout.notes}</p>
-              </div>
-            )}
-            {workout.phase && (
-              <div className="mb-2">
-                <p className="text-sm font-medium mb-1">Phase:</p>
-                <p className="text-sm opacity-80 break-words">{workout.phase}</p>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
+  if (workout.workout_type === 'run') {
+    return variant === 'mobile' 
+      ? (
+        <RunMobileCard
+          checked={isCompleted}
+          title={title}
+          date={date}
+          distance={distance}
+          onCircleClick={handleCompletionToggle}
+          onCardClick={onClick || (() => {})}
+        />
+      )
+      : (
+        <RunDesktopCard
+          checked={isCompleted}
+          title={title}
+          date={date}
+          distance={distance}
+          onCheckClick={handleCompletionToggle}
+          onCardClick={onClick || (() => {})}
+        />
+      )
+  }
+
+  // Micro or Strength
+  const isMicro = workout.workout_type === 'micro'
+  const bgColor = isMicro ? 'bg-green-900' : 'bg-red-900'
+  const checkedBgColor = isMicro ? 'bg-green-600' : 'bg-red-600'
+
+  return variant === 'mobile'
+    ? (
+      <MicroStrengthMobileCard
+        checked={isCompleted}
+        title={title}
+        date={date}
+        onCircleClick={handleCompletionToggle}
+        onCardClick={onClick || (() => {})}
+        bgColor={bgColor}
+        checkedBgColor={checkedBgColor}
+      />
+    )
+    : (
+      <MicroStrengthDesktopCard
+        checked={isCompleted}
+        title={title}
+        date={date}
+        onCheckClick={handleCompletionToggle}
+        onCardClick={onClick || (() => {})}
+        bgColor={bgColor}
+        checkedBgColor={checkedBgColor}
+      />
   )
 }

@@ -1,0 +1,33 @@
+### For any Figma Make import:
+
+1. **Download from Figma Make** → place in `figma-imports/[feature-name]/`
+
+2. **Give Cursor this prompt:**
+```
+   I have Figma Make code in figma-imports/[feature-name]/ that needs 
+   to be integrated into Swoletron. Review the conversion guides in 
+   figma-imports/ and convert this following the appropriate approach.
+```
+
+3. **Cursor will:**
+   - Look at both markdown files
+   - Assess the complexity
+   - Pick the right approach
+   - Do the conversion
+
+## That's It
+
+You don't need to decide which template - just point Cursor at the folder and let it choose. The two markdown files are **reference guides for Cursor**, not instructions for you.
+
+### Example:
+```
+I have Figma Make code in figma-imports/exercise-history/ that needs 
+to be integrated into Swoletron. Review the conversion guides in 
+figma-imports/ and convert this following the appropriate approach.
+```
+
+Cursor reads both guides, sees it needs database changes, uses the detailed template, and gets to work.
+
+**Even simpler:**
+```
+Convert figma-imports/exercise-history/ following figma-imports guides

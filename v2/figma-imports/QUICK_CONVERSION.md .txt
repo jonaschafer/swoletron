@@ -1,0 +1,134 @@
+# Quick Figma Make Conversion Guide
+
+Use this for simple UI components that don't require database changes or new pages.
+
+## 1. Essential Patterns
+
+**Every component needs:**
+- `'use client'` directive at the top
+- TypeScript interface for props
+- Dark mode variants on all colors
+- Mobile-first responsive design
+- Icons from `lucide-react`
+
+## 2. Common Conversions
+
+| Figma Make | Swoletron Pattern |
+|------------|-------------------|
+| Custom CSS classes | Tailwind utility classes |
+| Color: `bg-white` | `bg-white dark:bg-gray-900` |
+| Color: `text-black` | `text-gray-900 dark:text-white` |
+| Color: `border-gray` | `border-gray-200 dark:border-gray-700` |
+| Desktop-only | Add `md:`, `lg:` breakpoints |
+| Inline styles | Tailwind classes |
+| `Date` objects | `format()` from `date-fns` |
+| Custom icons | `lucide-react` icons |
+| Props without types | TypeScript interface |
+
+## 3. Component Template
+```tsx
+'use client'
+
+import { LucideIcon } from 'lucide-react'
+
+interface ComponentNameProps {
+  title: string
+  onClick?: () => void
+  // Add other props with types
+}
+
+export function ComponentName({ title, onClick }: ComponentNameProps) {
+  return (
+    <div className="bg-white dark:bg-gray-900 p-4 rounded-lg">
+      <h2 className="text-gray-900 dark:text-white text-lg font-semibold">
+        {title}
+      </h2>
+      {/* Component content */}
+    </div>
+  )
+}
+```
+
+## 4. Dark Mode Color Guide
+
+Common color patterns:
+- **Backgrounds**: `bg-white dark:bg-gray-900`
+- **Cards**: `bg-gray-50 dark:bg-gray-800`
+- **Text primary**: `text-gray-900 dark:text-white`
+- **Text secondary**: `text-gray-600 dark:text-gray-400`
+- **Borders**: `border-gray-200 dark:border-gray-700`
+- **Hover states**: `hover:bg-gray-100 dark:hover:bg-gray-800`
+
+## 5. Responsive Patterns
+```tsx
+{/* Mobile: stack, Desktop: side-by-side */}
+<div className="flex flex-col md:flex-row gap-4">
+
+{/* Mobile: hidden, Desktop: visible */}
+<div className="hidden md:block">
+
+{/* Mobile: full width, Desktop: half width */}
+<div className="w-full md:w-1/2">
+
+{/* Mobile: small text, Desktop: large text */}
+<h1 className="text-xl md:text-3xl">
+```
+
+## 6. TypeScript Import Patterns
+```tsx
+// Import existing types
+import { Workout, Exercise } from '@/lib/supabase'
+
+// Import date utilities
+import { format } from 'date-fns'
+import { formatShortDate } from '@/lib/utils/date'
+
+// Import icons
+import { Calendar, ChevronRight, Check } from 'lucide-react'
+```
+
+## 7. Testing Checklist
+
+Create `app/test-[name]/page.tsx`:
+```tsx
+'use client'
+
+import { ComponentName } from '@/app/components/ComponentName'
+
+export default function TestComponentPage() {
+  return (
+    <div className="min-h-screen bg-white dark:bg-gray-900 p-6">
+      <ComponentName title="Test" />
+    </div>
+  )
+}
+```
+
+**Verify:**
+- [ ] Component renders in light mode
+- [ ] Component renders in dark mode (toggle with theme button)
+- [ ] Works on mobile (resize browser)
+- [ ] Works on desktop
+- [ ] `npm run build` passes
+
+## 8. When to Use Detailed Template
+
+Use `PROMPT_TEMPLATE.md` instead if you need:
+- New database tables or migrations
+- New helper functions in `lib/supabase.ts`
+- New pages with routing
+- Complex state management
+- Database integration
+
+## Quick Reference Commands
+```bash
+# Create test page
+mkdir -p app/test-[name]
+touch app/test-[name]/page.tsx
+
+# Test build
+npm run build
+
+# Create branch
+git checkout -b figma/[name]
+```

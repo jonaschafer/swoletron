@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { WorkoutCard } from '@/app/components/WorkoutCard'
 import { WorkoutModal } from '@/app/components/WorkoutModal'
+import { MicroStrengthModal } from '@/app/components/MicroStrengthModal'
 import { TopNavigationBar } from '@/app/components/TopNavigationBar'
 import { DateNavigationPanel } from '@/app/components/DateNavigationPanel'
 import { ContentTabs } from '@/app/components/ContentTabs'
@@ -340,12 +341,25 @@ export default function MonthlyPage() {
       </div>
 
       {/* Workout Detail Modal */}
-      <WorkoutModal
-        workout={selectedWorkout}
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        onCompletionChange={handleCompletionChange}
-      />
+      {selectedWorkout && (
+        <>
+          {selectedWorkout.workout_type === 'run' ? (
+            <WorkoutModal
+              workout={selectedWorkout}
+              isOpen={isModalOpen}
+              onClose={handleModalClose}
+              onCompletionChange={handleCompletionChange}
+            />
+          ) : (selectedWorkout.workout_type === 'micro' || selectedWorkout.workout_type === 'strength') ? (
+            <MicroStrengthModal
+              workout={selectedWorkout}
+              isOpen={isModalOpen}
+              onClose={handleModalClose}
+              onCompletionChange={handleCompletionChange}
+            />
+          ) : null}
+        </>
+      )}
     </div>
   )
 }
