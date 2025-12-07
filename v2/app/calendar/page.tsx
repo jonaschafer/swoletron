@@ -127,61 +127,36 @@ function CalendarPageContent() {
       }
       
       const today = format(new Date(), 'yyyy-MM-dd');
-      const allTodayElements = document.querySelectorAll(`[data-date="${today}"]`);
-      
-      // Find the visible one
-      let visibleCard: HTMLElement | undefined;
-      allTodayElements.forEach((element) => {
-        const htmlElement = element as HTMLElement;
-        if (htmlElement.offsetWidth > 0 && htmlElement.offsetHeight > 0) {
-          visibleCard = htmlElement;
-        }
-      });
-      
-      if (!visibleCard) {
-        return;
-      }
-      
-      // Walk up the DOM tree to find horizontal scroll container
-      let current: HTMLElement | null = visibleCard.parentElement;
-      let level = 1;
-      let scrollContainer: HTMLElement | null = null;
-      
-      while (current && level <= 5) {
-        const classes = current.className || '';
-        
-        // Look for horizontal scroll indicators
-        if (classes.includes('overflow-x') || 
-            (classes.includes('flex') && classes.includes('gap') && !classes.includes('space-y'))) {
-          scrollContainer = current;
-          break;
-        }
-        
-        current = current.parentElement;
-        level++;
-      }
+      const scrollContainer = document.getElementById('mobile-scroll-container');
       
       if (!scrollContainer) {
         return;
       }
       
-      // Now scroll!
-      const elementLeft = visibleCard.offsetLeft;
+      const todayElement = scrollContainer.querySelector(`[data-date="${today}"]`) as HTMLElement;
+      
+      if (!todayElement) {
+        return;
+      }
+      
+      // Scroll to center the today element
+      const elementLeft = todayElement.offsetLeft;
       const containerWidth = scrollContainer.clientWidth;
-      const elementWidth = visibleCard.clientWidth;
+      const elementWidth = todayElement.clientWidth;
       const scrollPosition = elementLeft - (containerWidth / 2) + (elementWidth / 2);
       
       scrollContainer.scrollTo({
         left: scrollPosition,
         behavior: 'smooth'
       });
-      
     };
 
-    const timer = setTimeout(scrollToToday, 500);
-    
-    return () => clearTimeout(timer);
-  }, [currentWeek, workouts]);
+    // Wait for workouts to load and DOM to render
+    if (!loading && workouts.length > 0) {
+      const timer = setTimeout(scrollToToday, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [currentWeek, workouts, loading]);
 
   const navigateWeek = useCallback(
     (direction: 'prev' | 'next', options?: { pendingSelection?: 'first' | 'last' }) => {
@@ -438,26 +413,24 @@ function CalendarPageContent() {
 
         {/* Mobile Horizontal Scroll */}
         <div className="md:hidden">
-          <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory">
+          <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory" id="mobile-scroll-container">
             {weekDays.map((day) => (
-              <div key={day.date} className="flex-shrink-0 w-80 snap-center">
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-3">
-                  <div className="mb-3">
-                    <h3 className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-                      {day.dayName}
-                    </h3>
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">{day.dayNumber}</p>
-                  </div>
-                  <div className="space-y-2 w-full">
-                    {getWorkoutsForDay(day.date).map((workout) => (
-                      <WorkoutCard
-                        key={workout.id}
-                        workout={workout}
-                        onClick={() => handleWorkoutClick(workout)}
-                        onCompletionChange={handleCompletionChange}
-                      />
-                    ))}
-                  </div>
+              <div key={day.date} className="flex-shrink-0 w-80 snap-center" data-date={day.date}>
+                <div className="mb-3">
+                  <h3 className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
+                    {day.dayName}
+                  </h3>
+                  <p className="text-xl font-bold text-gray-900 dark:text-white">{day.dayNumber}</p>
+                </div>
+                <div className="space-y-2 w-full">
+                  {getWorkoutsForDay(day.date).map((workout) => (
+                    <WorkoutCard
+                      key={workout.id}
+                      workout={workout}
+                      onClick={() => handleWorkoutClick(workout)}
+                      onCompletionChange={handleCompletionChange}
+                    />
+                  ))}
                 </div>
               </div>
             ))}
