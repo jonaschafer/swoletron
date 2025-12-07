@@ -160,7 +160,7 @@ export function ExerciseLibraryCard({
   }, [autoPlayVideo, isExpanded, videoUrl, isYouTube])
 
   // Render video player component
-  const renderVideoPlayer = (autoPlay: boolean = false, ref?: React.RefObject<HTMLVideoElement>) => {
+  const renderVideoPlayer = (autoPlay: boolean = false, ref?: React.RefObject<HTMLVideoElement | null>) => {
     if (!videoUrl) return null
 
     if (videoError) {
