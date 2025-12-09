@@ -29,7 +29,7 @@ export function ContentTabs() {
     if (pathname === '/training-plan') {
       return 'plan'
     }
-    if (pathname === '/exercises') {
+    if (pathname === '/exercises' || pathname === '/lib') {
       return 'exercises'
     }
     if (pathname === '/progress') {

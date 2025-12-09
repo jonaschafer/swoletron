@@ -981,6 +981,35 @@ export async function getExerciseLibrary(): Promise<ExerciseLibraryEntry[]> {
 }
 
 /**
+ * Fetch all Programme.app exercises from the scraped JSON file
+ * Returns all exercises with their URLs for embedding
+ * Note: This is a client-side function that calls the API route
+ */
+export async function getAllProgrammeExercises(): Promise<Array<{
+  name: string
+  url: string
+  slug: string
+  id: number
+}>> {
+  try {
+    // Use absolute URL for client-side fetch
+    const baseUrl = typeof window !== 'undefined' 
+      ? window.location.origin 
+      : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+    const response = await fetch(`${baseUrl}/api/programme-exercises`, {
+      cache: 'no-store' // Always fetch fresh data
+    })
+    if (!response.ok) {
+      throw new Error('Failed to fetch programme exercises')
+    }
+    return await response.json()
+  } catch (error) {
+    console.error('Error fetching programme exercises:', error)
+    return []
+  }
+}
+
+/**
  * Fetch a single exercise library entry by UUID
  * Returns null if not found
  */
