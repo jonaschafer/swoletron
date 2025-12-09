@@ -1,0 +1,75 @@
+{
+  "found": [
+    {
+      "exercise": "Bent-over Row",
+      "programmeUrl": "https://programme.app/exercises/bent-over-row/130"
+    },
+    {
+      "exercise": "Bird-dog",
+      "programmeUrl": "https://programme.app/exercises/bird-dog/134"
+    },
+    {
+      "exercise": "Single-Leg RDL",
+      "programmeUrl": "https://programme.app/exercises/single-leg-crossbody-straight-leg-deadlift/864"
+    },
+    {
+      "exercise": "Single-leg Romanian Deadlift",
+      "programmeUrl": "https://programme.app/exercises/single-leg-crossbody-straight-leg-deadlift/864"
+    }
+  ],
+  "notFound": [
+    "Ankle Alphabet",
+    "Balance Pad Single Leg Stance",
+    "Band-assisted Pull-up",
+    "Banded Active Dorsiflexion",
+    "Banded Ankle Dorsiflexion",
+    "Banded Ankle Eversion/Inversion",
+    "Bosu Balance",
+    "BOSU® Squat Jumps",
+    "Box Jumps",
+    "Box Step-Ups",
+    "Bulgarian Split Squat",
+    "Bulgarian Split Squats",
+    "Calf Raise",
+    "Chest Press",
+    "Deadlift",
+    "Dumbbell Bent-over Row",
+    "Eccentric Calf Raises (Deficit)",
+    "Farmer's Carry",
+    "Goblet Squat",
+    "Inverted Rows",
+    "Kettlebell Swings",
+    "Kneeling Plyo Push-up (feet against wall)",
+    "Landmine Press",
+    "Lateral Step-downs",
+    "Lying Hamstrings Curl",
+    "Medicine Ball Chest Pass",
+    "Medicine Ball Lateral Bound",
+    "Monster Walks",
+    "Pallof Press",
+    "Plank-ups",
+    "Push Press",
+    "Push-up",
+    "Reverse Lunges",
+    "Romanian Deadlifts (RDL)",
+    "Russian Twist",
+    "Seated Overhead Press",
+    "Side Lunge",
+    "Side Plank",
+    "Single Leg Push-off",
+    "Single-arm Row",
+    "Single-leg Calf Raise (deficit)",
+    "Single-Leg Glute Bridges",
+    "Single-Leg Hopping",
+    "Step-Downs",
+    "Step-up",
+    "Step-Ups",
+    "Suitcase Carry",
+    "Supine Dead Bug",
+    "Swing",
+    "Toe Towel Grabs",
+    "Toe Yoga",
+    "Wall Sits"
+  ],
+  "timestamp": "2025-12-08T23:42:16.148Z"
+}

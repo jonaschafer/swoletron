@@ -1,0 +1,275 @@
+{
+  "goodMatches": [
+    {
+      "exercise": "Bent-over Row",
+      "programmeName": "Bent Over Row",
+      "programmeUrl": "https://programme.app/exercises/bent-over-row/130",
+      "confidence": 86
+    },
+    {
+      "exercise": "Bird-dog",
+      "programmeName": "Bird Dog",
+      "programmeUrl": "https://programme.app/exercises/bird-dog/134",
+      "confidence": 80
+    },
+    {
+      "exercise": "Box Jumps",
+      "programmeName": "Box Jump",
+      "programmeUrl": "https://programme.app/exercises/box-jump/159",
+      "confidence": 90
+    },
+    {
+      "exercise": "Deadlift",
+      "programmeName": "Deadlift",
+      "programmeUrl": "https://programme.app/exercises/deadlift/280",
+      "confidence": 100
+    },
+    {
+      "exercise": "Farmer's Carry",
+      "programmeName": "Kb Farmers Carry",
+      "programmeUrl": "https://programme.app/exercises/kb-farmers-carry/490",
+      "confidence": 80
+    },
+    {
+      "exercise": "Goblet Squat",
+      "programmeName": "Goblet Squat",
+      "programmeUrl": "https://programme.app/exercises/goblet-squat/372",
+      "confidence": 100
+    },
+    {
+      "exercise": "Landmine Press",
+      "programmeName": "Landmine Press",
+      "programmeUrl": "https://programme.app/exercises/landmine-press/552",
+      "confidence": 100
+    },
+    {
+      "exercise": "Pallof Press",
+      "programmeName": "Pallof Press",
+      "programmeUrl": "https://programme.app/exercises/pallof-press/637",
+      "confidence": 100
+    },
+    {
+      "exercise": "Reverse Lunges",
+      "programmeName": "Reverse Lunge",
+      "programmeUrl": "https://programme.app/exercises/reverse-lunge/718",
+      "confidence": 90
+    },
+    {
+      "exercise": "Russian Twist",
+      "programmeName": "Russian Twists",
+      "programmeUrl": "https://programme.app/exercises/russian-twists/769",
+      "confidence": 90
+    },
+    {
+      "exercise": "Side Plank",
+      "programmeName": "Side Plank",
+      "programmeUrl": "https://programme.app/exercises/side-plank/796",
+      "confidence": 100
+    },
+    {
+      "exercise": "Single-arm Row",
+      "programmeName": "Trx Single Arm Row",
+      "programmeUrl": "https://programme.app/exercises/trx-single-arm-row/1061",
+      "confidence": 77
+    },
+    {
+      "exercise": "Single-Leg Glute Bridges",
+      "programmeName": "Single Leg Glute Bridge Hold",
+      "programmeUrl": "https://programme.app/exercises/single-leg-glute-bridge-hold/869",
+      "confidence": 82
+    },
+    {
+      "exercise": "Swing",
+      "programmeName": "Linear Swing",
+      "programmeUrl": "https://programme.app/exercises/linear-swing/583",
+      "confidence": 90
+    },
+    {
+      "exercise": "Wall Sits",
+      "programmeName": "Wall Sit",
+      "programmeUrl": "https://programme.app/exercises/wall-sit/1100",
+      "confidence": 90
+    }
+  ],
+  "questionableMatches": [
+    {
+      "exercise": "Balance Pad Single Leg Stance",
+      "programmeName": "Single Leg Step Up",
+      "programmeUrl": "https://programme.app/exercises/single-leg-step-up/895",
+      "confidence": 58
+    },
+    {
+      "exercise": "Band-assisted Pull-up",
+      "programmeName": "Banded Pull Ups",
+      "programmeUrl": "https://programme.app/exercises/banded-pull-ups/90",
+      "confidence": 58
+    },
+    {
+      "exercise": "Banded Active Dorsiflexion",
+      "programmeName": "Banded Adduction",
+      "programmeUrl": "https://programme.app/exercises/banded-adduction/68",
+      "confidence": 54
+    },
+    {
+      "exercise": "Box Step-Ups",
+      "programmeName": "Patrick Step Ups",
+      "programmeUrl": "https://programme.app/exercises/patrick-step-ups/641",
+      "confidence": 53
+    },
+    {
+      "exercise": "Calf Raise",
+      "programmeName": "Front Raises",
+      "programmeUrl": "https://programme.app/exercises/front-raises/355",
+      "confidence": 56
+    },
+    {
+      "exercise": "Chest Press",
+      "programmeName": "Strict Press",
+      "programmeUrl": "https://programme.app/exercises/strict-press/954",
+      "confidence": 63
+    },
+    {
+      "exercise": "Dumbbell Bent-over Row",
+      "programmeName": "Db Bent Over Row",
+      "programmeUrl": "https://programme.app/exercises/db-bent-over-row/217",
+      "confidence": 65
+    },
+    {
+      "exercise": "Inverted Rows",
+      "programmeName": "Inverted Plank",
+      "programmeUrl": "https://programme.app/exercises/inverted-plank/464",
+      "confidence": 61
+    },
+    {
+      "exercise": "Kettlebell Swings",
+      "programmeName": "Kettlebell Arm Bar",
+      "programmeUrl": "https://programme.app/exercises/kettlebell-arm-bar/525",
+      "confidence": 60
+    },
+    {
+      "exercise": "Lateral Step-downs",
+      "programmeName": "Db Lateral Step Up",
+      "programmeUrl": "https://programme.app/exercises/db-lateral-step-up/243",
+      "confidence": 67
+    },
+    {
+      "exercise": "Lying Hamstrings Curl",
+      "programmeName": "Banded Hamstring Curl",
+      "programmeUrl": "https://programme.app/exercises/banded-hamstring-curl/80",
+      "confidence": 61
+    },
+    {
+      "exercise": "Medicine Ball Lateral Bound",
+      "programmeName": "Lateral Banded Walks",
+      "programmeUrl": "https://programme.app/exercises/lateral-banded-walks/565",
+      "confidence": 55
+    },
+    {
+      "exercise": "Monster Walks",
+      "programmeName": "Monkey Walks",
+      "programmeUrl": "https://programme.app/exercises/monkey-walks/605",
+      "confidence": 57
+    },
+    {
+      "exercise": "Plank-ups",
+      "programmeName": "Plank",
+      "programmeUrl": "https://programme.app/exercises/plank/647",
+      "confidence": 90
+    },
+    {
+      "exercise": "Push Press",
+      "programmeName": "Bench Press",
+      "programmeUrl": "https://programme.app/exercises/bench-press/124",
+      "confidence": 59
+    },
+    {
+      "exercise": "Romanian Deadlifts (RDL)",
+      "programmeName": "Deadlift",
+      "programmeUrl": "https://programme.app/exercises/deadlift/280",
+      "confidence": 90
+    },
+    {
+      "exercise": "Seated Overhead Press",
+      "programmeName": "Butterfly Seated Press",
+      "programmeUrl": "https://programme.app/exercises/butterfly-seated-press/170",
+      "confidence": 59
+    },
+    {
+      "exercise": "Side Lunge",
+      "programmeName": "45 Degree Lunge",
+      "programmeUrl": "https://programme.app/exercises/45-degree-lunge/6",
+      "confidence": 60
+    },
+    {
+      "exercise": "Single Leg Push-off",
+      "programmeName": "Single Leg Plank",
+      "programmeUrl": "https://programme.app/exercises/single-leg-plank/886",
+      "confidence": 62
+    },
+    {
+      "exercise": "Single-Leg Hopping",
+      "programmeName": "Single Leg Ring Plank",
+      "programmeUrl": "https://programme.app/exercises/single-leg-ring-plank/889",
+      "confidence": 55
+    },
+    {
+      "exercise": "Single-Leg RDL",
+      "programmeName": "Single Leg Rdl To Kick",
+      "programmeUrl": "https://programme.app/exercises/single-leg-rdl-to-kick/888",
+      "confidence": 69
+    },
+    {
+      "exercise": "Single-leg Romanian Deadlift",
+      "programmeName": "Deadlift",
+      "programmeUrl": "https://programme.app/exercises/deadlift/280",
+      "confidence": 90
+    },
+    {
+      "exercise": "Step-Downs",
+      "programmeName": "Curtsy Step Down",
+      "programmeUrl": "https://programme.app/exercises/curtsy-step-down/209",
+      "confidence": 55
+    },
+    {
+      "exercise": "Step-Ups",
+      "programmeName": "Patrick Step Ups",
+      "programmeUrl": "https://programme.app/exercises/patrick-step-ups/641",
+      "confidence": 53
+    },
+    {
+      "exercise": "Suitcase Carry",
+      "programmeName": "Kb Suitcase Hold",
+      "programmeUrl": "https://programme.app/exercises/kb-suitcase-hold/519",
+      "confidence": 56
+    },
+    {
+      "exercise": "Supine Dead Bug",
+      "programmeName": "Deadbugs",
+      "programmeUrl": "https://programme.app/exercises/deadbugs/274",
+      "confidence": 63
+    }
+  ],
+  "notFound": [
+    "Ankle Alphabet",
+    "Banded Ankle Dorsiflexion",
+    "Banded Ankle Eversion/Inversion",
+    "Bosu Balance",
+    "BOSU® Squat Jumps",
+    "Bulgarian Split Squat",
+    "Bulgarian Split Squats",
+    "Eccentric Calf Raises (Deficit)",
+    "Kneeling Plyo Push-up (feet against wall)",
+    "Medicine Ball Chest Pass",
+    "Push-up",
+    "Single-leg Calf Raise (deficit)",
+    "Step-up",
+    "Toe Towel Grabs",
+    "Toe Yoga"
+  ],
+  "summary": {
+    "total": 41,
+    "good": 15,
+    "questionable": 26,
+    "notFound": 15
+  }
+}

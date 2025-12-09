@@ -1,0 +1,84 @@
+{
+  "approved": [
+    {
+      "exercise": "Balance Pad Single Leg Stance",
+      "programmeUrl": "https://programme.app/exercises/single-leg-step-up/895"
+    },
+    {
+      "exercise": "Band-assisted Pull-up",
+      "programmeUrl": "https://programme.app/exercises/banded-pull-ups/90"
+    },
+    {
+      "exercise": "Banded Active Dorsiflexion",
+      "programmeUrl": "https://programme.app/exercises/banded-adduction/68"
+    },
+    {
+      "exercise": "Box Step-Ups",
+      "programmeUrl": "https://programme.app/exercises/patrick-step-ups/641"
+    },
+    {
+      "exercise": "Dumbbell Bent-over Row",
+      "programmeUrl": "https://programme.app/exercises/db-bent-over-row/217"
+    },
+    {
+      "exercise": "Lateral Step-downs",
+      "programmeUrl": "https://programme.app/exercises/db-lateral-step-up/243"
+    },
+    {
+      "exercise": "Lying Hamstrings Curl",
+      "programmeUrl": "https://programme.app/exercises/banded-hamstring-curl/80"
+    },
+    {
+      "exercise": "Monster Walks",
+      "programmeUrl": "https://programme.app/exercises/monkey-walks/605"
+    },
+    {
+      "exercise": "Plank-ups",
+      "programmeUrl": "https://programme.app/exercises/plank/647"
+    },
+    {
+      "exercise": "Push Press",
+      "programmeUrl": "https://programme.app/exercises/bench-press/124"
+    },
+    {
+      "exercise": "Romanian Deadlifts (RDL)",
+      "programmeUrl": "https://programme.app/exercises/deadlift/280"
+    },
+    {
+      "exercise": "Side Lunge",
+      "programmeUrl": "https://programme.app/exercises/45-degree-lunge/6"
+    },
+    {
+      "exercise": "Single Leg Push-off",
+      "programmeUrl": "https://programme.app/exercises/single-leg-plank/886"
+    },
+    {
+      "exercise": "Single-Leg RDL",
+      "programmeUrl": "https://programme.app/exercises/single-leg-rdl-to-kick/888"
+    },
+    {
+      "exercise": "Single-leg Romanian Deadlift",
+      "programmeUrl": "https://programme.app/exercises/deadlift/280"
+    },
+    {
+      "exercise": "Suitcase Carry",
+      "programmeUrl": "https://programme.app/exercises/kb-suitcase-hold/519"
+    },
+    {
+      "exercise": "Supine Dead Bug",
+      "programmeUrl": "https://programme.app/exercises/deadbugs/274"
+    }
+  ],
+  "rejected": [
+    "Calf Raise",
+    "Chest Press",
+    "Inverted Rows",
+    "Kettlebell Swings",
+    "Medicine Ball Lateral Bound",
+    "Seated Overhead Press",
+    "Single-Leg Hopping",
+    "Step-Downs",
+    "Step-Ups"
+  ],
+  "timestamp": "2025-12-09T02:21:56.277Z"
+}

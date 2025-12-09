@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Review Questionable Programme.app Matches</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+      border-bottom: 3px solid #4CAF50;
+      padding-bottom: 10px;
+    }
+    .match {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .match-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .exercise-name {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #333;
+    }
+    .confidence {
+      background: #ff9800;
+      color: white;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.9em;
+    }
+    .matched-to {
+      color: #666;
+      margin: 10px 0;
+      font-size: 1.1em;
+    }
+    .url {
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+      word-break: break-all;
+    }
+    .url a {
+      color: #2196F3;
+      text-decoration: none;
+    }
+    .url a:hover {
+      text-decoration: underline;
+    }
+    .actions {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1em;
+      font-weight: 500;
+    }
+    .approve {
+      background: #4CAF50;
+      color: white;
+    }
+    .approve:hover {
+      background: #45a049;
+    }
+    .reject {
+      background: #f44336;
+      color: white;
+    }
+    .reject:hover {
+      background: #da190b;
+    }
+    .summary {
+      background: white;
+      border: 2px solid #4CAF50;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .summary h2 {
+      margin-top: 0;
+      color: #4CAF50;
+    }
+    .stats {
+      display: flex;
+      gap: 30px;
+      margin-top: 15px;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 2em;
+      font-weight: bold;
+      color: #4CAF50;
+    }
+    .stat-label {
+      color: #666;
+      margin-top: 5px;
+    }
+    .reviewed {
+      opacity: 0.6;
+      border-color: #ccc;
+    }
+    .reviewed.approved {
+      border-color: #4CAF50;
+      background: #e8f5e9;
+    }
+    .reviewed.rejected {
+      border-color: #f44336;
+      background: #ffebee;
+    }
+  </style>
+</head>
+<body>
+  <h1>📋 Review Questionable Programme.app Matches</h1>
+  
+  <div class="summary">
+    <h2>Summary</h2>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-number" id="total">26</div>
+        <div class="stat-label">Total to Review</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number" id="approved">0</div>
+        <div class="stat-label">Approved</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number" id="rejected">0</div>
+        <div class="stat-label">Rejected</div>
+      </div>
+    </div>
+  </div>
+
+  
+    <div class="match" data-index="0" data-exercise="Balance Pad Single Leg Stance">
+      <div class="match-header">
+        <div class="exercise-name">Balance Pad Single Leg Stance</div>
+        <div class="confidence">58% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Single Leg Step Up</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/single-leg-step-up/895" target="_blank">https://programme.app/exercises/single-leg-step-up/895</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(0, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(0, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="1" data-exercise="Band-assisted Pull-up">
+      <div class="match-header">
+        <div class="exercise-name">Band-assisted Pull-up</div>
+        <div class="confidence">58% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Banded Pull Ups</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/banded-pull-ups/90" target="_blank">https://programme.app/exercises/banded-pull-ups/90</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(1, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(1, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="2" data-exercise="Banded Active Dorsiflexion">
+      <div class="match-header">
+        <div class="exercise-name">Banded Active Dorsiflexion</div>
+        <div class="confidence">54% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Banded Adduction</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/banded-adduction/68" target="_blank">https://programme.app/exercises/banded-adduction/68</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(2, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(2, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="3" data-exercise="Box Step-Ups">
+      <div class="match-header">
+        <div class="exercise-name">Box Step-Ups</div>
+        <div class="confidence">53% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Patrick Step Ups</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/patrick-step-ups/641" target="_blank">https://programme.app/exercises/patrick-step-ups/641</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(3, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(3, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="4" data-exercise="Calf Raise">
+      <div class="match-header">
+        <div class="exercise-name">Calf Raise</div>
+        <div class="confidence">56% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Front Raises</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/front-raises/355" target="_blank">https://programme.app/exercises/front-raises/355</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(4, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(4, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="5" data-exercise="Chest Press">
+      <div class="match-header">
+        <div class="exercise-name">Chest Press</div>
+        <div class="confidence">63% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Strict Press</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/strict-press/954" target="_blank">https://programme.app/exercises/strict-press/954</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(5, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(5, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="6" data-exercise="Dumbbell Bent-over Row">
+      <div class="match-header">
+        <div class="exercise-name">Dumbbell Bent-over Row</div>
+        <div class="confidence">65% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Db Bent Over Row</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/db-bent-over-row/217" target="_blank">https://programme.app/exercises/db-bent-over-row/217</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(6, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(6, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="7" data-exercise="Inverted Rows">
+      <div class="match-header">
+        <div class="exercise-name">Inverted Rows</div>
+        <div class="confidence">61% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Inverted Plank</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/inverted-plank/464" target="_blank">https://programme.app/exercises/inverted-plank/464</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(7, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(7, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="8" data-exercise="Kettlebell Swings">
+      <div class="match-header">
+        <div class="exercise-name">Kettlebell Swings</div>
+        <div class="confidence">60% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Kettlebell Arm Bar</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/kettlebell-arm-bar/525" target="_blank">https://programme.app/exercises/kettlebell-arm-bar/525</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(8, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(8, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="9" data-exercise="Lateral Step-downs">
+      <div class="match-header">
+        <div class="exercise-name">Lateral Step-downs</div>
+        <div class="confidence">67% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Db Lateral Step Up</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/db-lateral-step-up/243" target="_blank">https://programme.app/exercises/db-lateral-step-up/243</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(9, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(9, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="10" data-exercise="Lying Hamstrings Curl">
+      <div class="match-header">
+        <div class="exercise-name">Lying Hamstrings Curl</div>
+        <div class="confidence">61% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Banded Hamstring Curl</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/banded-hamstring-curl/80" target="_blank">https://programme.app/exercises/banded-hamstring-curl/80</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(10, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(10, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="11" data-exercise="Medicine Ball Lateral Bound">
+      <div class="match-header">
+        <div class="exercise-name">Medicine Ball Lateral Bound</div>
+        <div class="confidence">55% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Lateral Banded Walks</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/lateral-banded-walks/565" target="_blank">https://programme.app/exercises/lateral-banded-walks/565</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(11, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(11, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="12" data-exercise="Monster Walks">
+      <div class="match-header">
+        <div class="exercise-name">Monster Walks</div>
+        <div class="confidence">57% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Monkey Walks</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/monkey-walks/605" target="_blank">https://programme.app/exercises/monkey-walks/605</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(12, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(12, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="13" data-exercise="Plank-ups">
+      <div class="match-header">
+        <div class="exercise-name">Plank-ups</div>
+        <div class="confidence">90% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Plank</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/plank/647" target="_blank">https://programme.app/exercises/plank/647</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(13, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(13, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="14" data-exercise="Push Press">
+      <div class="match-header">
+        <div class="exercise-name">Push Press</div>
+        <div class="confidence">59% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Bench Press</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/bench-press/124" target="_blank">https://programme.app/exercises/bench-press/124</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(14, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(14, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="15" data-exercise="Romanian Deadlifts (RDL)">
+      <div class="match-header">
+        <div class="exercise-name">Romanian Deadlifts (RDL)</div>
+        <div class="confidence">90% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Deadlift</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/deadlift/280" target="_blank">https://programme.app/exercises/deadlift/280</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(15, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(15, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="16" data-exercise="Seated Overhead Press">
+      <div class="match-header">
+        <div class="exercise-name">Seated Overhead Press</div>
+        <div class="confidence">59% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Butterfly Seated Press</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/butterfly-seated-press/170" target="_blank">https://programme.app/exercises/butterfly-seated-press/170</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(16, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(16, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="17" data-exercise="Side Lunge">
+      <div class="match-header">
+        <div class="exercise-name">Side Lunge</div>
+        <div class="confidence">60% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>45 Degree Lunge</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/45-degree-lunge/6" target="_blank">https://programme.app/exercises/45-degree-lunge/6</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(17, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(17, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="18" data-exercise="Single Leg Push-off">
+      <div class="match-header">
+        <div class="exercise-name">Single Leg Push-off</div>
+        <div class="confidence">62% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Single Leg Plank</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/single-leg-plank/886" target="_blank">https://programme.app/exercises/single-leg-plank/886</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(18, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(18, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="19" data-exercise="Single-Leg Hopping">
+      <div class="match-header">
+        <div class="exercise-name">Single-Leg Hopping</div>
+        <div class="confidence">55% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Single Leg Ring Plank</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/single-leg-ring-plank/889" target="_blank">https://programme.app/exercises/single-leg-ring-plank/889</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(19, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(19, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="20" data-exercise="Single-Leg RDL">
+      <div class="match-header">
+        <div class="exercise-name">Single-Leg RDL</div>
+        <div class="confidence">69% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Single Leg Rdl To Kick</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/single-leg-rdl-to-kick/888" target="_blank">https://programme.app/exercises/single-leg-rdl-to-kick/888</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(20, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(20, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="21" data-exercise="Single-leg Romanian Deadlift">
+      <div class="match-header">
+        <div class="exercise-name">Single-leg Romanian Deadlift</div>
+        <div class="confidence">90% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Deadlift</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/deadlift/280" target="_blank">https://programme.app/exercises/deadlift/280</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(21, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(21, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="22" data-exercise="Step-Downs">
+      <div class="match-header">
+        <div class="exercise-name">Step-Downs</div>
+        <div class="confidence">55% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Curtsy Step Down</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/curtsy-step-down/209" target="_blank">https://programme.app/exercises/curtsy-step-down/209</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(22, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(22, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="23" data-exercise="Step-Ups">
+      <div class="match-header">
+        <div class="exercise-name">Step-Ups</div>
+        <div class="confidence">53% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Patrick Step Ups</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/patrick-step-ups/641" target="_blank">https://programme.app/exercises/patrick-step-ups/641</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(23, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(23, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="24" data-exercise="Suitcase Carry">
+      <div class="match-header">
+        <div class="exercise-name">Suitcase Carry</div>
+        <div class="confidence">56% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Kb Suitcase Hold</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/kb-suitcase-hold/519" target="_blank">https://programme.app/exercises/kb-suitcase-hold/519</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(24, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(24, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+    <div class="match" data-index="25" data-exercise="Supine Dead Bug">
+      <div class="match-header">
+        <div class="exercise-name">Supine Dead Bug</div>
+        <div class="confidence">63% confidence</div>
+      </div>
+      <div class="matched-to">
+        → Matched to: <strong>Deadbugs</strong>
+      </div>
+      <div class="url">
+        <a href="https://programme.app/exercises/deadbugs/274" target="_blank">https://programme.app/exercises/deadbugs/274</a>
+      </div>
+      <div class="actions">
+        <button class="approve" onclick="reviewMatch(25, true)">✅ Approve</button>
+        <button class="reject" onclick="reviewMatch(25, false)">❌ Reject</button>
+      </div>
+    </div>
+  
+
+  <div style="margin-top: 40px; padding: 20px; background: white; border-radius: 8px;">
+    <h2>Export Results</h2>
+    <button onclick="exportResults()" style="background: #2196F3; color: white; padding: 15px 30px; font-size: 1.1em;">
+      💾 Export Review Results
+    </button>
+    <div id="export-status" style="margin-top: 15px; color: #666;"></div>
+  </div>
+
+  <script>
+    const reviews = {};
+    const matches = [{"exercise":"Balance Pad Single Leg Stance","programmeName":"Single Leg Step Up","programmeUrl":"https://programme.app/exercises/single-leg-step-up/895","confidence":58},{"exercise":"Band-assisted Pull-up","programmeName":"Banded Pull Ups","programmeUrl":"https://programme.app/exercises/banded-pull-ups/90","confidence":58},{"exercise":"Banded Active Dorsiflexion","programmeName":"Banded Adduction","programmeUrl":"https://programme.app/exercises/banded-adduction/68","confidence":54},{"exercise":"Box Step-Ups","programmeName":"Patrick Step Ups","programmeUrl":"https://programme.app/exercises/patrick-step-ups/641","confidence":53},{"exercise":"Calf Raise","programmeName":"Front Raises","programmeUrl":"https://programme.app/exercises/front-raises/355","confidence":56},{"exercise":"Chest Press","programmeName":"Strict Press","programmeUrl":"https://programme.app/exercises/strict-press/954","confidence":63},{"exercise":"Dumbbell Bent-over Row","programmeName":"Db Bent Over Row","programmeUrl":"https://programme.app/exercises/db-bent-over-row/217","confidence":65},{"exercise":"Inverted Rows","programmeName":"Inverted Plank","programmeUrl":"https://programme.app/exercises/inverted-plank/464","confidence":61},{"exercise":"Kettlebell Swings","programmeName":"Kettlebell Arm Bar","programmeUrl":"https://programme.app/exercises/kettlebell-arm-bar/525","confidence":60},{"exercise":"Lateral Step-downs","programmeName":"Db Lateral Step Up","programmeUrl":"https://programme.app/exercises/db-lateral-step-up/243","confidence":67},{"exercise":"Lying Hamstrings Curl","programmeName":"Banded Hamstring Curl","programmeUrl":"https://programme.app/exercises/banded-hamstring-curl/80","confidence":61},{"exercise":"Medicine Ball Lateral Bound","programmeName":"Lateral Banded Walks","programmeUrl":"https://programme.app/exercises/lateral-banded-walks/565","confidence":55},{"exercise":"Monster Walks","programmeName":"Monkey Walks","programmeUrl":"https://programme.app/exercises/monkey-walks/605","confidence":57},{"exercise":"Plank-ups","programmeName":"Plank","programmeUrl":"https://programme.app/exercises/plank/647","confidence":90},{"exercise":"Push Press","programmeName":"Bench Press","programmeUrl":"https://programme.app/exercises/bench-press/124","confidence":59},{"exercise":"Romanian Deadlifts (RDL)","programmeName":"Deadlift","programmeUrl":"https://programme.app/exercises/deadlift/280","confidence":90},{"exercise":"Seated Overhead Press","programmeName":"Butterfly Seated Press","programmeUrl":"https://programme.app/exercises/butterfly-seated-press/170","confidence":59},{"exercise":"Side Lunge","programmeName":"45 Degree Lunge","programmeUrl":"https://programme.app/exercises/45-degree-lunge/6","confidence":60},{"exercise":"Single Leg Push-off","programmeName":"Single Leg Plank","programmeUrl":"https://programme.app/exercises/single-leg-plank/886","confidence":62},{"exercise":"Single-Leg Hopping","programmeName":"Single Leg Ring Plank","programmeUrl":"https://programme.app/exercises/single-leg-ring-plank/889","confidence":55},{"exercise":"Single-Leg RDL","programmeName":"Single Leg Rdl To Kick","programmeUrl":"https://programme.app/exercises/single-leg-rdl-to-kick/888","confidence":69},{"exercise":"Single-leg Romanian Deadlift","programmeName":"Deadlift","programmeUrl":"https://programme.app/exercises/deadlift/280","confidence":90},{"exercise":"Step-Downs","programmeName":"Curtsy Step Down","programmeUrl":"https://programme.app/exercises/curtsy-step-down/209","confidence":55},{"exercise":"Step-Ups","programmeName":"Patrick Step Ups","programmeUrl":"https://programme.app/exercises/patrick-step-ups/641","confidence":53},{"exercise":"Suitcase Carry","programmeName":"Kb Suitcase Hold","programmeUrl":"https://programme.app/exercises/kb-suitcase-hold/519","confidence":56},{"exercise":"Supine Dead Bug","programmeName":"Deadbugs","programmeUrl":"https://programme.app/exercises/deadbugs/274","confidence":63}];
+
+    function reviewMatch(index, approved) {
+      const match = document.querySelector(`[data-index="${index}"]`);
+      const exercise = matches[index].exercise;
+      
+      reviews[exercise] = {
+        approved: approved,
+        programmeUrl: approved ? matches[index].programmeUrl : null
+      };
+      
+      match.classList.add('reviewed');
+      match.classList.add(approved ? 'approved' : 'rejected');
+      
+      match.querySelector('.actions').innerHTML = approved 
+        ? '<strong style="color: #4CAF50;">✅ Approved</strong>' 
+        : '<strong style="color: #f44336;">❌ Rejected</strong>';
+      
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const approved = Object.values(reviews).filter(r => r.approved).length;
+      const rejected = Object.values(reviews).filter(r => !r.approved).length;
+      
+      document.getElementById('approved').textContent = approved;
+      document.getElementById('rejected').textContent = rejected;
+    }
+
+    function exportResults() {
+      const approved = [];
+      const rejected = [];
+      
+      Object.entries(reviews).forEach(([exercise, review]) => {
+        if (review.approved) {
+          approved.push({
+            exercise: exercise,
+            programmeUrl: review.programmeUrl
+          });
+        } else {
+          rejected.push(exercise);
+        }
+      });
+      
+      const output = {
+        approved: approved,
+        rejected: rejected,
+        timestamp: new Date().toISOString()
+      };
+      
+      const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'programme-review-results.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      document.getElementById('export-status').innerHTML = 
+        `<strong style="color: #4CAF50;">✅ Exported! Approved: ${approved.length}, Rejected: ${rejected.length}</strong><br>
+        <small>Save the file and run: <code>npx tsx scripts/update-reviewed-matches.ts</code></small>`;
+    }
+  </script>
+</body>
+</html>

@@ -38,6 +38,20 @@ export function ExerciseLibraryCard({
   const videoUrl = getVideoUrl()
   const isYouTube = videoUrl?.includes('youtube.com') || videoUrl?.includes('youtu.be')
   const isExternal = !!exercise.external_video_url && !isYouTube
+  
+  // Check if URL is a direct video file (not a web page)
+  const isDirectVideoFile = (url: string | null): boolean => {
+    if (!url) return false
+    const directVideoExtensions = ['.mp4', '.webm', '.mov', '.avi', '.mkv', '.m4v']
+    const lowerUrl = url.toLowerCase()
+    // Check if URL ends with video extension or contains /video/ path
+    return directVideoExtensions.some(ext => lowerUrl.endsWith(ext)) || 
+           lowerUrl.includes('/video/') || 
+           lowerUrl.includes('video/mp4') ||
+           lowerUrl.includes('supabase.co/storage') // Supabase storage URLs are direct files
+  }
+  
+  const canLoadInVideoElement = isDirectVideoFile(videoUrl) || isYouTube
 
   // Get thumbnail URL - supports both Supabase Storage, external URLs, and auto-generated YouTube thumbnails
   const getThumbnailUrl = () => {
@@ -47,7 +61,11 @@ export function ExerciseLibraryCard({
         return exercise.thumbnail_path
       }
       // Otherwise, construct Supabase Storage URL
+      // Files are stored at: exercise-videos/{slug}/thumbnail.jpg
+      // Database paths are: {slug}/thumbnail.jpg (no prefix)
+      // The URL already includes /exercise-videos/ as the bucket name, so we just use the path as-is
       if (supabaseUrl) {
+        // Use the path directly - the URL already includes the bucket name
         return `${supabaseUrl}/storage/v1/object/public/exercise-videos/${exercise.thumbnail_path}`
       }
     }
@@ -66,9 +84,9 @@ export function ExerciseLibraryCard({
   const thumbnailUrl = getThumbnailUrl()
   const finalThumbnailUrl = thumbnailUrl || videoThumbnail
 
-  // Extract first frame from video for non-YouTube videos
+  // Extract first frame from video for non-YouTube videos (only for direct video files)
   useEffect(() => {
-    if (!thumbnailUrl && videoUrl && !isYouTube && videoRef.current && !videoThumbnail) {
+    if (!thumbnailUrl && videoUrl && !isYouTube && canLoadInVideoElement && videoRef.current && !videoThumbnail) {
       const video = videoRef.current
       
       const captureFrame = () => {
@@ -146,7 +164,8 @@ export function ExerciseLibraryCard({
       if (isYouTube) {
         // YouTube videos autoplay via iframe
         return
-      } else {
+      } else if (canLoadInVideoElement) {
+        // Only try to play direct video files
         thumbnailVideoRef.current.play().catch(err => {
           console.error('Error playing video:', err)
         })
@@ -157,7 +176,7 @@ export function ExerciseLibraryCard({
     if (!isExpanded && autoPlayVideo) {
       setAutoPlayVideo(false)
     }
-  }, [autoPlayVideo, isExpanded, videoUrl, isYouTube])
+  }, [autoPlayVideo, isExpanded, videoUrl, isYouTube, canLoadInVideoElement])
 
   // Render video player component
   const renderVideoPlayer = (autoPlay: boolean = false, ref?: React.RefObject<HTMLVideoElement | null>) => {
@@ -188,17 +207,40 @@ export function ExerciseLibraryCard({
       )
     }
 
+    // Only use video element for direct video files
+    if (canLoadInVideoElement) {
+      return (
+        <video
+          ref={ref}
+          src={videoUrl}
+          controls
+          autoPlay={autoPlay}
+          className="w-full h-full object-cover min-h-[150px]"
+          onError={() => setVideoError(true)}
+        >
+          Your browser does not support the video tag.
+        </video>
+      )
+    }
+
+    // For external web pages, show a link instead
     return (
-      <video
-        ref={ref}
-        src={videoUrl}
-        controls
-        autoPlay={autoPlay}
-        className="w-full h-full object-cover min-h-[150px]"
-        onError={() => setVideoError(true)}
-      >
-        Your browser does not support the video tag.
-      </video>
+      <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-lg p-4">
+        <div className="text-center">
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+            Video available on external site
+          </p>
+          <a
+            href={videoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            <Play className="w-4 h-4" />
+            Open Video
+          </a>
+        </div>
+      </div>
     )
   }
 
@@ -231,8 +273,8 @@ export function ExerciseLibraryCard({
               <Play className="w-12 h-12" />
             </div>
           )}
-          {/* Hidden video element for frame extraction (non-YouTube videos only) */}
-          {!thumbnailUrl && !isYouTube && videoUrl && (
+          {/* Hidden video element for frame extraction (direct video files only) */}
+          {!thumbnailUrl && !isYouTube && canLoadInVideoElement && videoUrl && (
             <video
               ref={videoRef}
               src={videoUrl}

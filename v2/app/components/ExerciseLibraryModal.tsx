@@ -126,10 +126,24 @@ export function ExerciseLibraryModal({
     }
 
     if (hasExternalVideo) {
-      return {
-        type: 'external' as const,
-        url: exercise.external_video_url!,
-        originalUrl: exercise.external_video_url!
+      // Check if it's a direct video file or a web page
+      const url = exercise.external_video_url!
+      const isDirectVideo = url.match(/\.(mp4|webm|mov|avi|mkv|m4v)(\?|$)/i) || 
+                           url.includes('supabase.co/storage')
+      
+      if (isDirectVideo) {
+        return {
+          type: 'external' as const,
+          url: url,
+          originalUrl: url
+        }
+      } else {
+        // It's a web page, not a direct video file
+        return {
+          type: 'link' as const,
+          url: url,
+          originalUrl: url
+        }
       }
     }
 
@@ -185,12 +199,27 @@ export function ExerciseLibraryModal({
       )
     }
 
-    // External non-YouTube video - show placeholder with link
+    // External direct video file (HTML5 video tag)
+    if (videoInfo.type === 'external') {
+      return (
+        <video
+          ref={videoRef}
+          src={videoInfo.url}
+          controls
+          className="w-full h-full object-cover min-h-[300px] rounded-lg"
+          onError={() => setVideoError(true)}
+        >
+          Your browser does not support the video tag.
+        </video>
+      )
+    }
+
+    // External web page link - show placeholder with link
     return (
       <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-400 min-h-[300px] rounded-lg">
         <div className="text-center">
           <Play className="w-12 h-12 mx-auto mb-2" />
-          <p className="text-sm mb-2">External video</p>
+          <p className="text-sm mb-2">Video available on external site</p>
           <a
             href={videoInfo.url}
             target="_blank"
@@ -290,7 +319,7 @@ export function ExerciseLibraryModal({
                       Watch on YouTube
                     </a>
                   )}
-                  {videoInfo.type === 'external' && !videoError && (
+                  {(videoInfo.type === 'external' || videoInfo.type === 'link') && !videoError && (
                     <a
                       href={videoInfo.url}
                       target="_blank"
@@ -298,7 +327,7 @@ export function ExerciseLibraryModal({
                       className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
                     >
                       <ExternalLink className="w-3 h-3" />
-                      Open in new tab
+                      {videoInfo.type === 'link' ? 'Open video page' : 'Open in new tab'}
                     </a>
                   )}
                 </div>
