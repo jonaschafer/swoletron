@@ -981,6 +981,90 @@ export async function getExerciseLibrary(): Promise<ExerciseLibraryEntry[]> {
 }
 
 /**
+ * Replace an exercise in a workout with a library exercise
+ * Finds or creates an exercise in the exercises table linked to the library exercise,
+ * then updates the workout_exercises record to use the new exercise
+ */
+export async function replaceExerciseInWorkout(
+  workoutExerciseId: number,
+  libraryExerciseId: string
+): Promise<void> {
+  // First, get the library exercise to get its name
+  const { data: libraryExercise, error: libraryError } = await supabase
+    .from('exercise_library')
+    .select('id, name')
+    .eq('id', libraryExerciseId)
+    .single()
+
+  if (libraryError || !libraryExercise) {
+    console.error('Error fetching library exercise:', libraryError)
+    throw new Error('Library exercise not found')
+  }
+
+  // Find or create an exercise in the exercises table linked to this library exercise
+  let { data: existingExercise, error: findError } = await supabase
+    .from('exercises')
+    .select('id')
+    .eq('library_exercise_id', libraryExerciseId)
+    .maybeSingle()
+
+  if (findError) {
+    console.error('Error finding exercise:', findError)
+    throw new Error('Failed to find exercise')
+  }
+
+  let exerciseId: number
+
+  if (existingExercise) {
+    // Use existing exercise
+    exerciseId = existingExercise.id
+  } else {
+    // Create new exercise linked to library
+    // Get the workout exercise to determine category
+    const { data: workoutExercise, error: weError } = await supabase
+      .from('workout_exercises')
+      .select('workout_id, exercises(category)')
+      .eq('id', workoutExerciseId)
+      .single()
+
+    if (weError || !workoutExercise) {
+      console.error('Error fetching workout exercise:', weError)
+      throw new Error('Workout exercise not found')
+    }
+
+    const category = (workoutExercise.exercises as any)?.category || 'strength'
+
+    const { data: newExercise, error: createError } = await supabase
+      .from('exercises')
+      .insert({
+        name: libraryExercise.name,
+        category: category,
+        library_exercise_id: libraryExerciseId
+      })
+      .select('id')
+      .single()
+
+    if (createError || !newExercise) {
+      console.error('Error creating exercise:', createError)
+      throw new Error('Failed to create exercise')
+    }
+
+    exerciseId = newExercise.id
+  }
+
+  // Update the workout_exercises record to use the new exercise
+  const { error: updateError } = await supabase
+    .from('workout_exercises')
+    .update({ exercise_id: exerciseId })
+    .eq('id', workoutExerciseId)
+
+  if (updateError) {
+    console.error('Error updating workout exercise:', updateError)
+    throw new Error('Failed to update workout exercise')
+  }
+}
+
+/**
  * Fetch all Programme.app exercises from the scraped JSON file
  * Returns all exercises with their URLs for embedding
  * Note: This is a client-side function that calls the API route

@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
-import { Workout, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion, getWorkoutExercises, logExercise, getLatestExerciseLog, deleteExerciseLog, WorkoutExercise, ExerciseLog, updateWorkoutCompletionNotes, createWorkoutCompletionWithNotes } from '@/lib/supabase'
-import { Calendar } from 'lucide-react'
+import { Workout, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion, getWorkoutExercises, logExercise, getLatestExerciseLog, deleteExerciseLog, WorkoutExercise, ExerciseLog, updateWorkoutCompletionNotes, createWorkoutCompletionWithNotes, replaceExerciseInWorkout } from '@/lib/supabase'
+import { Calendar, RefreshCw } from 'lucide-react'
 import { format } from 'date-fns'
 import svgPaths from './figma-imports/svg-ffy23aemzk'
 import svgPathsCompleted from './figma-imports/svg-hrt1ddwggo'
 import svgPathsExercise from './figma-imports/svg-sh7hrytu9k'
+import { ExerciseReplaceModal } from './ExerciseReplaceModal'
 
 interface MicroStrengthModalProps {
   workout: Workout | null
@@ -285,11 +286,21 @@ interface ExerciseData {
   weightUnit: string
 }
 
-function ExerciseContainer({ exercise, onUpdateSet, workoutType }: { exercise: ExerciseData; onUpdateSet: (setIndex: number, field: 'reps' | 'weight' | 'completed', value: string | boolean) => void; workoutType: 'micro' | 'strength' }) {
+function ExerciseContainer({ exercise, onUpdateSet, workoutType, onReplace }: { exercise: ExerciseData; onUpdateSet: (setIndex: number, field: 'reps' | 'weight' | 'completed', value: string | boolean) => void; workoutType: 'micro' | 'strength'; onReplace: () => void }) {
   return (
     <div className="content-stretch flex flex-col gap-[12px] items-start relative shrink-0 w-full" data-name="Container">
-      <div className="flex flex-col font-['Geist:Regular',sans-serif] font-normal justify-center leading-[0] relative shrink-0 text-[18px] text-nowrap text-white">
-        <p className="leading-[1.3] whitespace-pre">{exercise.name}</p>
+      <div className="flex items-center justify-between w-full">
+        <div className="flex flex-col font-['Geist:Regular',sans-serif] font-normal justify-center leading-[0] relative shrink-0 text-[18px] text-nowrap text-white">
+          <p className="leading-[1.3] whitespace-pre">{exercise.name}</p>
+        </div>
+        <button
+          onClick={onReplace}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-300 hover:text-white bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+          title="Replace exercise"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+          Replace
+        </button>
       </div>
       <div className="content-stretch flex flex-col gap-px items-start relative shrink-0" data-name="rows">
         {exercise.sets.map((set, index) => (
@@ -363,6 +374,11 @@ export function MicroStrengthModal({ workout, isOpen, onClose, onCompletionChang
   const [saveStatus, setSaveStatus] = useState<'saving' | 'saved' | null>(null)
   const [exercises, setExercises] = useState<ExerciseData[]>([])
   const [exerciseLogs, setExerciseLogs] = useState<Map<number, ExerciseLog>>(new Map())
+  const [replaceModalState, setReplaceModalState] = useState<{
+    isOpen: boolean
+    workoutExerciseId: number
+    exerciseName: string
+  }>({ isOpen: false, workoutExerciseId: 0, exerciseName: '' })
 
   useEffect(() => {
     if (workout && isOpen) {
@@ -561,6 +577,28 @@ export function MicroStrengthModal({ workout, isOpen, onClose, onCompletionChang
     }
   }
 
+  const handleReplaceExercise = (exerciseIndex: number) => {
+    const exercise = exercises[exerciseIndex]
+    setReplaceModalState({
+      isOpen: true,
+      workoutExerciseId: exercise.workoutExerciseId,
+      exerciseName: exercise.name
+    })
+  }
+
+  const handleConfirmReplace = async (libraryExerciseId: string) => {
+    if (!workout) return
+
+    try {
+      await replaceExerciseInWorkout(replaceModalState.workoutExerciseId, libraryExerciseId)
+      // Reload workout data to refresh exercises
+      await loadWorkoutData()
+    } catch (error) {
+      console.error('Error replacing exercise:', error)
+      alert('Failed to replace exercise. Please try again.')
+    }
+  }
+
   if (!isOpen || !workout || (workout.workout_type !== 'micro' && workout.workout_type !== 'strength')) return null
 
   const bgColor = workout.workout_type === 'micro' ? 'bg-green-900' : 'bg-red-900'
@@ -588,6 +626,7 @@ export function MicroStrengthModal({ workout, isOpen, onClose, onCompletionChang
                   exercise={exercise}
                   onUpdateSet={(setIndex, field, value) => handleUpdateSet(index, setIndex, field, value)}
                   workoutType={workout.workout_type as 'micro' | 'strength'}
+                  onReplace={() => handleReplaceExercise(index)}
                 />
               ))}
             </div>
@@ -612,6 +651,14 @@ export function MicroStrengthModal({ workout, isOpen, onClose, onCompletionChang
           <Frame4 onMarkComplete={handleCompletionToggle} isCompleted={isCompleted} workoutType={workout.workout_type as 'micro' | 'strength'} />
         </div>
       </div>
+
+      {/* Exercise Replace Modal */}
+      <ExerciseReplaceModal
+        isOpen={replaceModalState.isOpen}
+        onClose={() => setReplaceModalState({ isOpen: false, workoutExerciseId: 0, exerciseName: '' })}
+        currentExerciseName={replaceModalState.exerciseName}
+        onReplace={handleConfirmReplace}
+      />
     </div>
   )
 }
