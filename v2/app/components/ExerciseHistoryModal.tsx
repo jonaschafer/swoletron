@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { X, Star, ArrowUp, ArrowDown, ArrowRight, ExternalLink } from 'lucide-react'
 import { getExerciseHistory, getExercisePR, ExerciseLogWithRelations } from '@/lib/supabase'
-import { format } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import { useRouter } from 'next/navigation'
 
 interface ExerciseHistoryModalProps {
@@ -208,15 +208,15 @@ export function ExerciseHistoryModal({
                       <div>
                         {log.workout?.week_number && log.workout?.date ? (
                           <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                            Week {log.workout.week_number} · {format(new Date(log.workout.date), 'MMM d, yyyy')}
+                            Week {log.workout.week_number} · {format(parseISO(log.workout.date), 'MMM d, yyyy')}
                           </span>
                         ) : log.workout?.date ? (
                           <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                            {format(new Date(log.workout.date), 'MMM d, yyyy')}
+                            {format(parseISO(log.workout.date), 'MMM d, yyyy')}
                           </span>
                         ) : (
                           <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                            {format(new Date(log.logged_at), 'MMM d, yyyy')}
+                            {format(parseISO(log.logged_at), 'MMM d, yyyy')}
                           </span>
                         )}
                       </div>

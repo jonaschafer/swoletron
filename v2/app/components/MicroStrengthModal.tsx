@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
 import { Workout, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion, getWorkoutExercises, logExercise, getLatestExerciseLog, deleteExerciseLog, WorkoutExercise, ExerciseLog, updateWorkoutCompletionNotes, createWorkoutCompletionWithNotes, replaceExerciseInWorkout } from '@/lib/supabase'
 import { Calendar, RefreshCw } from 'lucide-react'
-import { format } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import svgPaths from './figma-imports/svg-ffy23aemzk'
 import svgPathsCompleted from './figma-imports/svg-hrt1ddwggo'
 import svgPathsExercise from './figma-imports/svg-sh7hrytu9k'
@@ -37,7 +37,7 @@ function formatWorkoutTitle(workout: Workout): string {
 }
 
 function formatDate(dateString: string): string {
-  const date = new Date(dateString)
+  const date = parseISO(dateString)
   return format(date, 'MMMM d, yyyy')
 }
 

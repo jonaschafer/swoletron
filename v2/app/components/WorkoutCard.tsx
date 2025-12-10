@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Workout, markWorkoutComplete, markWorkoutIncomplete, getWorkoutCompletion } from '@/lib/supabase'
-import { format } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import svgPaths from './figma-imports/svg-da2r1zm9to'
 import checkedSvgPaths from './figma-imports/svg-checked'
 
@@ -95,7 +95,7 @@ function formatWorkoutTitle(workout: Workout): string {
 }
 
 function formatDate(dateString: string): string {
-  const date = new Date(dateString)
+  const date = parseISO(dateString)
   return format(date, 'EEE, MMM d')
 }
 
