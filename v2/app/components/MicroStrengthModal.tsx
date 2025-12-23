@@ -615,7 +615,7 @@ export function MicroStrengthModal({ workout, isOpen, onClose, onCompletionChang
           exercise.weightUnit,
           undefined, // notes
           progressionData?.progressionApplied,
-          progressionData?.suggestedWeight !== undefined ? progressionData.suggestedWeight : undefined,
+          progressionData?.suggestedWeight ?? undefined,
           progressionData?.suggestedReps
         )
         
