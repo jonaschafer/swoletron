@@ -12,7 +12,8 @@
     "diagnose:ace": "tsx scripts/diagnose-ace-matches.ts",
     "discover:ace": "tsx scripts/discover-ace-urls.ts",
     "scrape:ace": "tsx scripts/scrape-ace-index.ts",
-    "clean:exercises": "tsx scripts/clean-exercise-database.ts"
+    "clean:exercises": "tsx scripts/clean-exercise-database.ts",
+    "verify:progression": "tsx scripts/verify-progression.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
@@ -23,10 +24,10 @@
     "fuse.js": "^7.0.0",
     "lucide-react": "^0.556.0",
     "mime-types": "^3.0.1",
-    "next": "^15.5.7",
+    "next": "^15.5.9",
     "puppeteer": "^24.3.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "^19.2.2",
+    "react-dom": "^19.2.2",
     "recharts": "^2.10.3",
     "string-similarity": "^4.0.4",
     "use-debounce": "^10.0.6"

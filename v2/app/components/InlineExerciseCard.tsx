@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Check, CheckCircle, Book, TrendingUp } from 'lucide-react';
+import { Check, CheckCircle, Book, TrendingUp, Sparkles, X, RotateCcw } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
+import { calculateProgression, type ProgressionSuggestion } from '@/lib/progression';
+import type { WorkoutExercise } from '@/lib/supabase';
 
 // Helper function to format time
 const formatTime = (seconds: number): string => {
@@ -95,11 +97,17 @@ interface InlineExerciseCardProps {
   exercise: Exercise;
   exerciseId?: number; // Exercise ID for history modal
   existingLog: ExistingLog | null;
-  onSave: (setsData: SetData[], weightUnit: string) => void;
+  onSave: (setsData: SetData[], weightUnit: string, progressionData?: {
+    progressionApplied: boolean;
+    suggestedWeight: number | null;
+    suggestedReps: string[];
+  }) => void;
   onDelete: () => void;
   onExerciseClick?: (exerciseId: number, exerciseName: string) => void;
   libraryExerciseId?: string | null;
   onLibraryClick?: (libraryExerciseId: string) => void;
+  workoutExercise?: WorkoutExercise; // For progression calculation
+  workoutDate?: Date; // For phase calculation
 }
 
 export default function InlineExerciseCard({
@@ -110,7 +118,9 @@ export default function InlineExerciseCard({
   onDelete,
   onExerciseClick,
   libraryExerciseId,
-  onLibraryClick
+  onLibraryClick,
+  workoutExercise,
+  workoutDate
 }: InlineExerciseCardProps) {
   // Detect if this is a time-based exercise by checking exercise.reps
   const isTimeBased = exercise.reps && 
@@ -162,6 +172,9 @@ export default function InlineExerciseCard({
   
   const [weightUnit, setWeightUnit] = useState(existingLog?.weight_unit || exercise.weight_unit || 'lb');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [progressionSuggestion, setProgressionSuggestion] = useState<ProgressionSuggestion | null>(null);
+  const [useProgression, setUseProgression] = useState(true);
+  const [isCalculatingProgression, setIsCalculatingProgression] = useState(false);
   const isInitialMount = useRef(true);
   const isUpdatingFromProps = useRef(false);
   const previousSetsDataRef = useRef<string>('');
@@ -170,6 +183,52 @@ export default function InlineExerciseCard({
   const serializeSetsData = (data: SetData[]) => {
     return JSON.stringify(data.map(s => ({ reps: s.reps, weight: s.weight, completed: s.completed })));
   };
+
+  // Calculate progression suggestions
+  useEffect(() => {
+    const calculateProgressionSuggestions = async () => {
+      // Only calculate if we have the required data and no existing log
+      if (!workoutExercise || !workoutDate || !exerciseId || existingLog || !useProgression) {
+        setProgressionSuggestion(null);
+        return;
+      }
+
+      setIsCalculatingProgression(true);
+      try {
+        const suggestion = await calculateProgression(workoutExercise, workoutDate, exerciseId);
+        if (suggestion) {
+          setProgressionSuggestion(suggestion);
+          
+          // Apply suggestions to setsData
+          const plannedSets = exercise.planned_sets || 1;
+          const suggestedReps = suggestion.suggestedReps.length > 0 
+            ? suggestion.suggestedReps 
+            : Array(plannedSets).fill(String(exercise.planned_reps || exercise.reps || ''));
+          
+          const newSets: SetData[] = [];
+          for (let i = 0; i < plannedSets; i++) {
+            newSets.push({
+              reps: suggestedReps[i] || String(exercise.planned_reps || exercise.reps || ''),
+              weight: suggestion.suggestedWeight !== null 
+                ? (suggestion.suggestedWeight || exercise.planned_weight || 0)
+                : (exercise.planned_weight || 0),
+              completed: false
+            });
+          }
+          setSetsData(newSets);
+        } else {
+          setProgressionSuggestion(null);
+        }
+      } catch (error) {
+        console.error('Error calculating progression:', error);
+        setProgressionSuggestion(null);
+      } finally {
+        setIsCalculatingProgression(false);
+      }
+    };
+
+    calculateProgressionSuggestions();
+  }, [workoutExercise, workoutDate, exerciseId, existingLog, useProgression, exercise.planned_sets, exercise.planned_reps, exercise.reps, exercise.planned_weight]);
 
   // Update sets data when exercise or existingLog changes
   useEffect(() => {
@@ -248,7 +307,16 @@ export default function InlineExerciseCard({
 
       setSaveStatus('saving');
       try {
-        await onSave(setsDataToSave, weightUnitToSave);
+        // Prepare progression data if available and progression was used
+        const progressionData = progressionSuggestion && useProgression && !existingLog
+          ? {
+              progressionApplied: true,
+              suggestedWeight: progressionSuggestion.suggestedWeight,
+              suggestedReps: progressionSuggestion.suggestedReps
+            }
+          : undefined;
+
+        await onSave(setsDataToSave, weightUnitToSave, progressionData);
         setSaveStatus('saved');
         // Reset to idle after 2 seconds
         setTimeout(() => setSaveStatus('idle'), 2000);
@@ -304,6 +372,12 @@ export default function InlineExerciseCard({
                 {exercise.name}
               </h3>
             )}
+            {progressionSuggestion && useProgression && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded">
+                <Sparkles className="w-3 h-3" />
+                Suggested
+              </span>
+            )}
             {libraryExerciseId && onLibraryClick && (
               <div className="flex items-center gap-1">
                 {/* Exercise Details Button */}
@@ -331,7 +405,26 @@ export default function InlineExerciseCard({
               </div>
             )}
           </div>
+          {progressionSuggestion && useProgression && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setUseProgression(false)}
+                className="flex items-center gap-1 px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                title="Use last week's weight instead"
+              >
+                <RotateCcw className="w-3 h-3" />
+                Use Last Week's Weight
+              </button>
+            </div>
+          )}
         </div>
+        
+        {/* Progression reasoning tooltip */}
+        {progressionSuggestion && useProgression && progressionSuggestion.reasoning && (
+          <div className="text-xs text-gray-600 dark:text-gray-400 px-2">
+            {progressionSuggestion.reasoning}
+          </div>
+        )}
         
         {/* Per-Set Rows */}
         <div className="flex flex-col gap-2 w-full">
@@ -363,6 +456,10 @@ export default function InlineExerciseCard({
                   onChange={(e) => {
                     const value = normalizeRepsInput(e.target.value);
                     updateSetData(index, 'reps', value);
+                    // Clear progression flag if user manually edits
+                    if (progressionSuggestion && useProgression) {
+                      setUseProgression(false);
+                    }
                   }}
                   onFocus={(e) => e.target.select()}
                   placeholder={isTimeBased ? "30s" : "12"}
@@ -370,7 +467,9 @@ export default function InlineExerciseCard({
                     w-full px-3 py-2 rounded-lg border-2 text-center text-base font-semibold
                     ${set.completed 
                       ? 'bg-white dark:bg-gray-700 border-green-300 dark:border-green-600 text-black dark:text-white' 
-                      : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-black dark:text-white'
+                      : progressionSuggestion && useProgression && !existingLog
+                        ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700 text-black dark:text-white'
+                        : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-black dark:text-white'
                     }
                     focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
                   `}
@@ -383,13 +482,21 @@ export default function InlineExerciseCard({
                   type="number"
                   inputMode="numeric"
                   value={set.weight || ''}
-                  onChange={(e) => updateSetData(index, 'weight', parseFloat(e.target.value) || 0)}
+                  onChange={(e) => {
+                    updateSetData(index, 'weight', parseFloat(e.target.value) || 0);
+                    // Clear progression flag if user manually edits
+                    if (progressionSuggestion && useProgression) {
+                      setUseProgression(false);
+                    }
+                  }}
                   onFocus={(e) => e.target.select()}
                   className={`
                     w-full px-3 py-2 rounded-lg border-2 text-center text-base font-semibold
                     ${set.completed 
                       ? 'bg-white dark:bg-gray-700 border-green-300 dark:border-green-600 text-black dark:text-white' 
-                      : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-black dark:text-white'
+                      : progressionSuggestion && useProgression && !existingLog
+                        ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700 text-black dark:text-white'
+                        : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-black dark:text-white'
                     }
                     focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400
                   `}

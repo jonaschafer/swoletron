@@ -85,6 +85,9 @@ export interface ExerciseLog {
   weight_unit: string | null
   notes: string | null
   logged_at: string
+  progression_applied?: boolean | null
+  suggested_weight?: number | null
+  suggested_reps?: string[] | null
 }
 
 /**
@@ -277,7 +280,10 @@ export async function logExercise(
   repsCompleted?: string[],
   weightUsed?: number,
   weightUnit?: string,
-  notes?: string
+  notes?: string,
+  progressionApplied?: boolean,
+  suggestedWeight?: number,
+  suggestedReps?: string[]
 ) {
   console.log('=== logExercise() DEBUG START ===')
   console.log('Input parameters:', {
@@ -286,7 +292,10 @@ export async function logExercise(
     repsCompleted,
     weightUsed,
     weightUnit,
-    notes
+    notes,
+    progressionApplied,
+    suggestedWeight,
+    suggestedReps
   })
 
   // First, get the exercise_id from workout_exercises table
@@ -314,7 +323,7 @@ export async function logExercise(
     }
   }
 
-  const insertData = {
+  const insertData: any = {
     exercise_id: workoutExercise.exercise_id,
     workout_id: workoutExercise.workout_id,
     sets_completed: setsCompleted,
@@ -322,6 +331,17 @@ export async function logExercise(
     weight_used: weightUsed || null,
     weight_unit: weightUnit || 'lbs',
     notes: notes || null
+  }
+
+  // Add progression tracking fields if provided
+  if (progressionApplied !== undefined) {
+    insertData.progression_applied = progressionApplied
+  }
+  if (suggestedWeight !== undefined) {
+    insertData.suggested_weight = suggestedWeight
+  }
+  if (suggestedReps !== undefined) {
+    insertData.suggested_reps = suggestedReps
   }
 
   console.log('Data being inserted into exercise_logs:', insertData)
@@ -402,13 +422,37 @@ export async function getLatestExerciseLog(workoutExerciseId: number) {
   return data as ExerciseLog | null
 }
 
+/**
+ * Get the most recent exercise log for an exercise across ALL workouts
+ * Used for progression calculation (compares against any previous performance)
+ */
+export async function getLastExercisePerformance(exerciseId: number): Promise<ExerciseLog | null> {
+  const { data, error } = await supabase
+    .from('exercise_logs')
+    .select('*')
+    .eq('exercise_id', exerciseId)
+    .order('logged_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) {
+    console.error('Error fetching last exercise performance:', error)
+    return null
+  }
+
+  return data as ExerciseLog | null
+}
+
 export async function updateExerciseLog(
   logId: string,
   setsCompleted?: number,
   repsCompleted?: string[],
   weightUsed?: number,
   weightUnit?: string,
-  notes?: string
+  notes?: string,
+  progressionApplied?: boolean,
+  suggestedWeight?: number,
+  suggestedReps?: string[]
 ) {
   const updateData: any = {}
 
@@ -426,6 +470,17 @@ export async function updateExerciseLog(
   if (weightUsed !== undefined) updateData.weight_used = weightUsed
   if (weightUnit !== undefined) updateData.weight_unit = weightUnit
   if (notes !== undefined) updateData.notes = notes
+
+  // Add progression tracking fields if provided
+  if (progressionApplied !== undefined) {
+    updateData.progression_applied = progressionApplied
+  }
+  if (suggestedWeight !== undefined) {
+    updateData.suggested_weight = suggestedWeight
+  }
+  if (suggestedReps !== undefined) {
+    updateData.suggested_reps = suggestedReps
+  }
 
   const { data, error } = await supabase
     .from('exercise_logs')

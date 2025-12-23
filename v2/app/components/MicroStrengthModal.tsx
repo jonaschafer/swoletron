@@ -9,6 +9,7 @@ import svgPaths from './figma-imports/svg-ffy23aemzk'
 import svgPathsCompleted from './figma-imports/svg-hrt1ddwggo'
 import svgPathsExercise from './figma-imports/svg-sh7hrytu9k'
 import { ExerciseReplaceModal } from './ExerciseReplaceModal'
+import { calculateProgression, type ProgressionSuggestion } from '@/lib/progression'
 
 interface MicroStrengthModalProps {
   workout: Workout | null
@@ -374,6 +375,7 @@ export function MicroStrengthModal({ workout, isOpen, onClose, onCompletionChang
   const [saveStatus, setSaveStatus] = useState<'saving' | 'saved' | null>(null)
   const [exercises, setExercises] = useState<ExerciseData[]>([])
   const [exerciseLogs, setExerciseLogs] = useState<Map<number, ExerciseLog>>(new Map())
+  const [progressionSuggestions, setProgressionSuggestions] = useState<Map<number, ProgressionSuggestion>>(new Map())
   const [replaceModalState, setReplaceModalState] = useState<{
     isOpen: boolean
     workoutExerciseId: number
@@ -432,9 +434,29 @@ export function MicroStrengthModal({ workout, isOpen, onClose, onCompletionChang
       }
       setExerciseLogs(logsMap)
 
+      // Calculate progression suggestions for exercises without logs
+      const workoutDate = parseISO(workout.date)
+      const progressionMap = new Map<number, ProgressionSuggestion>()
+      
+      for (const we of workoutExercises) {
+        const log = logsMap.get(we.id)
+        if (!log && we.exercises?.id) {
+          try {
+            const suggestion = await calculateProgression(we, workoutDate, we.exercises.id)
+            if (suggestion) {
+              progressionMap.set(we.id, suggestion)
+            }
+          } catch (error) {
+            console.error(`Error calculating progression for exercise ${we.id}:`, error)
+          }
+        }
+      }
+      setProgressionSuggestions(progressionMap)
+
       // Convert to ExerciseData format
       const exerciseData: ExerciseData[] = workoutExercises.map(we => {
         const log = logsMap.get(we.id)
+        const progression = progressionMap.get(we.id)
         const plannedSets = we.sets || 1
         const sets: SetData[] = []
         
@@ -449,6 +471,22 @@ export function MicroStrengthModal({ workout, isOpen, onClose, onCompletionChang
               reps: repsArray[i] || String(we.reps || ''),
               weight: i === 0 ? String(weight) : String(weight),
               completed: i < loggedSets
+            })
+          }
+        } else if (progression) {
+          // Use progression suggestions
+          const suggestedReps = progression.suggestedReps.length > 0 
+            ? progression.suggestedReps 
+            : Array(plannedSets).fill(String(we.reps || ''))
+          const suggestedWeight = progression.suggestedWeight !== null 
+            ? (progression.suggestedWeight || we.weight || 0)
+            : (we.weight || 0)
+          
+          for (let i = 0; i < plannedSets; i++) {
+            sets.push({
+              reps: suggestedReps[i] || String(we.reps || ''),
+              weight: String(suggestedWeight),
+              completed: false
             })
           }
         } else {
@@ -558,12 +596,27 @@ export function MicroStrengthModal({ workout, isOpen, onClose, onCompletionChang
         const repsArray = completedSets.map(s => s.reps)
         const weight = parseFloat(set.weight) || 0
         
+        // Get progression data if available (only for new logs, not updates)
+        const existingLog = exerciseLogs.get(exercise.workoutExerciseId)
+        const progression = progressionSuggestions.get(exercise.workoutExerciseId)
+        const progressionData = !existingLog && progression
+          ? {
+              progressionApplied: true,
+              suggestedWeight: progression.suggestedWeight,
+              suggestedReps: progression.suggestedReps
+            }
+          : undefined
+        
         const newLog = await logExercise(
           exercise.workoutExerciseId,
           setsCompleted,
           repsArray,
           weight,
-          exercise.weightUnit
+          exercise.weightUnit,
+          undefined, // notes
+          progressionData?.progressionApplied,
+          progressionData?.suggestedWeight !== undefined ? progressionData.suggestedWeight : undefined,
+          progressionData?.suggestedReps
         )
         
         setExerciseLogs(prev => {
